@@ -79,3 +79,65 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 ### Technologies complémentaires
 
 - Databricks et Spark, dans une phase exploratoire ultérieure.
+
+## Feuille de route
+
+### Étape 1 — Infrastructure et stockage
+
+- [ ] Mettre en place l'environnement Docker.
+- [ ] Déployer PostgreSQL et PostGIS.
+- [ ] Importer un premier jeu de données géographiques.
+- [ ] Réaliser les premières requêtes spatiales.
+
+### Étape 2 — Découverte d'Airbyte
+
+- [ ] Installer Airbyte.
+- [ ] Configurer une première source et une destination.
+- [ ] Réaliser une synchronisation.
+- [ ] Comparer l'utilisation d'Airbyte et d'un script Python.
+
+### Étape 3 — Premier pipeline de données
+
+- [ ] Sélectionner un périmètre géographique restreint.
+- [ ] Intégrer des données territoriales et des données métier.
+- [ ] Réaliser les premiers traitements.
+- [ ] Produire des indicateurs simples.
+
+### Étape 4 — Qualité et transformations
+
+- [ ] Mettre en place des tests automatisés.
+- [ ] Contrôler la qualité des données.
+- [ ] Structurer les transformations SQL et Python.
+- [ ] Évaluer l'intérêt de dbt.
+
+### Étape 5 — Orchestration
+
+- [ ] Découvrir Apache Airflow.
+- [ ] Orchestrer plusieurs étapes du pipeline.
+- [ ] Gérer les erreurs, les logs et les nouvelles tentatives.
+
+### Étape 6 — Visualisation
+
+- [ ] Publier des données géographiques.
+- [ ] Construire une première interface cartographique.
+- [ ] Produire un tableau de bord analytique.
+
+### Étape 7 — Technologies avancées
+
+- [ ] Étudier les architectures de traitement distribué.
+- [ ] Explorer Spark et Databricks.
+- [ ] Documenter les avantages et les limites des différentes approches.
+
+## Principes du projet
+
+- Privilégier des expérimentations concrètes et reproductibles.
+- Documenter les choix techniques.
+- Séparer les données brutes des données transformées.
+- Ne pas versionner les gros fichiers de données dans Git.
+- Contrôler la qualité des données avant leur exploitation.
+- Introduire les technologies progressivement.
+- Vérifier les licences et les conditions de réutilisation des sources.
+
+## Statut
+
+Projet en cours de définition. Les choix techniques et la feuille de route évolueront au fil des expérimentations.
