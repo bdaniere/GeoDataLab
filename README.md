@@ -1,7 +1,7 @@
 # GeoDataLab
 Laboratoire de data engineering et d'analyse géospatiale des territoires français
 
-## Présentation
+## Présentation
 
 GeoDataLab est un projet personnel et pédagogique visant à explorer les technologies du data engineering et de la géomatique à travers l'intégration, le traitement et la visualisation de données territoriales françaises.
 
@@ -9,7 +9,7 @@ L'objectif est de construire progressivement une plateforme capable de collecter
 
 Ce projet sert également de laboratoire pour expérimenter différentes technologies et comparer leurs usages dans un contexte concret.
 
-## Objectifs
+## Objectifs
 
 - Découvrir et mettre en pratique les outils du data engineering.
 - Automatiser l'ingestion de données issues de sources hétérogènes.
@@ -21,7 +21,7 @@ Ce projet sert également de laboratoire pour expérimenter différentes technol
 - Explorer les outils de publication cartographique et de visualisation.
 - Documenter les expérimentations, les difficultés rencontrées et les choix techniques.
 
-## Sources de données envisagées
+## Sources de données envisagées
 
 ### Bâtiments et énergie
 
@@ -36,7 +36,7 @@ Ce projet sert également de laboratoire pour expérimenter différentes technol
 - IRIS.
 - Géoportail de l'Urbanisme (GPU).
 
-### Données socio-économiques et équipements
+### Données socio-économiques et équipements
 
 - Base permanente des équipements (BPE) — INSEE.
 - Filosofi — INSEE.
@@ -47,7 +47,7 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 
 ## Architecture technique envisagée
 
-### Infrastructure
+### Infrastructure
 
 - Docker Compose.
 - PostgreSQL.
@@ -58,7 +58,7 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 - Python.
 - Airbyte.
 
-### Transformation et qualité
+### Transformation et qualité
 
 - Python.
 - SQL.
@@ -76,34 +76,34 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 - OpenLayers ou une autre bibliothèque cartographique.
 - Power BI.
 
-### Technologies complémentaires
+### Technologies complémentaires
 
 - Databricks et Spark, dans une phase exploratoire ultérieure.
 
-## Feuille de route
+## Feuille de route
 
-### Étape 1 — Infrastructure et stockage
+### Étape 1 — Infrastructure et stockage
 
 - [ ] Mettre en place l'environnement Docker.
 - [ ] Déployer PostgreSQL et PostGIS.
 - [ ] Importer un premier jeu de données géographiques.
 - [ ] Réaliser les premières requêtes spatiales.
 
-### Étape 2 — Découverte d'Airbyte
+### Étape 2 — Découverte d'Airbyte
 
 - [ ] Installer Airbyte.
 - [ ] Configurer une première source et une destination.
 - [ ] Réaliser une synchronisation.
 - [ ] Comparer l'utilisation d'Airbyte et d'un script Python.
 
-### Étape 3 — Premier pipeline de données
+### Étape 3 — Premier pipeline de données
 
 - [ ] Sélectionner un périmètre géographique restreint.
 - [ ] Intégrer des données territoriales et des données métier.
 - [ ] Réaliser les premiers traitements.
 - [ ] Produire des indicateurs simples.
 
-### Étape 4 — Qualité et transformations
+### Étape 4 — Qualité et transformations
 
 - [ ] Mettre en place des tests automatisés.
 - [ ] Contrôler la qualité des données.
@@ -122,13 +122,13 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 - [ ] Construire une première interface cartographique.
 - [ ] Produire un tableau de bord analytique.
 
-### Étape 7 — Technologies avancées
+### Étape 7 — Technologies avancées
 
 - [ ] Étudier les architectures de traitement distribué.
 - [ ] Explorer Spark et Databricks.
 - [ ] Documenter les avantages et les limites des différentes approches.
 
-## Principes du projet
+## Principes du projet
 
 - Privilégier des expérimentations concrètes et reproductibles.
 - Documenter les choix techniques.
@@ -138,6 +138,6 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 - Introduire les technologies progressivement.
 - Vérifier les licences et les conditions de réutilisation des sources.
 
-## Statut
+## Statut
 
 Projet en cours de définition. Les choix techniques et la feuille de route évolueront au fil des expérimentations.
