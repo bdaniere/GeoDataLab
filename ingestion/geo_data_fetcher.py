@@ -32,7 +32,6 @@ logger = logging.getLogger(__name__)
 DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "raw_data"
 
 TARGET_CRS = 2154  # Lambert-93
-VECTOR_EXTENSIONS = (".shp", ".geojson", ".json", ".gpkg")
 
 
 def default_connection_string() -> str:
@@ -79,6 +78,7 @@ class DataFormat(ABC):
     name: str = ""
     extensions: tuple = ()
     content_types: tuple = ()
+    geographic_extensions: tuple[str, ...] = ()
 
     @classmethod
     def matches(cls, filename: str, content_type: str, content: bytes) -> bool:
@@ -95,6 +95,7 @@ class DataFormat(ABC):
 class GeoJSONFormat(DataFormat):
     name = "geojson"
     extensions = (".geojson", ".json")
+    geographic_extensions = extensions
     content_types = (
         "application/geo+json",
         "application/vnd.geo+json",
@@ -106,8 +107,39 @@ class GeoJSONFormat(DataFormat):
             data = json.loads(content)
         except ValueError as exc:
             raise FetchError(f"GeoJSON invalide : {exc}") from exc
-        if not isinstance(data, dict) or "type" not in data:
-            raise FetchError("GeoJSON invalide : clé 'type' manquante")
+        if not isinstance(data, dict):
+            raise FetchError("GeoJSON invalide : un objet JSON est attendu")
+
+        geojson_type = data.get("type")
+        if geojson_type == "FeatureCollection":
+            valid = isinstance(data.get("features"), list)
+        elif geojson_type == "Feature":
+            valid = (
+                "geometry" in data
+                and (data["geometry"] is None or isinstance(data["geometry"], dict))
+                and "properties" in data
+                and (data["properties"] is None or isinstance(data["properties"], dict))
+            )
+        elif geojson_type == "GeometryCollection":
+            valid = isinstance(data.get("geometries"), list)
+        else:
+            valid = (
+                geojson_type
+                in {
+                    "Point",
+                    "MultiPoint",
+                    "LineString",
+                    "MultiLineString",
+                    "Polygon",
+                    "MultiPolygon",
+                }
+                and "coordinates" in data
+            )
+
+        if not valid:
+            raise FetchError(
+                f"GeoJSON invalide : type ou structure incorrecte ({geojson_type})"
+            )
 
 
 class ZipFormat(DataFormat):
@@ -127,6 +159,17 @@ class ZipFormat(DataFormat):
             raise FetchError("Archive ZIP invalide")
 
 
+class GeoPackageFormat(DataFormat):
+    name = "gpkg"
+    extensions = (".gpkg",)
+    geographic_extensions = extensions
+    content_types = ("application/geopackage+sqlite3",)
+
+    def validate(self, content: bytes) -> None:
+        if not content.startswith(b"SQLite format 3\x00"):
+            raise FetchError("Fichier GeoPackage invalide")
+
+
 class SevenZipFormat(DataFormat):
     name = "7z"
     extensions = (".7z",)
@@ -143,7 +186,8 @@ class SevenZipFormat(DataFormat):
             with py7zr.SevenZipFile(BytesIO(content), mode="r") as archive:
                 if archive.needs_password():
                     raise FetchError(
-                        "Les archives 7z protégées par mot de passe ne sont pas prises en charge"
+                        "Les archives 7z protégées par mot de passe ne sont pas "
+                        "prises en charge"
                     )
                 archive.getnames()
         except (py7zr.Bad7zFile, EOFError, OSError, ValueError) as exc:
@@ -154,6 +198,7 @@ class ShapefileFormat(ZipFormat):
     """A ZIP archive containing one or more complete Shapefiles."""
 
     name = "shapefile"
+    geographic_extensions = (".shp",)
 
     @classmethod
     def matches(cls, filename: str, content_type: str, content: bytes) -> bool:
@@ -194,8 +239,21 @@ class ShapefileFormat(ZipFormat):
                 )
 
 
-# Ajouter ici les nouveaux formats (ex: GeoPackage, CSV, ...).
-FORMATS: list = [ShapefileFormat, SevenZipFormat, ZipFormat, GeoJSONFormat]
+# Ajouter ici les nouveaux formats de données géographiques.
+FORMATS: list[type[DataFormat]] = [
+    ShapefileFormat,
+    SevenZipFormat,
+    ZipFormat,
+    GeoJSONFormat,
+    GeoPackageFormat,
+]
+VECTOR_EXTENSIONS = tuple(
+    dict.fromkeys(
+        extension
+        for format_type in FORMATS
+        for extension in format_type.geographic_extensions
+    )
+)
 
 
 # ██████╗  █████╗ ████████╗ █████╗ ███████╗███████╗████████╗███████╗
@@ -216,10 +274,21 @@ class GeoDataset:
     format: DataFormat
     checks_errors: list = field(default_factory=list)
 
-    def export(self, output_dir: Path | str = DEFAULT_OUTPUT_DIR) -> Path:
-        """Write the raw data locally (default in data/raw_data)."""
+    def export(self, output_dir: Path | str = DEFAULT_OUTPUT_DIR) -> Path | list[Path]:
+        """Export geographic data, extracting only supported files from archives.
+
+        For archives, extracted files are written below a subdirectory named after the
+        archive, and the returned paths identify the geographic data files.
+        """
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
+        if self.is_archive:
+            data_members, archive_members = self._geographic_archive_members()
+            if not data_members:
+                raise FetchError("No supported geographic file found in the archive")
+            return self._extract_selected_members(
+                archive_members, data_members, output_dir / Path(self.filename).stem
+            )
         path = output_dir / self.filename
         path.write_bytes(self.content)
         logger.info("Exported data : %s", path)
@@ -262,6 +331,87 @@ class GeoDataset:
         if not dest.is_relative_to(root):
             raise FetchError(f"Unsafe path in archive: {name}")
         return dest
+
+    def _geographic_archive_members(self) -> tuple[list[str], list[str]]:
+        """Find geographic files and required Shapefile sidecars in an archive."""
+        members = self.list_members()
+        data_members = []
+        for name in members:
+            extension = PurePosixPath(name).suffix.lower()
+            if extension not in VECTOR_EXTENSIONS:
+                continue
+            if extension in {".geojson", ".json"}:
+                try:
+                    GeoJSONFormat().validate(self.read_member(name))
+                except FetchError:
+                    if extension == ".json":
+                        continue
+                    raise
+            elif extension == ".gpkg":
+                GeoPackageFormat().validate(self.read_member(name))
+            data_members.append(name)
+        archive_members = set(data_members)
+        shapefiles = [
+            name
+            for name in data_members
+            if PurePosixPath(name).suffix.lower() == ".shp"
+        ]
+        files_by_stem: dict[tuple[str, str], set[str]] = {}
+        members_by_stem: dict[tuple[str, str], list[str]] = {}
+        for name in members:
+            path = PurePosixPath(name)
+            key = (str(path.parent).casefold(), path.stem.casefold())
+            files_by_stem.setdefault(key, set()).add(path.suffix.lower())
+            members_by_stem.setdefault(key, []).append(name)
+
+        for name in shapefiles:
+            path = PurePosixPath(name)
+            key = (str(path.parent).casefold(), path.stem.casefold())
+            missing = {".shx", ".dbf"} - files_by_stem[key]
+            if missing:
+                raise FetchError(
+                    f"Shapefile incomplet '{name}' : fichiers manquants "
+                    f"{', '.join(sorted(missing))}"
+                )
+            archive_members.update(
+                member
+                for member in members_by_stem[key]
+                if PurePosixPath(member).suffix.lower()
+                in {".shx", ".dbf", ".prj", ".cpg"}
+            )
+        return data_members, [name for name in members if name in archive_members]
+
+    def _extract_selected_members(
+        self, members: list[str], data_members: list[str], output_dir: Path
+    ) -> list[Path]:
+        """Extract only selected geographic files and their required sidecars."""
+        output_dir.mkdir(parents=True, exist_ok=True)
+        root = output_dir.resolve()
+        destinations = {name: self._safe_member_path(name, root) for name in members}
+
+        if self.is_7z:
+            with self._seven_zip() as archive:
+                targets = []
+                for name in members:
+                    info = archive.getinfo(name)
+                    if info.is_symlink:
+                        raise FetchError(f"Symbolic links are not supported: {name}")
+                    parts = PurePosixPath(name).parts
+                    targets.extend(
+                        "/".join(parts[:index]) for index in range(1, len(parts))
+                    )
+                    targets.append(name)
+                archive.extract(path=root, targets=list(dict.fromkeys(targets)))
+        else:
+            with self._zip() as archive:
+                for name in members:
+                    destination = destinations[name]
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_bytes(archive.read(name))
+
+        extracted = [destinations[name] for name in data_members]
+        logger.info("Exported %d geographic file(s) to %s", len(extracted), output_dir)
+        return extracted
 
     def list_members(self) -> list[str]:
         """List the files contained in the archive (directories excluded)."""
@@ -351,23 +501,51 @@ class GeoDataset:
         used for layers that have no CRS defined.
         """
         if not self.is_archive:
-            layers = {Path(self.filename).stem: gpd.read_file(BytesIO(self.content))}
+            if isinstance(self.format, GeoPackageFormat):
+                with tempfile.TemporaryDirectory() as tmp:
+                    path = Path(tmp) / self.filename
+                    path.write_bytes(self.content)
+                    layers = {Path(self.filename).stem: gpd.read_file(path)}
+            else:
+                layers = {
+                    Path(self.filename).stem: gpd.read_file(BytesIO(self.content))
+                }
         else:
             layers = {}
             with tempfile.TemporaryDirectory() as tmp:
-                for path in self.extract(tmp):
-                    if path.suffix.lower() in VECTOR_EXTENSIONS:
-                        layers[path.stem] = gpd.read_file(path)
-            if not layers:
-                raise FetchError("No readable vector file found in the archive")
+                data_members, archive_members = self._geographic_archive_members()
+                if not data_members:
+                    raise FetchError(
+                        "No supported geographic file found in the archive"
+                    )
+                paths = self._extract_selected_members(
+                    archive_members, data_members, Path(tmp)
+                )
+                for path in paths:
+                    layers[path.stem] = gpd.read_file(path)
 
+        layers_with_geometry = {}
         for name, gdf in layers.items():
+            try:
+                geometry = gdf.geometry
+            except AttributeError:
+                logger.warning("Skipping layer '%s': no geometry column", name)
+                continue
+
+            gdf = gdf.loc[geometry.notna() & ~geometry.is_empty].copy()
+            if gdf.empty:
+                logger.warning("Skipping layer '%s': no non-empty geometries", name)
+                continue
+
             if gdf.crs is None:
                 if source_crs is None:
                     raise FetchError(f"Layer '{name}' has no CRS, provide source_crs")
                 gdf = gdf.set_crs(source_crs)
-            layers[name] = gdf.to_crs(target_crs)
-        return layers
+            layers_with_geometry[name] = gdf.to_crs(target_crs)
+
+        if not layers_with_geometry:
+            raise FetchError("No geographic features with geometry found")
+        return layers_with_geometry
 
     def to_postgis(
         self,
@@ -466,12 +644,12 @@ if __name__ == "__main__":
 
     url_parcelles_69 = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles"
     url_batiments_69 = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments"
-    # url_iris_france = "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z"
+    url_iris_france = "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z"
     url_communes_france = "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson"
 
     # GeoDataFetcher(sys.argv[1]).fetch().export()
     geodata_fetecher = (
-        GeoDataFetcher(url_communes_france)
+        GeoDataFetcher(url_iris_france)
         .fetch()
-        .to_postgis(table="communes_france", schema="raw_data")
+        .to_postgis(table="iris_france", schema="raw_data")
     )
