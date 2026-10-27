@@ -570,6 +570,14 @@ class GeoDataset:
                 conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{schema}"'))
                 for layer, gdf in layers.items():
                     name = table if len(layers) == 1 else f"{table}_{layer}"
+                    geometry_column = str(gdf.geometry.name).lower()
+                    gdf = gdf.rename(columns=lambda column: str(column).lower())
+                    if not gdf.columns.is_unique:
+                        raise FetchError(
+                            f"Layer '{layer}' has duplicate field names after "
+                            "converting them to lowercase"
+                        )
+                    gdf = gdf.set_geometry(geometry_column)
                     gdf.to_postgis(name, conn, schema=schema, if_exists=if_exists)
                     names.append(name)
                     logger.info("%d rows sent to %s.%s", len(gdf), schema, name)
@@ -637,19 +645,19 @@ class GeoDataFetcher:
 # ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
 
 
+init_data = {
+    "parcelles_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles",
+    "batiments_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments",
+    "iris_france": "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z",
+    "communes_france": "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson",
+}
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     # if len(sys.argv) != 2:
     #     sys.exit("Usage : python geo_data_fetcher.py <url>")
-
-    url_parcelles_69 = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles"
-    url_batiments_69 = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments"
-    url_iris_france = "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z"
-    url_communes_france = "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson"
-
     # GeoDataFetcher(sys.argv[1]).fetch().export()
-    geodata_fetecher = (
-        GeoDataFetcher(url_iris_france)
-        .fetch()
-        .to_postgis(table="iris_france", schema="raw_data")
-    )
+
+    for table_name, url in init_data.items():
+        geodata_fetecher = (
+            GeoDataFetcher(url).fetch().to_postgis(table=table_name, schema="raw_data")
+        )
