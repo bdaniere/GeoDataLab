@@ -29,6 +29,7 @@ from sqlalchemy import create_engine, text
 
 logger = logging.getLogger(__name__)
 
+
 DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "raw_data"
 
 TARGET_CRS = 2154  # Lambert-93
@@ -498,7 +499,8 @@ class GeoDataset:
         """Read the data as GeoDataFrames reprojected to target_crs (default 2154).
 
         Returns one GeoDataFrame per layer, keyed by file stem. `source_crs` is only
-        used for layers that have no CRS defined.
+        used for layers that have no CRS defined. A sequential `id` field is added to
+        layers where no field name contains "id" (case-insensitive).
         """
         if not self.is_archive:
             if isinstance(self.format, GeoPackageFormat):
@@ -541,7 +543,16 @@ class GeoDataset:
                 if source_crs is None:
                     raise FetchError(f"Layer '{name}' has no CRS, provide source_crs")
                 gdf = gdf.set_crs(source_crs)
-            layers_with_geometry[name] = gdf.to_crs(target_crs)
+            gdf = gdf.to_crs(target_crs)
+
+            geometry_name = gdf.geometry.name
+            if not any(
+                "id" in str(column).lower()
+                for column in gdf.columns
+                if column != geometry_name
+            ):
+                gdf.insert(0, "id", range(1, len(gdf) + 1))
+            layers_with_geometry[name] = gdf
 
         if not layers_with_geometry:
             raise FetchError("No geographic features with geometry found")
@@ -646,10 +657,10 @@ class GeoDataFetcher:
 
 
 init_data = {
-    "parcelles_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles",
+    # "parcelles_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles",
     "batiments_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments",
-    "iris_france": "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z",
-    "communes_france": "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson",
+    # "iris_france": "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z",
+    # "communes_france": "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson",
 }
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
