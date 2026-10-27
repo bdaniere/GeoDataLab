@@ -18,10 +18,11 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from io import BytesIO
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from urllib.parse import unquote, urlparse
 
 import geopandas as gpd
+import py7zr
 import requests
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
@@ -126,6 +127,29 @@ class ZipFormat(DataFormat):
             raise FetchError("Archive ZIP invalide")
 
 
+class SevenZipFormat(DataFormat):
+    name = "7z"
+    extensions = (".7z",)
+    content_types = ("application/x-7z-compressed",)
+
+    @classmethod
+    def matches(cls, filename: str, content_type: str, content: bytes) -> bool:
+        return super().matches(filename, content_type, content) or content.startswith(
+            b"7z\xbc\xaf'\x1c"
+        )
+
+    def validate(self, content: bytes) -> None:
+        try:
+            with py7zr.SevenZipFile(BytesIO(content), mode="r") as archive:
+                if archive.needs_password():
+                    raise FetchError(
+                        "Les archives 7z protégées par mot de passe ne sont pas prises en charge"
+                    )
+                archive.getnames()
+        except (py7zr.Bad7zFile, EOFError, OSError, ValueError) as exc:
+            raise FetchError(f"Archive 7z invalide : {exc}") from exc
+
+
 class ShapefileFormat(ZipFormat):
     """A ZIP archive containing one or more complete Shapefiles."""
 
@@ -171,7 +195,7 @@ class ShapefileFormat(ZipFormat):
 
 
 # Ajouter ici les nouveaux formats (ex: GeoPackage, CSV, ...).
-FORMATS: list = [ShapefileFormat, ZipFormat, GeoJSONFormat]
+FORMATS: list = [ShapefileFormat, SevenZipFormat, ZipFormat, GeoJSONFormat]
 
 
 # ██████╗  █████╗ ████████╗ █████╗ ███████╗███████╗████████╗███████╗
@@ -205,18 +229,70 @@ class GeoDataset:
     def is_zip(self) -> bool:
         return isinstance(self.format, ZipFormat)
 
+    @property
+    def is_7z(self) -> bool:
+        return isinstance(self.format, SevenZipFormat)
+
+    @property
+    def is_archive(self) -> bool:
+        return self.is_zip or self.is_7z
+
     def _zip(self) -> zipfile.ZipFile:
         if not self.is_zip:
             raise FetchError("The dataset is not a ZIP archive")
         return zipfile.ZipFile(BytesIO(self.content))
 
+    def _seven_zip(self) -> py7zr.SevenZipFile:
+        if not self.is_7z:
+            raise FetchError("The dataset is not a 7z archive")
+        return py7zr.SevenZipFile(BytesIO(self.content), mode="r")
+
+    @staticmethod
+    def _safe_member_path(name: str, root: Path) -> Path:
+        normalized = name.replace("\\", "/")
+        member = PurePosixPath(normalized)
+        if (
+            member.is_absolute()
+            or PureWindowsPath(normalized).is_absolute()
+            or PureWindowsPath(normalized).drive
+            or ".." in member.parts
+        ):
+            raise FetchError(f"Unsafe path in archive: {name}")
+        dest = (root / Path(*member.parts)).resolve()
+        if not dest.is_relative_to(root):
+            raise FetchError(f"Unsafe path in archive: {name}")
+        return dest
+
     def list_members(self) -> list[str]:
-        """List the files contained in the ZIP archive (directories excluded)."""
-        with self._zip() as zf:
-            return [i.filename for i in zf.infolist() if not i.is_dir()]
+        """List the files contained in the archive (directories excluded)."""
+        if self.is_7z:
+            with self._seven_zip() as archive:
+                return [
+                    name
+                    for name in archive.getnames()
+                    if not archive.getinfo(name).is_directory
+                ]
+        with self._zip() as archive:
+            return [i.filename for i in archive.infolist() if not i.is_dir()]
 
     def read_member(self, name: str) -> bytes:
-        """Read a file of the ZIP archive in memory."""
+        """Read a file from the archive in memory."""
+        if self.is_7z:
+            if name not in self.list_members():
+                raise FetchError(f"{name} not found in archive")
+            with tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp).resolve()
+                member_path = self._safe_member_path(name, root)
+                normalized = name.replace("\\", "/")
+                parts = PurePosixPath(normalized).parts
+                targets = ["/".join(parts[:i]) for i in range(1, len(parts))]
+                targets.append(name)
+                with self._seven_zip() as archive:
+                    archive.extract(path=root, targets=targets)
+                if not member_path.is_file():
+                    raise FetchError(f"{name} is not a readable file in the archive")
+                return member_path.read_bytes()
+
         with self._zip() as zf:
             try:
                 return zf.read(name)
@@ -224,7 +300,7 @@ class GeoDataset:
                 raise FetchError(f"{name} not found in archive") from exc
 
     def extract(self, output_dir: Path | str | None = None) -> list[Path]:
-        """Extract the ZIP archive (default: data/raw_data/<archive name>/).
+        """Extract the archive (default: data/raw_data/<archive name>/).
 
         Returns the extracted file paths.
         """
@@ -232,11 +308,25 @@ class GeoDataset:
         target.mkdir(parents=True, exist_ok=True)
         root = target.resolve()
         extracted = []
+        if self.is_7z:
+            with self._seven_zip() as archive:
+                members = archive.getnames()
+                for name in members:
+                    self._safe_member_path(name, root)
+                    if archive.getinfo(name).is_symlink:
+                        raise FetchError(f"Symbolic links are not supported: {name}")
+                archive.extractall(path=root)
+                extracted = [
+                    self._safe_member_path(name, root)
+                    for name in members
+                    if not archive.getinfo(name).is_directory
+                ]
+            logger.info("Extracted %d file(s) to %s", len(extracted), target)
+            return extracted
+
         with self._zip() as zf:
             for info in zf.infolist():
-                dest = (root / info.filename).resolve()
-                if not dest.is_relative_to(root):
-                    raise FetchError(f"Unsafe path in archive: {info.filename}")
+                dest = self._safe_member_path(info.filename, root)
                 if info.is_dir():
                     continue
                 dest.parent.mkdir(parents=True, exist_ok=True)
@@ -260,7 +350,7 @@ class GeoDataset:
         Returns one GeoDataFrame per layer, keyed by file stem. `source_crs` is only
         used for layers that have no CRS defined.
         """
-        if not self.is_zip:
+        if not self.is_archive:
             layers = {Path(self.filename).stem: gpd.read_file(BytesIO(self.content))}
         else:
             layers = {}
@@ -291,7 +381,7 @@ class GeoDataset:
         """Send the data to PostGIS, reprojected to target_crs (default Lambert-93).
 
         Defaults to the docker-compose instance (POSTGRES_* environment variables).
-        A ZIP with several layers produces one table per layer: <table>_<layer>.
+        An archive with several layers produces one table per layer: <table>_<layer>.
         Returns the created table names.
         """
         layers = self.to_geodataframes(target_crs, source_crs)
@@ -376,11 +466,12 @@ if __name__ == "__main__":
 
     url_parcelles_69 = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles"
     url_batiments_69 = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments"
-    url_iris_france = "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z"
+    # url_iris_france = "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z"
+    url_communes_france = "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson"
 
     # GeoDataFetcher(sys.argv[1]).fetch().export()
     geodata_fetecher = (
-        GeoDataFetcher(url_iris_france)
+        GeoDataFetcher(url_communes_france)
         .fetch()
-        .to_postgis(table="iris_france", schema="raw_data")
+        .to_postgis(table="communes_france", schema="raw_data")
     )
