@@ -221,3 +221,7 @@ __marimo__/
 
 # Data files
 data/
+
+# Visual Studio
+.vs/
+.vscode/
