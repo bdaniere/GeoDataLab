@@ -30,7 +30,7 @@ from sqlalchemy import create_engine, text
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "raw_data"
+DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "raw_data"
 
 TARGET_CRS = 2154  # Lambert-93
 
