@@ -84,10 +84,10 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 
 ### Étape 1 — Infrastructure et stockage
 
-- [ ] Mettre en place l'environnement Docker.
-- [ ] Déployer PostgreSQL et PostGIS.
-- [ ] Importer un premier jeu de données géographiques.
-- [ ] Réaliser les premières requêtes spatiales.
+- [x] Mettre en place l'environnement Docker.
+- [x] Déployer PostgreSQL et PostGIS.
+- [x] Importer un premier jeu de données géographiques.
+- [x] Réaliser les premières requêtes spatiales.
 
 ### Étape 2 — Découverte d'Airbyte
 
