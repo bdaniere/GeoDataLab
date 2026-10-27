@@ -11,6 +11,8 @@ from __future__ import annotations
 import json
 import logging
 import mimetypes
+import os
+import tempfile
 import zipfile
 from abc import ABC, abstractmethod
 from collections.abc import Callable
@@ -18,11 +20,40 @@ from dataclasses import dataclass, field
 from io import BytesIO
 from pathlib import Path
 from urllib.parse import unquote, urlparse
-from urllib.request import Request, urlopen
+
+import geopandas as gpd
+import requests
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "raw_data"
+
+TARGET_CRS = 2154  # Lambert-93
+VECTOR_EXTENSIONS = (".shp", ".geojson", ".json", ".gpkg")
+
+
+def default_connection_string() -> str:
+    """Connection string of the docker-compose PostGIS (POSTGRES_* env variables)."""
+
+    current_dir = Path(__file__).resolve().parent
+    dotenv_path = current_dir / ".." / "docker" / ".env"
+
+    if dotenv_path.exists():
+        load_dotenv(dotenv_path=dotenv_path)
+    else:
+        breakpoint()
+        logger.warning("Fichier .env introuvable : %s", dotenv_path)
+
+    user = os.environ.get("POSTGRES_USER")
+    password = os.environ.get("POSTGRES_PASSWORD")
+    host = os.environ.get("POSTGRES_HOST", "localhost")
+    port = os.environ.get("POSTGIS_PORT", "5432")
+    db = os.environ["POSTGRES_DB"]
+
+    return f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
+
 
 Check = Callable[["GeoDataset"], list]
 
@@ -64,7 +95,11 @@ class DataFormat(ABC):
 class GeoJSONFormat(DataFormat):
     name = "geojson"
     extensions = (".geojson", ".json")
-    content_types = ("application/geo+json", "application/json")
+    content_types = (
+        "application/geo+json",
+        "application/vnd.geo+json",
+        "application/json",
+    )
 
     def validate(self, content: bytes) -> None:
         try:
@@ -174,11 +209,62 @@ class GeoDataset:
             self.checks_errors.extend(check(self))
         return not self.checks_errors
 
+    def to_geodataframes(
+        self, target_crs: int = TARGET_CRS, source_crs: int | None = None
+    ) -> dict[str, gpd.GeoDataFrame]:
+        """Read the data as GeoDataFrames reprojected to target_crs (default 2154).
+
+        Returns one GeoDataFrame per layer, keyed by file stem. `source_crs` is only
+        used for layers that have no CRS defined.
+        """
+        if not self.is_zip:
+            layers = {Path(self.filename).stem: gpd.read_file(BytesIO(self.content))}
+        else:
+            layers = {}
+            with tempfile.TemporaryDirectory() as tmp:
+                for path in self.extract(tmp):
+                    if path.suffix.lower() in VECTOR_EXTENSIONS:
+                        layers[path.stem] = gpd.read_file(path)
+            if not layers:
+                raise FetchError("No readable vector file found in the archive")
+
+        for name, gdf in layers.items():
+            if gdf.crs is None:
+                if source_crs is None:
+                    raise FetchError(f"Layer '{name}' has no CRS, provide source_crs")
+                gdf = gdf.set_crs(source_crs)
+            layers[name] = gdf.to_crs(target_crs)
+        return layers
+
     def to_postgis(
-        self, connection_string: str, table: str, schema: str = "public"
-    ) -> None:
-        """Send to PostGIS (to be implemented)."""
-        raise NotImplementedError("PostGIS export not implemented")
+        self,
+        table: str,
+        schema: str = "public",
+        connection_string: str | None = None,
+        if_exists: str = "replace",
+        target_crs: int = TARGET_CRS,
+        source_crs: int | None = None,
+    ) -> list[str]:
+        """Send the data to PostGIS, reprojected to target_crs (default Lambert-93).
+
+        Defaults to the docker-compose instance (POSTGRES_* environment variables).
+        A ZIP with several layers produces one table per layer: <table>_<layer>.
+        Returns the created table names.
+        """
+        layers = self.to_geodataframes(target_crs, source_crs)
+        engine = create_engine(connection_string or default_connection_string())
+        names = []
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{schema}"'))
+                for layer, gdf in layers.items():
+                    name = table if len(layers) == 1 else f"{table}_{layer}"
+                    gdf.to_postgis(name, conn, schema=schema, if_exists=if_exists)
+                    names.append(name)
+                    logger.info("%d rows sent to %s.%s", len(gdf), schema, name)
+        finally:
+            engine.dispose()
+        return names
 
 
 # ███████╗██╗██╗     ███████╗███████╗
@@ -203,12 +289,13 @@ class GeoDataFetcher:
         """Download, detect the format, and validate the content."""
         logger.info("Downloading: %s", self.url)
         try:
-            with urlopen(
-                Request(self.url, headers=self.headers), timeout=self.timeout
-            ) as resp:
-                content = resp.read()
-                content_type = resp.headers.get_content_type()
-        except OSError as exc:
+            resp = requests.get(self.url, headers=self.headers, timeout=self.timeout)
+            resp.raise_for_status()
+            content = resp.content
+            content_type = (
+                resp.headers.get("Content-Type", "").split(";")[0].strip().lower()
+            )
+        except requests.RequestException as exc:
             raise FetchError(f"Failed to download {self.url} : {exc}") from exc
 
         filename = self._guess_filename()
@@ -244,6 +331,12 @@ if __name__ == "__main__":
     # if len(sys.argv) != 2:
     #     sys.exit("Usage : python geo_data_fetcher.py <url>")
 
-    url_test = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles"
+    url_parcelles_69 = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles"
+    url_batiments_69 = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments"
+
     # GeoDataFetcher(sys.argv[1]).fetch().export()
-    geodata_fetecher = GeoDataFetcher(url_test).fetch().export()
+    geodata_fetecher = (
+        GeoDataFetcher(url_batiments_69)
+        .fetch()
+        .to_postgis(table="batiments_69", schema="raw_data")
+    )
