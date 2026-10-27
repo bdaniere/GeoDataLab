@@ -589,7 +589,7 @@ class GeoDataset:
                             "converting them to lowercase"
                         )
                     gdf = gdf.set_geometry(geometry_column)
-                    gdf.to_postgis(name, conn, schema=schema, if_exists=if_exists)
+                    gdf.to_postgis(name, conn, schema=schema, if_exists="replace")
                     names.append(name)
                     logger.info("%d rows sent to %s.%s", len(gdf), schema, name)
         finally:
