@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from io import BytesIO
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from urllib.parse import unquote, urlparse
 
 import geopandas as gpd
@@ -43,8 +43,7 @@ def default_connection_string() -> str:
     if dotenv_path.exists():
         load_dotenv(dotenv_path=dotenv_path)
     else:
-        breakpoint()
-        logger.warning("Fichier .env introuvable : %s", dotenv_path)
+        logger.warning(".env file not found : %s", dotenv_path)
 
     user = os.environ.get("POSTGRES_USER")
     password = os.environ.get("POSTGRES_PASSWORD")
@@ -127,8 +126,52 @@ class ZipFormat(DataFormat):
             raise FetchError("Archive ZIP invalide")
 
 
+class ShapefileFormat(ZipFormat):
+    """A ZIP archive containing one or more complete Shapefiles."""
+
+    name = "shapefile"
+
+    @classmethod
+    def matches(cls, filename: str, content_type: str, content: bytes) -> bool:
+        if not super().matches(filename, content_type, content):
+            return False
+        if not zipfile.is_zipfile(BytesIO(content)):
+            return False
+        try:
+            with zipfile.ZipFile(BytesIO(content)) as archive:
+                return any(
+                    not name.endswith("/")
+                    and PurePosixPath(name).suffix.lower() == ".shp"
+                    for name in archive.namelist()
+                )
+        except zipfile.BadZipFile:
+            return False
+
+    def validate(self, content: bytes) -> None:
+        super().validate(content)
+        with zipfile.ZipFile(BytesIO(content)) as archive:
+            files: dict[tuple[str, str], set[str]] = {}
+            shapefiles = []
+            for name in archive.namelist():
+                path = PurePosixPath(name)
+                if name.endswith("/") or not path.suffix:
+                    continue
+                key = (str(path.parent).casefold(), path.stem.casefold())
+                files.setdefault(key, set()).add(path.suffix.lower())
+                if path.suffix.lower() == ".shp":
+                    shapefiles.append((name, key))
+
+        for name, key in shapefiles:
+            missing = {".shx", ".dbf"} - files[key]
+            if missing:
+                raise FetchError(
+                    f"Shapefile incomplet '{name}' : fichiers manquants "
+                    f"{', '.join(sorted(missing))}"
+                )
+
+
 # Ajouter ici les nouveaux formats (ex: GeoPackage, CSV, ...).
-FORMATS: list = [ZipFormat, GeoJSONFormat]
+FORMATS: list = [ShapefileFormat, ZipFormat, GeoJSONFormat]
 
 
 # ██████╗  █████╗ ████████╗ █████╗ ███████╗███████╗████████╗███████╗
@@ -333,10 +376,11 @@ if __name__ == "__main__":
 
     url_parcelles_69 = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles"
     url_batiments_69 = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments"
+    url_iris_france = "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z"
 
     # GeoDataFetcher(sys.argv[1]).fetch().export()
     geodata_fetecher = (
-        GeoDataFetcher(url_batiments_69)
+        GeoDataFetcher(url_iris_france)
         .fetch()
-        .to_postgis(table="batiments_69", schema="raw_data")
+        .to_postgis(table="iris_france", schema="raw_data")
     )
