@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 import logging
 import mimetypes
-import os
 import tempfile
 import zipfile
 from abc import ABC, abstractmethod
@@ -19,47 +18,25 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from io import BytesIO
 from pathlib import Path, PurePosixPath, PureWindowsPath
-from urllib.parse import unquote, urlparse
 
 import geopandas as gpd
 import py7zr
-import requests
-from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
+from util import (
+    DEFAULT_OUTPUT_DIR,
+    FetchError,
+    default_connection_string,
+    download,
+    guess_filename,
+    validate_url,
+)
 
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "raw_data"
-
 TARGET_CRS = 2154  # Lambert-93
 
-
-def default_connection_string() -> str:
-    """Connection string of the docker-compose PostGIS (POSTGRES_* env variables)."""
-
-    current_dir = Path(__file__).resolve().parent
-    dotenv_path = current_dir / ".." / "docker" / ".env"
-
-    if dotenv_path.exists():
-        load_dotenv(dotenv_path=dotenv_path)
-    else:
-        logger.warning(".env file not found : %s", dotenv_path)
-
-    user = os.environ.get("POSTGRES_USER")
-    password = os.environ.get("POSTGRES_PASSWORD")
-    host = os.environ.get("POSTGRES_HOST", "localhost")
-    port = os.environ.get("POSTGIS_PORT", "5432")
-    db = os.environ["POSTGRES_DB"]
-
-    return f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
-
-
 Check = Callable[["GeoDataset"], list]
-
-
-class FetchError(Exception):
-    "Error while downloading or reading the data"
 
 
 # ███████╗ ██████╗ ██████╗ ███╗   ███╗ █████╗ ████████╗
@@ -609,24 +586,14 @@ class GeoDataFetcher:
     """Download geographic data from a URL."""
 
     def __init__(self, url: str, timeout: int = 60, headers: dict | None = None):
-        if urlparse(url).scheme not in ("http", "https"):
-            raise ValueError(f"Invalid URL (http/https expected) : {url}")
+        validate_url(url)
         self.url = url
         self.timeout = timeout
-        self.headers = {"User-Agent": "GeoDataLab/0.1", **(headers or {})}
+        self.headers = headers
 
     def fetch(self) -> GeoDataset:
         """Download, detect the format, and validate the content."""
-        logger.info("Downloading: %s", self.url)
-        try:
-            resp = requests.get(self.url, headers=self.headers, timeout=self.timeout)
-            resp.raise_for_status()
-            content = resp.content
-            content_type = (
-                resp.headers.get("Content-Type", "").split(";")[0].strip().lower()
-            )
-        except requests.RequestException as exc:
-            raise FetchError(f"Failed to download {self.url} : {exc}") from exc
+        content, content_type = download(self.url, self.timeout, self.headers)
 
         filename = self._guess_filename()
         fmt = self._detect_format(filename, content_type, content)
@@ -637,8 +604,7 @@ class GeoDataFetcher:
         return GeoDataset(self.url, filename, content, fmt)
 
     def _guess_filename(self) -> str:
-        name = Path(unquote(urlparse(self.url).path)).name
-        return name or "download"
+        return guess_filename(self.url)
 
     @staticmethod
     def _detect_format(filename: str, content_type: str, content: bytes) -> DataFormat:
@@ -657,10 +623,10 @@ class GeoDataFetcher:
 
 
 init_data = {
-    # "parcelles_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles",
+    "parcelles_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles",
     "batiments_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments",
-    # "iris_france": "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z",
-    # "communes_france": "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson",
+    "iris_france": "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z",
+    "communes_france": "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson",
 }
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
@@ -669,6 +635,4 @@ if __name__ == "__main__":
     # GeoDataFetcher(sys.argv[1]).fetch().export()
 
     for table_name, url in init_data.items():
-        geodata_fetecher = (
-            GeoDataFetcher(url).fetch().to_postgis(table=table_name, schema="raw_data")
-        )
+        GeoDataFetcher(url).fetch().to_postgis(table=table_name, schema="raw_data")
