@@ -7,6 +7,7 @@ Exemple :
 
 from __future__ import annotations
 
+import csv
 import logging
 import re
 import unicodedata
@@ -57,6 +58,8 @@ def read_csv(content: bytes) -> pd.DataFrame:
             )
         except UnicodeDecodeError as exc:
             last_error = exc
+        except csv.Error as exc:
+            raise FetchError(f"Invalid CSV : {exc}") from exc
         except (pd.errors.ParserError, pd.errors.EmptyDataError) as exc:
             raise FetchError(f"Invalid CSV : {exc}") from exc
     raise FetchError(f"Unable to decode CSV : {last_error}")
