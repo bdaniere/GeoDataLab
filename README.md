@@ -98,19 +98,19 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 - [x] Developpement d'un outil python pour les données non geographique
 - [x] Exclusion de Airbyte du projet
 
-### Étape 3 — Premier pipeline de données
-
-- [ ] Sélectionner un périmètre géographique restreint.
-- [ ] Intégrer des données territoriales et des données métier.
-- [ ] Réaliser les premiers traitements.
-- [ ] Produire des indicateurs simples.
-
-### Étape 4 — Qualité et transformations
+### Étape 3 — Qualité et transformations
 
 - [ ] Mettre en place des tests automatisés.
 - [ ] Contrôler la qualité des données.
 - [ ] Structurer les transformations SQL et Python.
 - [ ] Évaluer l'intérêt de dbt.
+
+### Étape 4 — Premier pipeline de données
+
+- [ ] Sélectionner un périmètre géographique restreint.
+- [ ] Intégrer des données territoriales et des données métier.
+- [ ] Réaliser les premiers traitements.
+- [ ] Produire des indicateurs simples.
 
 ### Étape 5 — Orchestration
 
