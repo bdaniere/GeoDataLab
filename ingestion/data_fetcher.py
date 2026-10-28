@@ -154,7 +154,9 @@ class DataFetcher:
 
 init_data = {
     # "example": "https://example.com/data.csv",
-    "IMOPE": "https://www.data.gouv.fr/api/1/datasets/r/e828a16e-e3ca-4523-a008-a7535d14ca26",
+    "consommation_froid_chaud_iris_2025": "https://www.data.gouv.fr/api/1/datasets/r/3d025cfc-2e76-4e29-ae5c-1b6d860d8cdc",
+    "consommation_electricite_iris_2025": "https://www.data.gouv.fr/api/1/datasets/r/e2db4605-3240-4791-9efb-d4199d49cb37",
+    "consommation_gaz_iris_2025": "https://www.data.gouv.fr/api/1/datasets/r/872afb3c-a383-4a67-8217-70d8bfa5219b",
 }
 
 if __name__ == "__main__":
