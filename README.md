@@ -91,24 +91,26 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 
 ### Étape 2 — Découverte d'Airbyte
 
-- [ ] Installer Airbyte.
-- [ ] Configurer une première source et une destination.
-- [ ] Réaliser une synchronisation.
-- [ ] Comparer l'utilisation d'Airbyte et d'un script Python.
+- [x] Installer Airbyte.
+- [x] Configurer une première source et une destination.
+- [x] Réaliser une synchronisation.
+- [x] Comparer l'utilisation d'Airbyte et d'un script Python.
+- [x] Developpement d'un outil python pour les données non geographique
+- [x] Exclusion de Airbyte du projet
 
-### Étape 3 — Premier pipeline de données
-
-- [ ] Sélectionner un périmètre géographique restreint.
-- [ ] Intégrer des données territoriales et des données métier.
-- [ ] Réaliser les premiers traitements.
-- [ ] Produire des indicateurs simples.
-
-### Étape 4 — Qualité et transformations
+### Étape 3 — Qualité et transformations
 
 - [ ] Mettre en place des tests automatisés.
 - [ ] Contrôler la qualité des données.
 - [ ] Structurer les transformations SQL et Python.
 - [ ] Évaluer l'intérêt de dbt.
+
+### Étape 4 — Premier pipeline de données
+
+- [ ] Sélectionner un périmètre géographique restreint.
+- [ ] Intégrer des données territoriales et des données métier.
+- [ ] Réaliser les premiers traitements.
+- [ ] Produire des indicateurs simples.
 
 ### Étape 5 — Orchestration
 

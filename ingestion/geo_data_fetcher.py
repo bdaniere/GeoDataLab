@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 import logging
 import mimetypes
-import os
 import tempfile
 import zipfile
 from abc import ABC, abstractmethod
@@ -19,47 +18,26 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from io import BytesIO
 from pathlib import Path, PurePosixPath, PureWindowsPath
-from urllib.parse import unquote, urlparse
 
 import geopandas as gpd
 import py7zr
-import requests
-from dotenv import load_dotenv
+import pyogrio
 from sqlalchemy import create_engine, text
+from util import (
+    DEFAULT_OUTPUT_DIR,
+    FetchError,
+    default_connection_string,
+    download,
+    guess_filename,
+    validate_url,
+)
 
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "raw_data"
-
 TARGET_CRS = 2154  # Lambert-93
 
-
-def default_connection_string() -> str:
-    """Connection string of the docker-compose PostGIS (POSTGRES_* env variables)."""
-
-    current_dir = Path(__file__).resolve().parent
-    dotenv_path = current_dir / ".." / "docker" / ".env"
-
-    if dotenv_path.exists():
-        load_dotenv(dotenv_path=dotenv_path)
-    else:
-        logger.warning(".env file not found : %s", dotenv_path)
-
-    user = os.environ.get("POSTGRES_USER")
-    password = os.environ.get("POSTGRES_PASSWORD")
-    host = os.environ.get("POSTGRES_HOST", "localhost")
-    port = os.environ.get("POSTGIS_PORT", "5432")
-    db = os.environ["POSTGRES_DB"]
-
-    return f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
-
-
 Check = Callable[["GeoDataset"], list]
-
-
-class FetchError(Exception):
-    "Error while downloading or reading the data"
 
 
 # ███████╗ ██████╗ ██████╗ ███╗   ███╗ █████╗ ████████╗
@@ -493,28 +471,34 @@ class GeoDataset:
             self.checks_errors.extend(check(self))
         return not self.checks_errors
 
-    def to_geodataframes(
-        self, target_crs: int = TARGET_CRS, source_crs: int | None = None
-    ) -> dict[str, gpd.GeoDataFrame]:
-        """Read the data as GeoDataFrames reprojected to target_crs (default 2154).
+    @staticmethod
+    def _read_file_layers(path: Path, stem: str, single_source: bool) -> dict:
+        """Read every layer of a file (a GeoPackage can hold several)."""
+        if path.suffix.lower() != ".gpkg":
+            return {stem: gpd.read_file(path)}
+        names = [str(name) for name in pyogrio.list_layers(path)[:, 0]]
+        result = {}
+        for layer in names:
+            key = layer if single_source else f"{stem}_{layer}"
+            result[key] = gpd.read_file(path, layer=layer)
+        return result
 
-        Returns one GeoDataFrame per layer, keyed by file stem. `source_crs` is only
-        used for layers that have no CRS defined. A sequential `id` field is added to
-        layers where no field name contains "id" (case-insensitive).
-        """
-        if not self.is_archive:
-            if isinstance(self.format, GeoPackageFormat):
-                with tempfile.TemporaryDirectory() as tmp:
+    def _read_layers(self) -> tuple[dict, list[str]]:
+        """Return all layers (with or without geometry) keyed by name."""
+        layers: dict = {}
+        with tempfile.TemporaryDirectory() as tmp:
+            if not self.is_archive:
+                if isinstance(self.format, GeoPackageFormat):
                     path = Path(tmp) / self.filename
                     path.write_bytes(self.content)
-                    layers = {Path(self.filename).stem: gpd.read_file(path)}
+                    layers = self._read_file_layers(
+                        path, Path(self.filename).stem, True
+                    )
+                else:
+                    layers = {
+                        Path(self.filename).stem: gpd.read_file(BytesIO(self.content))
+                    }
             else:
-                layers = {
-                    Path(self.filename).stem: gpd.read_file(BytesIO(self.content))
-                }
-        else:
-            layers = {}
-            with tempfile.TemporaryDirectory() as tmp:
                 data_members, archive_members = self._geographic_archive_members()
                 if not data_members:
                     raise FetchError(
@@ -524,15 +508,31 @@ class GeoDataset:
                     archive_members, data_members, Path(tmp)
                 )
                 for path in paths:
-                    layers[path.stem] = gpd.read_file(path)
+                    layers.update(
+                        self._read_file_layers(path, path.stem, len(paths) == 1)
+                    )
+        return layers, list(layers)
 
+    def to_geodataframes(
+        self, target_crs: int = TARGET_CRS, source_crs: int | None = None
+    ) -> dict[str, gpd.GeoDataFrame]:
+        """Read the data as GeoDataFrames reprojected to target_crs (default 2154).
+
+        Returns one GeoDataFrame per layer, keyed by file stem. `source_crs` is only
+        used for layers that have no CRS defined. A sequential `id` field is added to
+        layers where no field name contains "id" (case-insensitive).
+        """
+        return self._prepare_geo_layers(self._read_layers()[0], target_crs, source_crs)
+
+    @staticmethod
+    def _prepare_geo_layers(
+        layers: dict, target_crs: int, source_crs: int | None
+    ) -> dict[str, gpd.GeoDataFrame]:
         layers_with_geometry = {}
         for name, gdf in layers.items():
-            try:
-                geometry = gdf.geometry
-            except AttributeError:
-                logger.warning("Skipping layer '%s': no geometry column", name)
+            if not isinstance(gdf, gpd.GeoDataFrame):
                 continue
+            geometry = gdf.geometry
 
             gdf = gdf.loc[geometry.notna() & ~geometry.is_empty].copy()
             if gdf.empty:
@@ -573,14 +573,22 @@ class GeoDataset:
         An archive with several layers produces one table per layer: <table>_<layer>.
         Returns the created table names.
         """
-        layers = self.to_geodataframes(target_crs, source_crs)
+        raw_layers, _ = self._read_layers()
+        layers = self._prepare_geo_layers(raw_layers, target_crs, source_crs)
+        tables = {
+            name: frame
+            for name, frame in raw_layers.items()
+            if not isinstance(frame, gpd.GeoDataFrame)
+        }
         engine = create_engine(connection_string or default_connection_string())
         names = []
         try:
             with engine.begin() as conn:
                 conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{schema}"'))
                 for layer, gdf in layers.items():
-                    name = table if len(layers) == 1 else f"{table}_{layer}"
+                    name = (
+                        table if len(layers) + len(tables) == 1 else f"{table}_{layer}"
+                    )
                     geometry_column = str(gdf.geometry.name).lower()
                     gdf = gdf.rename(columns=lambda column: str(column).lower())
                     if not gdf.columns.is_unique:
@@ -592,6 +600,19 @@ class GeoDataset:
                     gdf.to_postgis(name, conn, schema=schema, if_exists=if_exists)
                     names.append(name)
                     logger.info("%d rows sent to %s.%s", len(gdf), schema, name)
+                for layer, frame in tables.items():
+                    frame = frame.rename(columns=lambda column: str(column).lower())
+                    if not frame.columns.is_unique:
+                        raise FetchError(
+                            f"Layer '{layer}' has duplicate field names after "
+                            "converting them to lowercase"
+                        )
+                    name = f"{table}_{layer}"
+                    frame.to_sql(
+                        name, conn, schema=schema, if_exists=if_exists, index=False
+                    )
+                    names.append(name)
+                    logger.info("%d rows sent to %s.%s", len(frame), schema, name)
         finally:
             engine.dispose()
         return names
@@ -609,24 +630,14 @@ class GeoDataFetcher:
     """Download geographic data from a URL."""
 
     def __init__(self, url: str, timeout: int = 60, headers: dict | None = None):
-        if urlparse(url).scheme not in ("http", "https"):
-            raise ValueError(f"Invalid URL (http/https expected) : {url}")
+        validate_url(url)
         self.url = url
         self.timeout = timeout
-        self.headers = {"User-Agent": "GeoDataLab/0.1", **(headers or {})}
+        self.headers = headers
 
     def fetch(self) -> GeoDataset:
         """Download, detect the format, and validate the content."""
-        logger.info("Downloading: %s", self.url)
-        try:
-            resp = requests.get(self.url, headers=self.headers, timeout=self.timeout)
-            resp.raise_for_status()
-            content = resp.content
-            content_type = (
-                resp.headers.get("Content-Type", "").split(";")[0].strip().lower()
-            )
-        except requests.RequestException as exc:
-            raise FetchError(f"Failed to download {self.url} : {exc}") from exc
+        content, content_type = download(self.url, self.timeout, self.headers)
 
         filename = self._guess_filename()
         fmt = self._detect_format(filename, content_type, content)
@@ -637,8 +648,7 @@ class GeoDataFetcher:
         return GeoDataset(self.url, filename, content, fmt)
 
     def _guess_filename(self) -> str:
-        name = Path(unquote(urlparse(self.url).path)).name
-        return name or "download"
+        return guess_filename(self.url)
 
     @staticmethod
     def _detect_format(filename: str, content_type: str, content: bytes) -> DataFormat:
@@ -658,9 +668,10 @@ class GeoDataFetcher:
 
 init_data = {
     # "parcelles_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles",
-    "batiments_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments",
+    # "batiments_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments",
     # "iris_france": "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z",
     # "communes_france": "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson",
+    "imope": "https://data.urbs.fr/onb_v3_2_2_dpt69.gpkg"
 }
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
@@ -669,6 +680,4 @@ if __name__ == "__main__":
     # GeoDataFetcher(sys.argv[1]).fetch().export()
 
     for table_name, url in init_data.items():
-        geodata_fetecher = (
-            GeoDataFetcher(url).fetch().to_postgis(table=table_name, schema="raw_data")
-        )
+        GeoDataFetcher(url).fetch().to_postgis(table=table_name, schema="raw_data")
