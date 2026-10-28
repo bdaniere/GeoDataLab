@@ -100,7 +100,7 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 
 ### Étape 3 — Qualité et transformations
 
-- [ ] Mettre en place des tests automatisés.
+- [x] Mettre en place des tests automatisés.
 - [ ] Contrôler la qualité des données.
 - [ ] Structurer les transformations SQL et Python.
 - [ ] Évaluer l'intérêt de dbt.
@@ -139,6 +139,22 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 - Contrôler la qualité des données avant leur exploitation.
 - Introduire les technologies progressivement.
 - Vérifier les licences et les conditions de réutilisation des sources.
+
+## Tests
+
+Les tests unitaires de l'ingestion se trouvent dans `ingestion/tests`. Ils utilisent des
+jeux de données générés pendant les tests et simulent les téléchargements : ils ne
+nécessitent ni accès réseau ni base PostgreSQL/PostGIS.
+
+Avec Poetry, depuis le dossier `ingestion` :
+
+```bash
+poetry install --with dev
+poetry run pytest
+```
+
+La suite est également exécutée automatiquement par GitHub Actions lors des push et des
+pull requests.
 
 ## Statut
 
