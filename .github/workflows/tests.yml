@@ -14,15 +14,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Install Poetry
+        run: pipx install poetry==2.5.1
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
           cache: poetry
           cache-dependency-path: ingestion/poetry.lock
-
-      - name: Install Poetry
-        run: python -m pip install poetry==2.5.1
 
       - name: Install project and test dependencies
         run: poetry install --no-interaction --with dev
