@@ -91,10 +91,12 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 
 ### Étape 2 — Découverte d'Airbyte
 
-- [ ] Installer Airbyte.
-- [ ] Configurer une première source et une destination.
-- [ ] Réaliser une synchronisation.
-- [ ] Comparer l'utilisation d'Airbyte et d'un script Python.
+- [x] Installer Airbyte.
+- [x] Configurer une première source et une destination.
+- [x] Réaliser une synchronisation.
+- [x] Comparer l'utilisation d'Airbyte et d'un script Python.
+- [x] Developpement d'un outil python pour les données non geographique
+- [x] Exclusion de Airbyte du projet
 
 ### Étape 3 — Premier pipeline de données
 
