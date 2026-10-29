@@ -1,0 +1,22 @@
+tables:
+  - schema_name: raw_data
+    table_name: batiments
+    geometry_column: geometry
+    expected_srid: 2154
+    expected_type: MULTIPOLYGON
+    checks:
+      - geometry_not_null
+      - geometry_not_empty
+      - geometry_valid
+      - duplicate_geometry
+
+  - schema_name: raw_data
+    table_name: parcelles
+    geometry_column: geometry
+    expected_srid: 2154
+    expected_type: MULTIPOLYGON
+    checks:
+      - geometry_not_null
+      - geometry_not_empty
+      - geometry_valid
+      - duplicate_geometry
