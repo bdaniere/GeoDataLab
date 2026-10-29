@@ -5,10 +5,11 @@ tables:
     expected_srid: 2154
     expected_type: MULTIPOLYGON
     checks:
-      - geometry_not_null
-      - geometry_not_empty
-      - geometry_valid
-      - duplicate_geometry
+      - check_geometry_not_null
+      - check_geom_not_empty
+      - check_geometry_validity
+      - check_duplicate_geometry
+      - check_tables_srid_2154
 
   - schema_name: raw_data
     table_name: parcelles
@@ -16,7 +17,8 @@ tables:
     expected_srid: 2154
     expected_type: MULTIPOLYGON
     checks:
-      - geometry_not_null
-      - geometry_not_empty
-      - geometry_valid
-      - duplicate_geometry
+      - check_geometry_not_null
+      - check_geom_not_empty
+      - check_geometry_validity
+      - check_duplicate_geometry
+      - check_tables_srid_2154
