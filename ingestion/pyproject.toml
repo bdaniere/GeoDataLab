@@ -18,7 +18,7 @@ pandas = "^3.1.0"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = ["extraction"]
 python_files = ["test_*.py"]
 
 [build-system]
