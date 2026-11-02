@@ -28,6 +28,8 @@ RESULT_COLUMNS = [
     "error",
 ]
 
+QUALITY_ERROR_COLUMNS = ["schema", "table", "check_name", "id"]
+
 
 def load_plan(plan_path: Path = DEFAULT_PLAN) -> list[dict]:
     with open(plan_path, encoding="utf-8") as f:
@@ -52,9 +54,13 @@ def run_checks(
     """
     engine = create_engine(connection_string or default_connection_string())
     results = []
+    quality_errors = []
 
     with engine.connect() as conn:
         for table in load_plan(plan_path):
+            logger.info(
+                f"Running checks for table {table.get('schema_name')}.{table.get('table_name')}"
+            )
             for check in table.get("checks", []):
                 row = {
                     "schema_name": table.get("schema_name"),
@@ -66,9 +72,19 @@ def run_checks(
                 }
                 try:
                     sql = render_sql(check, table)
-                    nb_rows = len(conn.execute(text(sql)).fetchall())
+                    rows = conn.execute(text(sql)).mappings().all()
+                    nb_rows = len(rows)
                     row["nb_rows"] = nb_rows
                     row["status"] = "OK" if nb_rows == 0 else "KO"
+                    quality_errors.extend(
+                        {
+                            "schema": table["schema_name"],
+                            "table": table["table_name"],
+                            "check_name": check,
+                            "id": result["id"],
+                        }
+                        for result in rows
+                    )
 
                 except Exception as exc:
                     conn.rollback()
@@ -77,10 +93,18 @@ def run_checks(
                     row["error"] = str(exc)
                 results.append(row)
 
+    pd.DataFrame(quality_errors, columns=QUALITY_ERROR_COLUMNS).to_sql(
+        name="quality_error",
+        con=engine,
+        schema="raw_data",
+        if_exists="replace",
+        index=False,
+    )
+
     return pd.DataFrame(results, columns=RESULT_COLUMNS)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     df_results = run_checks()
-    print(df_results.to_string(index=False))
+    print(df_results[df_results["status"] != "OK"].to_string(index=False))

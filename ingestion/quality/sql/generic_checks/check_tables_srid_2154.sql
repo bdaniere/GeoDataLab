@@ -1,3 +1,3 @@
-SELECT *
-FROM raw_data.batiments
-WHERE NOT ST_SRID(geometry) = '2154'
+SELECT id
+FROM {schema_name}.{table_name}
+WHERE NOT ST_SRID({geometry_column}) = '2154'
