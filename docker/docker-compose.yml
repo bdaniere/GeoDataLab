@@ -47,6 +47,26 @@ services:
     networks:
       - geodatalab_network
 
+  dbt:
+    build:
+      context: ./dbt
+    container_name: dbt
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      DBT_PROFILES_DIR: /usr/app
+    volumes:
+      - ./dbt:/usr/app
+    working_dir: /usr/app
+    depends_on:
+      postgis:
+        condition: service_healthy
+    networks:
+      - geodatalab_network
+    profiles:
+      - tools
+
 networks:
   geodatalab_network:
     driver: bridge
