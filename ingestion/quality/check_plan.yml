@@ -16,7 +16,7 @@ tables:
     table_name: parcelles
     geometry_column: geometry
     expected_srid: 2154
-    expected_type: MULTIPOLYGON
+    expected_type: POLYGON
     id_column: id
     checks:
       - check_pk_unique
