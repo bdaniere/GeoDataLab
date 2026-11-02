@@ -4,6 +4,7 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
       - check_geometry_not_null
       - check_geom_not_empty
@@ -16,7 +17,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -28,7 +31,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: code
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -40,7 +45,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOINT
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -52,7 +59,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -64,7 +73,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: POINT
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -76,7 +87,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -88,7 +101,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: POINT
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -100,7 +115,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -112,19 +129,23 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: POINT
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
       - check_duplicate_geometry
-      - check_tables_srid_2154
+      - check_tables_srid_2154  
 
   - schema_name: raw_data
     table_name: imope_commune
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: insee
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -136,7 +157,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -148,7 +171,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: POINT
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -160,7 +185,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -172,7 +199,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: POLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -184,7 +213,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -196,7 +227,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -208,7 +241,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -220,7 +255,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -232,7 +269,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
@@ -244,7 +283,9 @@ tables:
     geometry_column: geometry
     expected_srid: 2154
     expected_type: MULTIPOLYGON
+    id_column: id
     checks:
+      - check_pk_unique
       - check_geometry_not_null
       - check_geom_not_empty
       - check_geometry_validity
