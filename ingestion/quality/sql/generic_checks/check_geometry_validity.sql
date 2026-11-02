@@ -1,5 +1,5 @@
 SELECT
-    b.id,
+    b.{id_column} AS id,
     v.reason AS invalid_reason,
     v.location AS error_location
 FROM {schema_name}.{table_name} AS b

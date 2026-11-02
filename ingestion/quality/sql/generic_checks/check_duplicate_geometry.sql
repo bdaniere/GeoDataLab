@@ -6,9 +6,9 @@ WITH duplicated_geometries AS (
     HAVING COUNT(*) > 1
 )
 SELECT
-    b.id
+    b.{id_column} AS id
 FROM {schema_name}.{table_name} AS b
 JOIN duplicated_geometries AS d
     ON ST_AsEWKB(b.{geometry_column}) = d.geom_key
-ORDER BY b.id
+ORDER BY b.{id_column}
 ;
