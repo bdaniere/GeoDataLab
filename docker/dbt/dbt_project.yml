@@ -10,3 +10,8 @@ test-paths: ["tests"]
 clean-targets:
   - target
   - dbt_packages
+
+models:
+  geodatalab:
+    staging:
+      +materialized: table

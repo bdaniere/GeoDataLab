@@ -8,5 +8,5 @@ geodatalab:
       user: "{{ env_var('POSTGRES_USER') }}"
       password: "{{ env_var('POSTGRES_PASSWORD') }}"
       dbname: "{{ env_var('POSTGRES_DB') }}"
-      schema: public
+      schema: staging
       threads: 4
