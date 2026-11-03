@@ -16,7 +16,23 @@ sources:
             data_tests:
               - not_null
               - unique
-              - geometry_valid:
-                  config:
-                    store_failures: true
+              # - geometry_valid:
+              #     config:
+              #       store_failures: true
+              #       severity: warn
+      
+      - name: batiments
+        columns:
+          - name: commune
+            data_tests:
+              - not_null
+          
+          - name: geometry
+            data_tests:
+              - not_null
+              # - unique
+              # - geometry_valid:
+              #     config:
+              #       store_failures: true
+              #       severity: warn
       

@@ -1,0 +1,44 @@
+models:
+  - name: batiments
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: uuid
+        constraints:
+          - type: not_null
+          - type: primary_key
+        data_tests:
+          - not_null
+          - unique
+
+      - name: type
+        data_type: varchar(2)
+
+      - name: nom
+        data_type: text
+
+      - name: commune
+        data_type: varchar(5)
+        constraints:
+          - type: foreign_key
+            references:
+              table: communes_france
+              column: code_insee
+
+      - name: created
+        data_type: TIMESTAMP
+
+      - name: updated
+        data_type: TIMESTAMP
+
+      - name: geom
+        data_type: geometry(MultiPolygon,2154)
+        data_tests:
+              - not_null
+              - unique
+              - geometry_valid:
+                  config:
+                    store_failures: true
