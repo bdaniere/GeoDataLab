@@ -1,0 +1,185 @@
+models:
+  - name: adresses
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        # name: pk_adresses
+        columns: [id]
+
+      # Désactivée : 69152 et 69159 absents de communes_france
+      # il Faudra changer nos données : Oulin et pierre bénite ont fusionnées en une seule commune entre temps : leur code postal a changé ! 
+      # - type: foreign_key
+      #   name: fk_adresses_code_insee
+      #   columns: [code_insee]
+      #   to: ref('communes_france')
+      #   to_columns: [code_insee]
+
+    columns:
+      - name: id
+        data_type: text
+        constraints:
+          - type: not_null
+          - type: unique
+        data_tests:
+          - not_null
+          - unique
+
+      - name: adresse
+        data_type: text
+
+      - name: commune
+        data_type: text
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+
+      - name: iris
+        data_type: text
+
+      - name: nlogh
+        data_type: integer
+
+      - name: cp
+        data_type: varchar(9)
+
+      - name: altitude
+        data_type: integer
+
+      - name: bailleursoc
+        data_type: boolean
+
+      - name: batihist
+        data_type: boolean
+
+      - name: chauffage
+        data_type: varchar(10)
+
+      - name: consochauff
+        data_type: integer
+
+      - name: consochurb
+        data_type: integer
+
+      - name: consoelec
+        data_type: integer
+
+      - name: consoelecm
+        data_type: integer
+
+      - name: consogaz
+        data_type: integer
+
+      - name: consogazm
+        data_type: integer
+
+      - name: consotou
+        data_type: integer
+
+      - name: consotoum
+        data_type: integer
+
+      - name: consochurbm
+        data_type: integer
+
+      - name: diffprixpct
+        data_type: integer
+
+      - name: energie
+        data_type: varchar(16)
+
+      # - name: fraisannuelsenergie
+      #   data_type: float
+
+      # - name: ges
+      #   data_type: varchar(1)
+
+      - name: mur
+        data_type: varchar(20)
+
+      - name: nbpdlelec
+        data_type: integer
+
+      - name: nbpdlgaz
+        data_type: integer
+
+      # - name: dpe
+      #   data_type: varchar(1)
+
+      # - name: numero_dpe
+      #   data_type: varchar(13)
+
+      # - name: date_dpe
+      #   data_type: date
+
+      # - name: nges
+      #   data_type: integer
+
+      - name: nivtot
+        data_type: integer
+
+      - name: nlogsoc
+        data_type: integer
+
+      - name: pgaz
+        data_type: boolean
+
+      - name: prix
+        data_type: float
+
+      - name: surfacemurs
+        data_type: float
+
+      - name: surfaceplanchersbas
+        data_type: float
+
+      - name: surfaceplanchershauts
+        data_type: float
+
+      - name: surfacetot
+        data_type: float
+
+      - name: toit
+        data_type: varchar(25)
+
+      - name: typehab
+        data_type: varchar(11)
+
+      - name: typobati
+        data_type: varchar(22)
+
+      - name: zoneargile
+        data_type: varchar(6)
+
+      - name: zonehist
+        data_type: boolean
+
+      - name: zoneinond
+        data_type: boolean
+
+      - name: zoneqpv
+        data_type: boolean
+
+      - name: zonezsp
+        data_type: boolean
+
+      - name: pmr
+        data_type: varchar(2)
+
+      - name: code_insee
+        data_type: varchar(5)
+
+      - name: epci_id
+        data_type: varchar(9)
+
+      - name: iris_id
+        data_type: varchar(9)
+
+      - name: parcelle_id
+        data_type: varchar(14)
+
+      - name: geometry
+        data_type: geometry(MultiPoint,2154)

@@ -35,4 +35,20 @@ sources:
               #     config:
               #       store_failures: true
               #       severity: warn
+
+      - name: imope_adresse
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              # - unique
+
+          - name: commune_id
+            data_tests:
+              - not_null
+
+          - name: geometry
+            data_tests:
+              - not_null
+
       
