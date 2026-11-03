@@ -16,4 +16,7 @@ sources:
             data_tests:
               - not_null
               - unique
+              - geometry_valid:
+                  config:
+                    store_failures: true
       

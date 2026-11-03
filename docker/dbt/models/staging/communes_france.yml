@@ -1,0 +1,39 @@
+models:
+  - name: communes_france
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: code_insee
+        data_type: varchar(5)
+        constraints:
+          - type: not_null
+          - type: primary_key
+        data_tests:
+          - not_null
+          - unique
+
+      - name: nom
+        data_type: text
+
+      - name: departement
+        data_type: varchar(3)
+
+      - name: region
+        data_type: varchar(3)
+
+      - name: commune
+        data_type: text
+
+      - name: plm
+        data_type: float
+
+      - name: epci
+        data_type: varchar(9)
+
+      - name: geom
+        data_type: geometry(MultiPolygon,2154)
+        data_tests:
+              - not_null
+              - unique
