@@ -1,0 +1,43 @@
+models:
+  - name: dpe
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        # name: pk_dpe
+        columns: [numero_dpe]
+
+      - type: foreign_key
+        # name : fk_dpe_adresse_id
+        columns: [adresse_id]
+        to: ref('adresses')
+        to_columns: [id]
+
+    columns:
+      - name: numero_dpe
+        data_type: varchar(13)
+        data_tests:
+          - not_null
+          - unique
+
+      - name: fraisannuelsenergie
+        data_type: float
+
+      - name: ges
+        data_type: varchar(1)
+
+      - name: dpe
+        data_type: varchar(1)
+
+      - name: date_dpe
+        data_type: date
+
+      - name: nges
+        data_type: integer
+
+      - name: adresse_id
+        data_type: text
+
+

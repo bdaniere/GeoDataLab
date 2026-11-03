@@ -6,8 +6,9 @@ models:
 
     constraints:
       - type: primary_key
-        name: pk_communes_france
+        # name: pk_communes_france
         columns: [code_insee]
+        to_columns: [code_insee]
 
     columns:
       - name: code_insee

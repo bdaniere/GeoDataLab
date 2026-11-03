@@ -6,11 +6,11 @@ models:
 
     constraints:
       - type: primary_key
-        name: pk_batiments
+        # name: pk_batiments
         columns: [id]
 
       - type: foreign_key
-        name : fk_batiments_code_insee
+        # name : fk_batiments_code_insee
         columns: [code_insee]
         to: ref('communes_france')
         to_columns: [code_insee]
