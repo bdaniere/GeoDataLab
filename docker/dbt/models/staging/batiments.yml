@@ -4,12 +4,23 @@ models:
       contract:
         enforced: true
 
+    constraints:
+      - type: primary_key
+        name: pk_batiments
+        columns: [id]
+
+      - type: foreign_key
+        name : fk_batiments_code_insee
+        columns: [code_insee]
+        to: ref('communes_france')
+        to_columns: [code_insee]
+
     columns:
       - name: id
         data_type: uuid
         constraints:
           - type: not_null
-          - type: primary_key
+
         data_tests:
           - not_null
           - unique
@@ -20,18 +31,13 @@ models:
       - name: nom
         data_type: text
 
-      - name: commune
+      - name: code_insee
         data_type: varchar(5)
-        constraints:
-          - type: foreign_key
-            references:
-              table: communes_france
-              column: code_insee
 
-      - name: created
+      - name: created_at
         data_type: TIMESTAMP
 
-      - name: updated
+      - name: updated_at
         data_type: TIMESTAMP
 
       - name: geom

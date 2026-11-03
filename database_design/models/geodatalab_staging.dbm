@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+ Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel pgmodeler-ver="1.2.3" use-changelog="false" max-obj-count="18"
+	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
+	 last-position="0,-10" last-zoom="1" scene-rect="0,-10,1570.8,1086.8"
+	 default-schema="public" default-owner="postgres"
+	 layers="Default layer"
+	 active-layers="0"
+	 layer-name-colors="#000000"
+	 layer-rect-colors="#b4b4b4"
+	 show-layer-names="false" show-layer-rects="false">
+<database name="GeoDataLab" encoding="UTF8" lc-collate="en_US.utf8" lc-ctype="en_US.utf8" is-template="false" allow-conns="true">
+	<role name="postgres"/>
+	<tablespace name="pg_default"/>
+</database>
+
+<schema name="public" layers="0" rect-visible="true" fill-color="#e1e1e1" name-color="#000000" sql-disabled="true">
+</schema>
+
+<schema name="topology" layers="0" rect-visible="true" fill-color="#f918d5" name-color="#000000">
+	<role name="postgres"/>
+	<comment> <![CDATA[PostGIS Topology schema]]> </comment>
+</schema>
+
+<schema name="tiger" layers="0" rect-visible="true" fill-color="#aebc13" name-color="#000000">
+	<role name="postgres"/>
+</schema>
+
+<schema name="staging" layers="0" rect-visible="true" fill-color="#abc994" name-color="#000000">
+	<role name="postgres"/>
+	<comment> <![CDATA[Cleaned and normalized data]]> </comment>
+</schema>
+
+<extension name="postgis" cur-version="3.4.3">
+	<schema name="public"/>
+	<comment> <![CDATA[PostGIS geometry and geography spatial types and functions]]> </comment>
+	<object name="spheroid" type="usertype"/>
+	<object name="geometry" type="usertype"/>
+	<object name="box3d" type="usertype"/>
+	<object name="box2d" type="usertype"/>
+	<object name="box2df" type="usertype"/>
+	<object name="gidx" type="usertype"/>
+	<object name="geometry_dump" type="usertype"/>
+	<object name="valid_detail" type="usertype"/>
+	<object name="geography" type="usertype"/>
+</extension>
+
+<extension name="postgis_topology" cur-version="3.4.3">
+	<schema name="topology"/>
+	<comment> <![CDATA[PostGIS topology spatial types and functions]]> </comment>
+	<object name="topogeometry" type="usertype"/>
+	<object name="topoelement" type="usertype"/>
+	<object name="topoelementarray" type="usertype"/>
+	<object name="getfaceedges_returntype" type="usertype"/>
+	<object name="validatetopology_returntype" type="usertype"/>
+</extension>
+
+<extension name="fuzzystrmatch" cur-version="1.2">
+	<schema name="public"/>
+	<comment> <![CDATA[determine similarities and distance between strings]]> </comment>
+</extension>
+
+<extension name="postgis_tiger_geocoder" cur-version="3.4.3">
+	<schema name="tiger"/>
+	<comment> <![CDATA[PostGIS tiger geocoder and reverse geocoder]]> </comment>
+	<object name="norm_addy" type="usertype"/>
+</extension>
+
+<table name="communes_france" layers="0" collapse-mode="2" max-obj-count="9" z-value="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<position x="60" y="60"/>
+	<column name="code_insee" not-null="true">
+		<type name="character varying" length="5"/>
+	</column>
+	<column name="nom">
+		<type name="text" length="0"/>
+	</column>
+	<column name="departement">
+		<type name="character varying" length="3"/>
+	</column>
+	<column name="region">
+		<type name="character varying" length="3"/>
+	</column>
+	<column name="commune">
+		<type name="text" length="0"/>
+	</column>
+	<column name="plm">
+		<type name="double precision" length="0"/>
+	</column>
+	<column name="epci">
+		<type name="character varying" length="9"/>
+	</column>
+	<column name="geom">
+		<type name="public.geometry" length="0"/>
+	</column>
+	<constraint name="pk_communes_france" type="pk-constr" table="staging.communes_france">
+		<columns names="code_insee" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<index name="idx_communes_geom" table="staging.communes_france"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="gist" factor="90">
+		<idxelement use-sorting="false">
+			<column name="geom"/>
+		</idxelement>
+</index>
+
+<table name="batiments" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<position x="820" y="40"/>
+	<column name="id" not-null="true">
+		<type name="uuid" length="0"/>
+	</column>
+	<column name="type">
+		<type name="character varying" length="2"/>
+	</column>
+	<column name="nom">
+		<type name="text" length="0"/>
+	</column>
+	<column name="code_insee">
+		<type name="character varying" length="5"/>
+	</column>
+	<column name="created_at">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_at">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="geom">
+		<type name="geometry" length="0" spatial-type="MULTIPOLYGON" variation="0" srid="2154"/>
+	</column>
+	<constraint name="pk_batiments" type="pk-constr" table="staging.batiments">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<index name="idx_batiments_geom" table="staging.batiments"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="gist" factor="90">
+		<idxelement use-sorting="false">
+			<column name="geom"/>
+		</idxelement>
+</index>
+
+<function name="update_updated_at"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[             BEGIN
+                 NEW.updated_at = NOW();
+                 RETURN NEW;
+             END;
+             ]]> </definition>
+</function>
+
+<trigger name="trg_batiments_updated_at" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="staging.batiments">
+		<function signature="public.update_updated_at()"/>
+</trigger>
+
+<constraint name="fk_batiments_code_insee" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="staging.communes_france" table="staging.batiments">
+	<columns names="code_insee" ref-type="src-columns"/>
+	<columns names="code_insee" ref-type="dst-columns"/>
+</constraint>
+
+<relationship name="rel_batiments_communes_france" type="relfk" layers="0"
+	 custom-color="#0f79c7"
+	 src-table="staging.batiments"
+	 dst-table="staging.communes_france" reference-fk="fk_batiments_code_insee"
+	 src-required="false" dst-required="false"/>
+
+<permission>
+	<object name="topology" type="schema"/>
+	<roles names="postgres"/>
+	<privileges create="true" usage="true"/>
+</permission>
+<permission>
+	<object name="topology" type="schema"/>
+	<privileges usage="true"/>
+</permission>
+</dbmodel>

@@ -4,12 +4,16 @@ models:
       contract:
         enforced: true
 
+    constraints:
+      - type: primary_key
+        name: pk_communes_france
+        columns: [code_insee]
+
     columns:
       - name: code_insee
         data_type: varchar(5)
         constraints:
           - type: not_null
-          - type: primary_key
         data_tests:
           - not_null
           - unique

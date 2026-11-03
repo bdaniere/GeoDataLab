@@ -1,12 +1,3 @@
--- id : voir pour utiliser un uuid
--- type : varchar(2)
--- nom : text
--- commune : varchar(5)
--- created : TIMESTAMP
--- updated : TIMESTAMP avec contrain on update
--- GEOMETRY : MULTIPOLYGON 2154
-
-
 {{
     config(
         materialized='table',
@@ -58,9 +49,9 @@ corrected AS (
         gen_random_uuid() AS id,
         CAST(type AS VARCHAR(2)) AS type,
         nom,
-        CAST(commune AS VARCHAR(5)) AS commune,
-        created,
-        updated,
+        CAST(commune AS VARCHAR(5)) AS code_insee,
+        created AS created_at,
+        updated AS updated_at,
         CAST(
             ST_Transform(
                 ST_Multi(
