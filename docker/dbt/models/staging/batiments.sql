@@ -49,7 +49,6 @@ corrected AS (
         gen_random_uuid() AS id,
         CAST(type AS VARCHAR(2)) AS type,
         nom,
-        CAST(commune AS VARCHAR(5)) AS code_insee,
         created AS created_at,
         updated AS updated_at,
         CAST(

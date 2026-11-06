@@ -145,7 +145,7 @@ corrected AS (
             ELSE NULL
         END AS zonezsp,
         CAST(pmr AS varchar(2)) AS pmr,
-        CAST(commune_id AS varchar(5)) AS code_insee,
+        CAST(commune_id AS varchar(5)) AS commune_id,
         CAST(epci_id AS varchar(9)) AS epci_id,
         CAST(iris_id AS varchar(9)) AS iris_id,
         CAST(parcelle_id AS varchar(14)) AS parcelle_id,
@@ -198,7 +198,7 @@ SELECT
     zoneqpv,
     zonezsp,
     pmr,
-    code_insee,
+    commune_id,
     epci_id,
     iris_id,
     parcelle_id,

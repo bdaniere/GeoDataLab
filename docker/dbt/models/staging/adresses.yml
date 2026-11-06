@@ -9,13 +9,11 @@ models:
         # name: pk_adresses
         columns: [id]
 
-      # Désactivée : 69152 et 69159 absents de communes_france
-      # il Faudra changer nos données : Oulin et pierre bénite ont fusionnées en une seule commune entre temps : leur code postal a changé ! 
-      # - type: foreign_key
-      #   name: fk_adresses_code_insee
-      #   columns: [code_insee]
-      #   to: ref('communes_france')
-      #   to_columns: [code_insee]
+      - type: foreign_key
+        # name: fk_adresses_code_insee
+        columns: [commune_id]
+        to: ref('communes')
+        to_columns: [id]
 
     columns:
       - name: id
@@ -91,12 +89,6 @@ models:
       - name: energie
         data_type: varchar(16)
 
-      # - name: fraisannuelsenergie
-      #   data_type: float
-
-      # - name: ges
-      #   data_type: varchar(1)
-
       - name: mur
         data_type: varchar(20)
 
@@ -105,18 +97,6 @@ models:
 
       - name: nbpdlgaz
         data_type: integer
-
-      # - name: dpe
-      #   data_type: varchar(1)
-
-      # - name: numero_dpe
-      #   data_type: varchar(13)
-
-      # - name: date_dpe
-      #   data_type: date
-
-      # - name: nges
-      #   data_type: integer
 
       - name: nivtot
         data_type: integer
@@ -169,7 +149,7 @@ models:
       - name: pmr
         data_type: varchar(2)
 
-      - name: code_insee
+      - name: commune_id
         data_type: varchar(5)
 
       - name: epci_id

@@ -4,29 +4,16 @@ sources:
   - name: raw_data
     schema: raw_data
     tables:
-    
-      - name: communes_france
-        columns:
-          - name: code
-            data_tests:
-              - not_null
-              - unique
-
-          - name: geometry
-            data_tests:
-              - not_null
-              - unique
-              # - geometry_valid:
-              #     config:
-              #       store_failures: true
-              #       severity: warn
-      
+         
       - name: batiments
         columns:
           - name: commune
             data_tests:
               - not_null
           
+          - name: type
+          - name: nom
+
           - name: geometry
             data_tests:
               - not_null
@@ -51,4 +38,80 @@ sources:
             data_tests:
               - not_null
 
+      - name : imope_commune
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              - unique
+
+          - name: insee
+            data_tests:
+              - not_null
+
+          - name: nom
+            data_tests:
+              - not_null
+
+          - name: nom_unaccent
+            data_tests:
+              - not_null
+
+          - name: code_postal
+          - name: superficie
+          - name: population
+          - name: epci
+          - name: epci_id
+
+          - name: geometry
+            data_tests:
+              - not_null
+              - unique
+              - geometry_valid:
+                  config:
+                    store_failures: true
+                    severity: warn
+
+      - name: imope_parcelle
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              - unique
+
+          - name: prefixe
+          - name: section
+          - name: numero
+          - name: contenance
+          - name: superficie
+          - name: created
+          - name: updated
+          - name: commune_id
+            data_tests:
+              - not_null
+          - name: geometry
+            data_tests:
+              - not_null
+              - unique
+              - geometry_valid:
+                  config:
+                    store_failures: true
+                    severity: warn
+
+      - name: imope_iris
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              - unique
+
+          - name: nom
+            data_tests:
+              - not_null
+          - name: type
+          - name: commune
+          - name: commune_id
+          - name: geometry
+            data_tests:
+              - not_null
       

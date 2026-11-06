@@ -1,20 +1,21 @@
 models:
-  - name: communes_france
+  - name: iris
     config:
       contract:
         enforced: true
 
     constraints:
       - type: primary_key
-        # name: pk_communes_france
-        columns: [code_insee]
-        to_columns: [code_insee]
+        # name: pk_iris
+        columns: [id]
+
 
     columns:
-      - name: code_insee
-        data_type: varchar(5)
+      - name: id
+        data_type: varchar(9)
         constraints:
           - type: not_null
+
         data_tests:
           - not_null
           - unique
@@ -22,20 +23,20 @@ models:
       - name: nom
         data_type: text
 
-      - name: departement
-        data_type: varchar(3)
-
-      - name: region
-        data_type: varchar(3)
+      - name: type
+        data_type: varchar(1)
 
       - name: commune
         data_type: text
 
-      - name: plm
-        data_type: float
+      - name: commune_id
+        data_type: varchar(5)
 
-      - name: epci
-        data_type: varchar(9)
+      - name: created_at
+        data_type: TIMESTAMP
+
+      - name: updated_at
+        data_type: TIMESTAMP
 
       - name: geom
         data_type: geometry(MultiPolygon,2154)

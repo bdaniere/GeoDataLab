@@ -1,0 +1,55 @@
+models:
+  - name: parcelles
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        # name: pk_parcelles
+        columns: [id]
+
+
+    columns:
+      - name: id
+        data_type: text
+        constraints:
+          - type: not_null
+
+        data_tests:
+          - not_null
+          - unique
+
+      - name: prefixe
+        data_type: varchar(3)
+
+      - name: section
+        data_type: varchar(2)
+
+      - name: numero
+        data_type: varchar(4)
+
+      - name: contenance
+        data_type: integer
+      
+      - name: superficie
+        data_type: float
+      
+      - name: created_at
+        data_type: TIMESTAMP
+
+      - name: updated_at
+        data_type: TIMESTAMP
+
+      - name: commune_id
+        data_type: varchar(5)
+
+      - name: geom
+        data_type: geometry(MultiPolygon,2154)
+        data_tests:
+              - not_null
+              - unique
+              - geometry_valid:
+                  config:
+                    store_failures: true
+                    severity: warn

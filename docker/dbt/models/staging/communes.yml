@@ -1,0 +1,58 @@
+models:
+  - name: communes
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        # name: pk_communes_france
+        columns: [id]
+        to_columns: [id]
+
+    columns:
+
+      - name: id
+        data_type: varchar(9)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: code_insee
+        data_type: varchar(5)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+
+      - name: nom
+        data_type: text
+
+      - name: nom_unaccent
+        data_type: text
+
+      - name: code_postal
+        data_type: varchar(5)
+
+      - name: superficie
+        data_type: float
+
+      - name: population
+        data_type: integer
+
+      - name: epci
+        data_type: text
+
+      - name: epci_id
+        data_type: varchar(9)
+
+      - name: geom
+        data_type: geometry(MultiPolygon,2154)
+        data_tests:
+              - not_null
+              - unique
+              - geometry_valid:
+                  config:
+                    store_failures: true

@@ -9,12 +9,6 @@ models:
         # name: pk_batiments
         columns: [id]
 
-      - type: foreign_key
-        # name : fk_batiments_code_insee
-        columns: [code_insee]
-        to: ref('communes_france')
-        to_columns: [code_insee]
-
     columns:
       - name: id
         data_type: uuid
@@ -30,9 +24,6 @@ models:
 
       - name: nom
         data_type: text
-
-      - name: code_insee
-        data_type: varchar(5)
 
       - name: created_at
         data_type: TIMESTAMP

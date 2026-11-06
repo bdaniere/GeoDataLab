@@ -11,8 +11,9 @@
 
 
 WITH source_data AS (
-    SELECT * FROM {{ source('raw_data', 'communes_france') }}
+    SELECT * FROM {{ source('raw_data', 'imope_commune') }}
 ),
+
 
 filtered AS (
     SELECT *
@@ -21,20 +22,18 @@ filtered AS (
       AND NOT ST_IsEmpty(geometry)
 ),
 
-deduplicated AS (
-    SELECT DISTINCT ON (geometry) *
-    FROM filtered
-    ORDER BY geometry, code
-),
+
 
 corrected AS (
     SELECT
-        CAST(code AS VARCHAR(5)) AS code_insee,
+        CAST(id AS VARCHAR(9)) AS id,
+        CAST(insee AS VARCHAR(5)) AS code_insee,
         nom,
-        CAST(departement AS VARCHAR(3)) AS departement,
-        CAST(region AS VARCHAR(3)) AS region,
-        commune,
-        plm,
+        nom_unaccent,
+        CAST(cp AS VARCHAR(5)) AS code_postal,
+        CAST(superficie AS FLOAT) AS superficie,
+        CAST(population AS INTEGER) AS population,
+        CAST(epci_id AS VARCHAR(9)) AS epci_id,
         CAST(epci AS VARCHAR(9)) AS epci,
         CAST(
             ST_Transform(
@@ -48,7 +47,7 @@ corrected AS (
             ) AS geometry(MULTIPOLYGON, 2154)
         ) AS geom
 
-    FROM deduplicated
+    FROM filtered
 )
 
 SELECT *
