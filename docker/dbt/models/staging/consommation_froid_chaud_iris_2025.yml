@@ -20,7 +20,7 @@ models:
 
       - name: id_source
         description: Identifiant de la source, non unique.
-        data_type: text
+        data_type: varchar(5)
 
       - name: operateur
         data_type: text
@@ -29,11 +29,11 @@ models:
         data_type: bigint
 
       - name: filiere
-        data_type: text
+        data_type: varchar(1)
 
       - name: code_iris
         description: Code IRIS converti en texte à partir de la valeur numérique source.
-        data_type: text
+        data_type: varchar(9)
 
       - name: conso
         description: Valeur source conservée en texte, y compris les valeurs confidentielles.

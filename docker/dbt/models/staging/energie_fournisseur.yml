@@ -1,0 +1,37 @@
+models:
+  - name: energie_fournisseur
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+    columns:
+      - name: id
+        data_type: text
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: adresse
+        data_type: text
+        data_tests:
+          - not_null
+      - name: annee
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: conso
+        data_type: float
+      - name: consomean
+        data_type: float
+      - name: adresse_id
+        description: Identifiant adresse source, sans contrainte de référence.
+        data_type: varchar(26)
+      - name: commune_id
+        data_type: varchar(5)
+        data_tests:
+          - not_null

@@ -1,0 +1,48 @@
+models:
+  - name: rpls
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+    columns:
+      - name: id
+        data_type: varchar(36)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: adresse
+        data_type: text
+        data_tests:
+          - not_null
+      - name: code_postal
+        data_type: text
+        data_tests:
+          - not_null
+      - name: commune
+        data_type: text
+        data_tests:
+          - not_null
+      - name: etage
+        data_type: text
+      - name: npiece
+        data_type: integer
+      - name: surfhab
+        data_type: integer
+      - name: annee_construction
+        data_type: integer
+      - name: dpe
+        data_type: varchar(1)
+      - name: date_dpe
+        description: Date source conservée en texte, avec une précision au mois.
+        data_type: date
+      - name: commune_id
+        data_type: varchar(5)
+      - name: ban_id
+        description: Identifiant BAN source, éventuellement absent ou sans correspondance.
+        data_type: varchar(22)

@@ -1,0 +1,35 @@
+models:
+  - name: epci
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+    columns:
+      - name: id
+        data_type: varchar(9)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: nom
+        data_type: text
+        data_tests:
+          - not_null
+      - name: type
+        data_type: varchar(26)
+        data_tests:
+          - not_null
+      - name: geom
+        data_type: geometry(MultiPolygon,2154)
+        data_tests:
+          - not_null
+          - unique
+          - geometry_valid:
+              config:
+                store_failures: true
+                severity: warn

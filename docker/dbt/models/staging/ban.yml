@@ -1,0 +1,66 @@
+models:
+  - name: ban
+    description: Adresses de la Base Adresse Nationale issues d'imope_ban.
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+    columns:
+      - name: id
+        data_type: varchar(24)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: id_fantoir
+        data_type: varchar(10)
+
+      - name: numero
+        data_type: text
+
+      - name: rep
+        data_type: text
+
+      - name: nom_voie
+        data_type: text
+        data_tests:
+          - not_null
+
+      - name: code_postal
+        data_type: varchar(5)
+        data_tests:
+          - not_null
+
+      - name: commune
+        data_type: text
+        data_tests:
+          - not_null
+
+      - name: commune_id
+        data_type: varchar(5)
+        data_tests:
+          - not_null
+
+      - name: parcelle_id
+        description: Identifiant de parcelle source, éventuellement absent ou multiple.
+        data_type: text
+
+      - name: adresse
+        data_type: text
+        data_tests:
+          - not_null
+
+      - name: geometry
+        data_type: geometry(MultiPoint,2154)
+        data_tests:
+          - not_null
+          - geometry_valid:
+              config:
+                store_failures: true
+                severity: warn

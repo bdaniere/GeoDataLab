@@ -23,7 +23,7 @@ models:
         data_type: text
 
       - name: code_eic
-        data_type: text
+        data_type: varchar(16)
 
       - name: nom_commune
         data_type: text
@@ -36,7 +36,7 @@ models:
 
       - name: code_iris
         description: Code IRIS source, référence logique vers iris.id sans contrainte SQL.
-        data_type: text
+        data_type: varchar(9)
         data_tests:
           - not_null
           - relationships:

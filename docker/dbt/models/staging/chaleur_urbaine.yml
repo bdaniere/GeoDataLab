@@ -1,0 +1,63 @@
+models:
+  - name: chaleur_urbaine
+    description: Consommation de chaleur urbaine issue d'imope_chaleur_urbaine.
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+      - type: foreign_key
+        columns: [iris_id]
+        to: ref('iris')
+        to_columns: [id]
+
+    columns:
+      - name: id
+        data_type: varchar(36)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: fournisseur
+        data_type: text
+        data_tests:
+          - not_null
+
+      - name: annee
+        data_type: integer
+        data_tests:
+          - not_null
+
+      - name: filiere
+        data_type: varchar(1)
+        data_tests:
+          - not_null
+
+      - name: iris
+        data_type: text
+        data_tests:
+          - not_null
+
+      - name: conso
+        data_type: float
+
+      - name: pdl
+        data_type: float
+
+      - name: iris_id
+        data_type: varchar(9)
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('iris')
+                field: id
+
+      - name: ban_id
+        description: Identifiant BAN source, éventuellement absent ou sans correspondance.
+        data_type: varchar(18)
