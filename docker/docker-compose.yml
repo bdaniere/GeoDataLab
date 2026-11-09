@@ -13,6 +13,7 @@ services:
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
     networks:
       - geodatalab_network
@@ -67,6 +68,8 @@ services:
       - geodatalab_network
     profiles:
       - tools
+    ports:
+      - "8080:8080"
 
 networks:
   geodatalab_network:
