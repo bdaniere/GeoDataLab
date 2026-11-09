@@ -49,7 +49,7 @@ services:
 
   dbt:
     build:
-      context: ./dbt
+      context: ../dbt
     container_name: dbt
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -57,7 +57,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       DBT_PROFILES_DIR: /usr/app
     volumes:
-      - ./dbt:/usr/app
+      - ../dbt:/usr/app
     working_dir: /usr/app
     depends_on:
       postgis:
