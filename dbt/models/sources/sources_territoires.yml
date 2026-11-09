@@ -23,11 +23,19 @@ sources:
             data_tests:
               - not_null
 
-          - name: code_postal
+          - name: cp
           - name: superficie
           - name: population
           - name: epci
+            data_tests:
+              - not_null
           - name: epci_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: ref('imope_epci')
+                    field: id
 
           - name: geometry
             data_tests:
@@ -55,6 +63,11 @@ sources:
           - name: commune_id
             data_tests:
               - not_null
+              - relationships:
+                  arguments:
+                    to: ref('imope_commune')
+                    field: id
+
           - name: geometry
             data_tests:
               - not_null
@@ -77,6 +90,13 @@ sources:
           - name: type
           - name: commune
           - name: commune_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: ref('communes')
+                    field: id
+
           - name: geometry
             data_tests:
               - not_null

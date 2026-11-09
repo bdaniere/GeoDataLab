@@ -11,13 +11,16 @@ models:
         # name: pk_iris
         columns: [id]
 
+      - type: foreign_key
+        columns: [commune_id]
+        to: ref('communes')
+        to_columns: [id]
 
     columns:
       - name: id
         data_type: varchar(9)
         constraints:
           - type: not_null
-
         data_tests:
           - not_null
           - unique

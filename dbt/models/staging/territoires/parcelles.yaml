@@ -11,6 +11,10 @@ models:
         # name: pk_parcelles
         columns: [id]
 
+      - type: foreign_key
+        columns: [commune_id]
+        to: ref('communes')
+        to_columns: [id]
 
     columns:
       - name: id
