@@ -20,5 +20,8 @@ SELECT
     CAST(commune_id AS VARCHAR(5)) AS commune_id,
     CAST(parcelle_id AS TEXT) AS parcelle_id,
     CAST(adresse AS TEXT) AS adresse,
+    CAST(NOW() AS TIMESTAMP) AS created_at,
+    CAST(NOW() AS TIMESTAMP) AS updated_at,
+    CAST(CURRENT_USER AS TEXT) AS updated_by,
     CAST(ST_Multi(ST_Transform(geometry, 2154)) AS geometry(MultiPoint, 2154)) AS geometry
 FROM {{ source('raw_data', 'imope_ban') }}

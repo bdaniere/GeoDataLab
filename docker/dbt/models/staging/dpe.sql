@@ -32,7 +32,10 @@ corrected AS (
         CAST(dpe AS VARCHAR(1)) AS dpe,
         CAST(date_dpe AS DATE) AS date_dpe,
         CAST(nges AS INTEGER) AS nges,
-        CAST(id AS TEXT) AS adresse_id
+        CAST(id AS TEXT) AS adresse_id,
+        CAST(NOW() AS TIMESTAMP) AS created_at,
+        CAST(NOW() AS TIMESTAMP) AS updated_at,
+        CAST(CURRENT_USER AS TEXT) AS updated_by
     FROM deduplicated
 )
 

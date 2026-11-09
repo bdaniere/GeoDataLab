@@ -1,5 +1,7 @@
 models:
   - name: dpe
+    data_tests:
+      - staging_audit
     config:
       contract:
         enforced: true
@@ -40,4 +42,11 @@ models:
       - name: adresse_id
         data_type: text
 
+      - name: created_at
+        data_type: timestamp
 
+      - name: updated_at
+        data_type: timestamp
+
+      - name: updated_by
+        data_type: text

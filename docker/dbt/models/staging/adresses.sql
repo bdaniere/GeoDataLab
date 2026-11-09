@@ -202,5 +202,8 @@ SELECT
     epci_id,
     iris_id,
     parcelle_id,
+    CAST(NOW() AS TIMESTAMP) AS created_at,
+    CAST(NOW() AS TIMESTAMP) AS updated_at,
+    CAST(CURRENT_USER AS TEXT) AS updated_by,
     geometry
 FROM corrected

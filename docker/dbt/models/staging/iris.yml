@@ -1,5 +1,7 @@
 models:
   - name: iris
+    data_tests:
+      - staging_audit
     config:
       contract:
         enforced: true
@@ -37,6 +39,9 @@ models:
 
       - name: updated_at
         data_type: TIMESTAMP
+
+      - name: updated_by
+        data_type: text
 
       - name: geom
         data_type: geometry(MultiPolygon,2154)

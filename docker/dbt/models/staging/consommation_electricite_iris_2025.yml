@@ -1,5 +1,7 @@
 models:
   - name: consommation_electricite_iris_2025
+    data_tests:
+      - staging_audit
     description: Consommation électrique par IRIS. Les lignes sans IRIS correspondant sont conservées.
     config:
       contract:
@@ -48,4 +50,13 @@ models:
 
       - name: conso
         description: Valeur source conservée en texte, y compris les valeurs confidentielles.
+        data_type: text
+
+      - name: created_at
+        data_type: timestamp
+
+      - name: updated_at
+        data_type: timestamp
+
+      - name: updated_by
         data_type: text

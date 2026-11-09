@@ -1,5 +1,7 @@
 models:
   - name: adresses
+    data_tests:
+      - staging_audit
     config:
       contract:
         enforced: true
@@ -160,6 +162,15 @@ models:
 
       - name: parcelle_id
         data_type: varchar(14)
+
+      - name: created_at
+        data_type: timestamp
+
+      - name: updated_at
+        data_type: timestamp
+
+      - name: updated_by
+        data_type: text
 
       - name: geometry
         data_type: geometry(MultiPoint,2154)

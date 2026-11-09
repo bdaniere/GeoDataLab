@@ -4,22 +4,7 @@
         contract={'enforced': true},
         post_hook=[
             "CREATE INDEX IF NOT EXISTS idx_parcelles_geom
-             ON {{ this }} USING GIST (geom)",
-
-             "CREATE OR REPLACE FUNCTION update_updated_at()
-             RETURNS TRIGGER AS $$
-             BEGIN
-                 NEW.updated_at = NOW();
-                 RETURN NEW;
-             END;
-             $$ LANGUAGE plpgsql",
-
-            "DROP TRIGGER IF EXISTS trg_parcelles_updated_at ON {{ this }}",
-
-            "CREATE TRIGGER trg_parcelles_updated_at
-             BEFORE UPDATE ON {{ this }}
-             FOR EACH ROW
-             EXECUTE FUNCTION update_updated_at()"
+             ON {{ this }} USING GIST (geom)"
         ]
     )
 }}
@@ -55,9 +40,10 @@ corrected AS (
         CAST(numero AS VARCHAR(4)) AS numero,
         CAST(contenance AS INTEGER) AS contenance,
         CAST(superficie AS FLOAT) AS superficie,
+        CAST(commune_id AS VARCHAR(5)) AS commune_id,
         CAST(created AS TIMESTAMP) AS created_at,
         CAST(updated AS TIMESTAMP) AS updated_at,
-        CAST(commune_id AS VARCHAR(5)) AS commune_id,
+        CAST(CURRENT_USER AS TEXT) AS updated_by,
         CAST(
             ST_Transform(
                 ST_Multi(

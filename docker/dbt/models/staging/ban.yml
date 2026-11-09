@@ -1,5 +1,7 @@
 models:
   - name: ban
+    data_tests:
+      - staging_audit
     description: Adresses de la Base Adresse Nationale issues d'imope_ban.
     config:
       contract:
@@ -55,6 +57,15 @@ models:
         data_type: text
         data_tests:
           - not_null
+
+      - name: created_at
+        data_type: timestamp
+
+      - name: updated_at
+        data_type: timestamp
+
+      - name: updated_by
+        data_type: text
 
       - name: geometry
         data_type: geometry(MultiPoint,2154)

@@ -13,5 +13,8 @@ SELECT
     CAST(annee AS BIGINT) AS annee,
     CAST(filiere AS TEXT) AS filiere,
     CAST(code_iris AS VARCHAR(9)) AS code_iris,
-    CAST(conso AS TEXT) AS conso
+    CAST(conso AS TEXT) AS conso,
+    CAST(NOW() AS TIMESTAMP) AS created_at,
+    CAST(NOW() AS TIMESTAMP) AS updated_at,
+    CAST(CURRENT_USER AS TEXT) AS updated_by
 FROM {{ source('raw_data', 'consommation_electricite_iris_2025') }}

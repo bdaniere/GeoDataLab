@@ -1,5 +1,7 @@
 models:
   - name: energie_fournisseur
+    data_tests:
+      - staging_audit
     config:
       contract:
         enforced: true
@@ -35,3 +37,9 @@ models:
         data_type: varchar(5)
         data_tests:
           - not_null
+      - name: created_at
+        data_type: timestamp
+      - name: updated_at
+        data_type: timestamp
+      - name: updated_by
+        data_type: text

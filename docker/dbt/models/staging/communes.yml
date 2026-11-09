@@ -1,5 +1,7 @@
 models:
   - name: communes
+    data_tests:
+      - staging_audit
     config:
       contract:
         enforced: true
@@ -47,6 +49,15 @@ models:
 
       - name: epci_id
         data_type: varchar(9)
+
+      - name: created_at
+        data_type: timestamp
+
+      - name: updated_at
+        data_type: timestamp
+
+      - name: updated_by
+        data_type: text
 
       - name: geom
         data_type: geometry(MultiPolygon,2154)

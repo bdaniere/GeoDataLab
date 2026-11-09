@@ -1,5 +1,7 @@
 models:
   - name: chaleur_urbaine
+    data_tests:
+      - staging_audit
     description: Consommation de chaleur urbaine issue d'imope_chaleur_urbaine.
     config:
       contract:
@@ -61,3 +63,12 @@ models:
       - name: ban_id
         description: Identifiant BAN source, éventuellement absent ou sans correspondance.
         data_type: varchar(18)
+
+      - name: created_at
+        data_type: timestamp
+
+      - name: updated_at
+        data_type: timestamp
+
+      - name: updated_by
+        data_type: text

@@ -1,5 +1,7 @@
 models:
   - name: rpls
+    data_tests:
+      - staging_audit
     config:
       contract:
         enforced: true
@@ -46,3 +48,9 @@ models:
       - name: ban_id
         description: Identifiant BAN source, éventuellement absent ou sans correspondance.
         data_type: varchar(22)
+      - name: created_at
+        data_type: timestamp
+      - name: updated_at
+        data_type: timestamp
+      - name: updated_by
+        data_type: text

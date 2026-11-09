@@ -66,6 +66,18 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 - Pytest.
 - dbt, à explorer.
 
+Les modèles dbt de staging contiennent `created_at`, `updated_at` et `updated_by`
+avant leur éventuelle colonne géométrique. Les dates déjà présentes dans les sources
+de bâtiments et de parcelles sont conservées ; les autres sont initialisées lors de
+la construction. Un déclencheur renseigne la date de modification et le rôle
+PostgreSQL actif lors de chaque modification effective. Les insertions bénéficient
+des mêmes valeurs par défaut.
+
+Ces modèles sont matérialisés en tables : une reconstruction dbt les recrée et
+réinitialise les champs calculés, sans conserver l'historique des modifications
+directes. `updated_by` correspond au rôle PostgreSQL actif, pas nécessairement à
+un utilisateur applicatif individuel.
+
 ### Orchestration
 
 - Apache Airflow.

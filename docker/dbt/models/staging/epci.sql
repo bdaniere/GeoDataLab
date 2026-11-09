@@ -13,6 +13,9 @@ SELECT
     CAST(id AS VARCHAR(9)) AS id,
     CAST(nom AS TEXT) AS nom,
     CAST(type AS VARCHAR(26)) AS type,
+    CAST(NOW() AS TIMESTAMP) AS created_at,
+    CAST(NOW() AS TIMESTAMP) AS updated_at,
+    CAST(CURRENT_USER AS TEXT) AS updated_by,
     CAST(
         ST_Transform(
             ST_Multi(

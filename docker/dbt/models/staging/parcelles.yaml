@@ -1,5 +1,7 @@
 models:
   - name: parcelles
+    data_tests:
+      - staging_audit
     config:
       contract:
         enforced: true
@@ -34,15 +36,18 @@ models:
       
       - name: superficie
         data_type: float
-      
+
+      - name: commune_id
+        data_type: varchar(5)
+
       - name: created_at
         data_type: TIMESTAMP
 
       - name: updated_at
         data_type: TIMESTAMP
 
-      - name: commune_id
-        data_type: varchar(5)
+      - name: updated_by
+        data_type: text
 
       - name: geom
         data_type: geometry(MultiPolygon,2154)
