@@ -22,8 +22,6 @@ sources:
               #     config:
               #       store_failures: true
               #       severity: warn
-
-      
    
 
       - name: imope_rpls
@@ -52,7 +50,14 @@ sources:
           - name: dpe
           - name: datedpe
           - name: commune_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: ref('imope_commune')
+                    field: id
           - name: ban_id
+
 
 
 
