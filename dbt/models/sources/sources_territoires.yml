@@ -34,7 +34,7 @@ sources:
               - not_null
               - relationships:
                   arguments:
-                    to: ref('imope_epci')
+                    to: source('raw_data', 'imope_epci')
                     field: id
 
           - name: geometry
@@ -65,7 +65,7 @@ sources:
               - not_null
               - relationships:
                   arguments:
-                    to: ref('imope_commune')
+                    to: source('raw_data', 'imope_commune')
                     field: id
 
           - name: geometry
@@ -94,7 +94,7 @@ sources:
               - not_null
               - relationships:
                   arguments:
-                    to: ref('communes')
+                    to: source('raw_data', 'imope_commune')
                     field: id
 
           - name: geometry

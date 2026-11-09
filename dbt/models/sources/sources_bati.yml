@@ -54,10 +54,9 @@ sources:
               - not_null
               - relationships:
                   arguments:
-                    to: ref('imope_commune')
+                    to: source('raw_data', 'imope_commune')
                     field: id
           - name: ban_id
-
 
 
 

@@ -16,7 +16,6 @@ models:
         data_type: uuid
         constraints:
           - type: not_null
-
         data_tests:
           - not_null
           - unique
