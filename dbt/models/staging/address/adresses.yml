@@ -12,9 +12,13 @@ models:
         columns: [id]
 
       - type: foreign_key
-        # name: fk_adresses_code_insee
         columns: [commune_id]
         to: ref('communes')
+        to_columns: [id]
+
+      - type: foreign_key
+        columns: [iris_id]
+        to: ref('iris')
         to_columns: [id]
 
     columns:

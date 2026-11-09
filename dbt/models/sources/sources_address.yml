@@ -11,9 +11,21 @@ sources:
               - not_null
               # - unique
 
+          - name: iris_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw_data', 'imope_iris')
+                    field: id
+
           - name: commune_id
             data_tests:
               - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw_data', 'imope_commune')
+                    field: id
 
           - name: geometry
             data_tests:
@@ -41,7 +53,16 @@ sources:
           - name: commune_id
             data_tests:
               - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw_data', 'imope_commune')
+                    field: id
           - name: parcelle_id
+            # data_tests:
+            #   - relationships:
+            #       arguments:
+            #         to: source('raw_data', 'imope_parcelle')
+            #         field: id
           - name: adresse
             data_tests:
               - not_null

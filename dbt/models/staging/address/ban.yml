@@ -11,6 +11,12 @@ models:
       - type: primary_key
         columns: [id]
 
+      - type: foreign_key
+        columns: [commune_id]
+        references:
+          to: source('raw_data', 'imope_commune')
+          field: id
+
     columns:
       - name: id
         data_type: varchar(24)
