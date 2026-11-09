@@ -10,8 +10,6 @@ sources:
             data_tests:
               - not_null
 
-          - name: code_eic
-
           - name: nom_commune
             data_tests:
               - not_null
@@ -54,8 +52,6 @@ sources:
             data_tests:
               - not_null
       
-
-
       - name : imope_chaleur_urbaine
         columns:
           - name: id
@@ -79,12 +75,27 @@ sources:
             data_tests:
               - not_null
 
-          - name: conso
-          - name: pdl
           - name : iris_id
             data_tests:
               - not_null
-          - name: ban_id
+              - relationships:
+                  arguments:
+                    to: source('raw_data', 'imope_iris')
+                    field: id
+
+          # - name: parcelle_id
+          #   data_tests:
+          #     - relationships:
+          #         arguments:
+          #           to: source('raw_data', 'imope_parcelle')
+          #           field: id
+
+          # - name: ban_id
+          #   data_tests:
+          #     - relationships:
+          #         arguments:
+          #           to: source('raw_data', 'imope_ban')
+          #           field: id
 
       - name : imope_electricite
         columns:
@@ -119,10 +130,29 @@ sources:
 
           - name: conso
           - name: pdl
+  
+          - name: commune_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw_data', 'imope_commune')
+                    field: id
+
           - name : iris_id
             data_tests:
               - not_null
+              # - relationships:
+              #     arguments:
+              #       to: source('raw_data', 'imope_iris')
+              #       field: id
+                    
           - name: ban_id
+            # data_tests:
+            #   - relationships:
+            #       arguments:
+            #         to: source('raw_data', 'imope_ban')
+            #         field: id
 
       - name: imope_energie_fournisseur
         columns:
@@ -139,12 +169,14 @@ sources:
             data_tests:
               - not_null 
 
-          - name: conso
-          - name: consomean
-          - name: adresse_id
           - name : commune_id
             data_tests:
               - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw_data', 'imope_commune')
+                    field: id
+              
 
       - name: imope_gaz
         columns:
@@ -182,4 +214,23 @@ sources:
           - name : iris_id
             data_tests:
               - not_null
-          - name: ban_id
+              # - relationships:
+              #     arguments:
+              #       to: source('raw_data', 'imope_iris')
+              #       field: id
+
+          - name: commune_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw_data', 'imope_commune')
+                    field: id
+
+
+          # - name: ban_id
+          #   data_tests:
+          #     - relationships:
+          #         arguments:
+          #           to: source('raw_data', 'imope_ban')
+          #           field: id
