@@ -1,0 +1,61 @@
+version: 2
+
+sources:
+  - name: raw_data
+    schema: raw_data
+    tables:
+         
+      - name: batiments
+        columns:
+          - name: commune
+            data_tests:
+              - not_null
+          
+          - name: type
+          - name: nom
+
+          - name: geometry
+            data_tests:
+              - not_null
+              # - unique
+              # - geometry_valid:
+              #     config:
+              #       store_failures: true
+              #       severity: warn
+
+      
+   
+
+      - name: imope_rpls
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              - unique
+
+          - name: adresse
+            data_tests:
+              - not_null
+
+          - name: cp
+            data_tests:
+              - not_null 
+
+          - name: commune
+            data_tests:
+              - not_null
+
+          - name: etage
+          - name: npiece
+          - name : surfhab
+          - name: annee_construction
+          - name: dpe
+          - name: datedpe
+          - name: commune_id
+          - name: ban_id
+
+
+
+
+
+          

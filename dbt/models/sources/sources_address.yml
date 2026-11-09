@@ -1,0 +1,50 @@
+version: 2
+
+sources:
+  - name: raw_data
+    schema: raw_data
+    tables:
+      - name: imope_adresse
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              # - unique
+
+          - name: commune_id
+            data_tests:
+              - not_null
+
+          - name: geometry
+            data_tests:
+              - not_null
+
+      - name : imope_ban
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              - unique
+
+          - name: id_fantoir
+          - name: numero
+          - name: rep
+          - name: nom_voie
+            data_tests:
+              - not_null
+          - name: cp
+            data_tests:
+              - not_null
+          - name: commune
+            data_tests:
+              - not_null
+          - name: commune_id
+            data_tests:
+              - not_null
+          - name: parcelle_id
+          - name: adresse
+            data_tests:
+              - not_null
+          - name: geometry
+            data_tests:
+              - not_null

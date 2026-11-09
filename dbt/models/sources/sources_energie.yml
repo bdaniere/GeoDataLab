@@ -1,0 +1,185 @@
+version: 2
+
+sources:
+  - name: raw_data
+    schema: raw_data
+    tables:
+      - name: consommation_electricite_iris_2025
+        columns:
+          - name: operateur
+            data_tests:
+              - not_null
+
+          - name: code_eic
+
+          - name: nom_commune
+            data_tests:
+              - not_null
+
+          - name: annee
+            data_tests:
+              - not_null
+
+          - name: filiere
+            data_tests:
+              - not_null
+
+          - name: code_iris
+            data_tests:
+              - not_null
+
+          - name: conso
+            data_tests:
+              - not_null
+          
+      - name: consommation_froid_chaud_iris_2025
+        columns:
+          - name: operateur
+            data_tests:
+              - not_null
+
+          - name: annee
+            data_tests:
+              - not_null
+
+          - name: filiere
+            data_tests:
+              - not_null
+
+          - name: iris
+            data_tests:
+              - not_null
+
+          - name: conso
+            data_tests:
+              - not_null
+      
+
+
+      - name : imope_chaleur_urbaine
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              - unique
+
+          - name: fournisseur
+            data_tests:
+              - not_null
+
+          - name: annee
+            data_tests:
+              - not_null 
+
+          - name: filiere
+            data_tests:
+              - not_null
+
+          - name: iris
+            data_tests:
+              - not_null
+
+          - name: conso
+          - name: pdl
+          - name : iris_id
+            data_tests:
+              - not_null
+          - name: ban_id
+
+      - name : imope_electricite
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              - unique
+
+          - name: fournisseur
+            data_tests:
+              - not_null
+
+          - name: annee
+            data_tests:
+              - not_null 
+
+          - name: filiere
+            data_tests:
+              - not_null
+
+          - name: iris
+            data_tests:
+              - not_null
+
+          - name: adresse
+            data_tests:
+              - not_null
+          
+          - name : commune
+            data_tests:
+              - not_null
+
+          - name: conso
+          - name: pdl
+          - name : iris_id
+            data_tests:
+              - not_null
+          - name: ban_id
+
+      - name: imope_energie_fournisseur
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              - unique
+
+          - name: adresse
+            data_tests:
+              - not_null
+
+          - name: annee
+            data_tests:
+              - not_null 
+
+          - name: conso
+          - name: consomean
+          - name: adresse_id
+          - name : commune_id
+            data_tests:
+              - not_null
+
+      - name: imope_gaz
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              - unique
+
+          - name: fournisseur
+            data_tests:
+              - not_null
+
+          - name: annee
+            data_tests:
+              - not_null 
+
+          - name: filiere
+            data_tests:
+              - not_null
+
+          - name: iris
+            data_tests:
+              - not_null
+          
+          - name: adresse
+            data_tests:
+              - not_null
+          
+          - name: commune
+            data_tests:
+              - not_null
+
+          - name: conso
+          - name: pdl
+          - name : iris_id
+            data_tests:
+              - not_null
+          - name: ban_id
