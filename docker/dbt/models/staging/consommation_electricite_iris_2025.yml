@@ -1,0 +1,51 @@
+models:
+  - name: consommation_electricite_iris_2025
+    description: Consommation électrique par IRIS. Les lignes sans IRIS correspondant sont conservées.
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+    columns:
+      - name: id
+        description: UUID généré à chaque reconstruction du modèle.
+        data_type: uuid
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: operateur
+        data_type: text
+
+      - name: code_eic
+        data_type: text
+
+      - name: nom_commune
+        data_type: text
+
+      - name: annee
+        data_type: bigint
+
+      - name: filiere
+        data_type: text
+
+      - name: code_iris
+        description: Code IRIS source, référence logique vers iris.id sans contrainte SQL.
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('iris')
+                field: id
+              config:
+                severity: warn
+
+      - name: conso
+        description: Valeur source conservée en texte, y compris les valeurs confidentielles.
+        data_type: text

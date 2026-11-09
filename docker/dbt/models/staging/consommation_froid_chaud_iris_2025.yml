@@ -1,0 +1,40 @@
+models:
+  - name: consommation_froid_chaud_iris_2025
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+    columns:
+      - name: id
+        description: UUID généré à chaque reconstruction du modèle.
+        data_type: uuid
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: id_source
+        description: Identifiant de la source, non unique.
+        data_type: text
+
+      - name: operateur
+        data_type: text
+
+      - name: annee
+        data_type: bigint
+
+      - name: filiere
+        data_type: text
+
+      - name: code_iris
+        description: Code IRIS converti en texte à partir de la valeur numérique source.
+        data_type: text
+
+      - name: conso
+        description: Valeur source conservée en texte, y compris les valeurs confidentielles.
+        data_type: text

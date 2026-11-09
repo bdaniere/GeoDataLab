@@ -115,3 +115,53 @@ sources:
             data_tests:
               - not_null
       
+      - name: consommation_electricite_iris_2025
+        columns:
+          - name: operateur
+            data_tests:
+              - not_null
+
+          - name: code_eic
+
+          - name: nom_commune
+            data_tests:
+              - not_null
+
+          - name: annee
+            data_tests:
+              - not_null
+
+          - name: filiere
+            data_tests:
+              - not_null
+
+          - name: code_iris
+            data_tests:
+              - not_null
+
+          - name: conso
+            data_tests:
+              - not_null
+          
+      - name: consommation_froid_chaud_iris_2025
+        columns:
+          - name: operateur
+            data_tests:
+              - not_null
+
+          - name: annee
+            data_tests:
+              - not_null
+
+          - name: filiere
+            data_tests:
+              - not_null
+
+          - name: iris
+            data_tests:
+              - not_null
+
+          - name: conso
+            data_tests:
+              - not_null
+          
