@@ -66,6 +66,15 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 - Pytest.
 - dbt, à explorer.
 
+Le projet dbt se trouve dans `dbt/` et son profil de connexion dans
+`config/dbt/profiles.yml`. Docker Compose monte ce répertoire de configuration en
+lecture seule et transmet les variables PostgreSQL définies dans `docker/.env`.
+Pour vérifier la configuration et la connexion depuis la racine du projet :
+
+```bash
+docker compose -f docker/docker-compose.yml --profile tools run --rm dbt debug
+```
+
 Les modèles dbt de staging contiennent `created_at`, `updated_at` et `updated_by`
 avant leur éventuelle colonne géométrique. Les dates déjà présentes dans les sources
 de bâtiments et de parcelles sont conservées ; les autres sont initialisées lors de
