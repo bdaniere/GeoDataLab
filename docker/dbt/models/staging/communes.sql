@@ -35,6 +35,11 @@ corrected AS (
         CAST(population AS INTEGER) AS population,
         CAST(epci_id AS VARCHAR(9)) AS epci_id,
         CAST(epci AS VARCHAR(9)) AS epci,
+        CASE
+
+            WHEN id != insee THEN 'arrondissement'
+            ELSE 'commune'
+        END AS type_commune,
         CAST(NOW() AS TIMESTAMP) AS created_at,
         CAST(NOW() AS TIMESTAMP) AS updated_at,
         CAST(CURRENT_USER AS TEXT) AS updated_by,

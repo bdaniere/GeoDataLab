@@ -50,6 +50,9 @@ models:
       - name: epci_id
         data_type: varchar(9)
 
+      - name: type_commune
+        data_type: varchar(14)
+
       - name: created_at
         data_type: timestamp
 
