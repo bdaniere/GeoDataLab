@@ -6,57 +6,65 @@ sources:
     tables:
          
       - name: batiments
+        description : surface footprints of all structures within the territory, distinguishing only between permanent buildings and lightweight structures, with no information regarding their height, usage, or number of housing units
         columns:
           - name: commune
+            description: Commune name
             data_tests:
               - not_null
           
           - name: type
-          - name: nom
-
-          - name: geometry
+            description: Type of building (permanent or lightweight)
             data_tests:
               - not_null
-              # - unique
-              # - geometry_valid:
-              #     config:
-              #       store_failures: true
-              #       severity: warn
+              - accepted_values:
+                  values: ['01', '02']
+
+
+          - name: nom
+            description: Name of the building
+
+          - name: geometry
+            description: Geometry of the building footprint (MULTIPOLYGON)
+            data_tests:
+              - not_null
    
 
       - name: imope_rpls
+        description: integrates and geolocates data from the Directory of Rental Housing Owned by Social Landlords (RPLS), making it possible to identify, count, and characterize social housing units—including their typology, floor area, energy performance rating (DPE), financing method, year of commissioning, and the social landlord—directly at the level of each individual IMOPE address.
         columns:
           - name: id
+            description: Unique identifier for each RPLS record
             data_tests:
               - not_null
               - unique
 
           - name: adresse
+            description: Full address as a single string.
             data_tests:
               - not_null
 
           - name: cp
+            description: Postal code
             data_tests:
               - not_null 
 
           - name: commune
+            description: Commune name
             data_tests:
               - not_null
 
-          - name: etage
-          - name: npiece
-          - name : surfhab
-          - name: annee_construction
-          - name: dpe
-          - name: datedpe
           - name: commune_id
+            description: Source commune identifier.
             data_tests:
               - not_null
               - relationships:
                   arguments:
                     to: source('raw_data', 'imope_commune')
                     field: id
+
           - name: ban_id
+            description: Source BAN identifier.
 
 
 

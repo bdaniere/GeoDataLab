@@ -1,5 +1,6 @@
 models:
   - name: epci
+    description: Staging transformation of administrative and geographical reference framework for Public Establishments for Intercommunal Cooperation (EPCI) with their own tax-raising powers. Provides consolidation of commune groupings and regional organization data at the intercommunal level. Derived from raw_data.imope_epci.
     data_tests:
       - staging_audit
     config:

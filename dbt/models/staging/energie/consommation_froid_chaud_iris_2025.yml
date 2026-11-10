@@ -1,5 +1,6 @@
 models:
   - name: consommation_froid_chaud_iris_2025
+    description: Staging transformation of annual thermal energy consumption (heating and cooling network deliveries, in MWh) and delivery point data for 2025 at the IRIS (statistical neighborhood) level. Aggregated by sector of activity (residential, commercial/tertiary, industrial) with confidentiality-protected values preserved in source text format. Derived from raw_data.consommation_froid_chaud_iris_2025.
     data_tests:
       - staging_audit
     config:

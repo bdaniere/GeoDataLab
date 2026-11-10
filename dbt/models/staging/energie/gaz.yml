@@ -1,5 +1,6 @@
 models:
   - name: gaz
+    description: Staging transformation of actual annual natural gas consumption and delivery point data at the address level. Records gas consumption (in MWh) and point of delivery information sourced from energy suppliers, linked directly to IMOPE addresses when anonymization thresholds are met. Derived from raw_data.imope_gaz.
     data_tests:
       - staging_audit
     config:

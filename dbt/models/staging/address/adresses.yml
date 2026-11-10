@@ -1,5 +1,6 @@
 models:
   - name: adresses
+    description: Staging transformation of the French building stock address-level dataset containing 178+ fields from IMOPE. Describes address-level properties organized into major thematic categories including geographic coordinates, energy performance, building characteristics, technical systems, risk zones, and accessibility. Derived from raw_data.imope_adresse.
     data_tests:
       - staging_audit
     config:

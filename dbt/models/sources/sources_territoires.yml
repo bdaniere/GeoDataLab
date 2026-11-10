@@ -5,31 +5,45 @@ sources:
     schema: raw_data
     tables:
       - name : imope_commune
+        description: administrative and statistical reference framework at the municipal level
         columns:
           - name: id
+            description: Unique identifier for each commune
             data_tests:
               - not_null
               - unique
 
           - name: insee
+            description: INSEE code for the commune
             data_tests:
               - not_null
 
           - name: nom
+            description: Name of the commune
             data_tests:
               - not_null
 
           - name: nom_unaccent
+            description: Unaccented name of the commune
             data_tests:
               - not_null
 
           - name: cp
+            description: Postal code of the commune
+            
           - name: superficie
+            description: Surface area of the commune
+
           - name: population
+            description: Population of the commune
+
           - name: epci
+            description : EPCI (Public Establishment for Inter-municipal Cooperation) name
             data_tests:
               - not_null
+              
           - name: epci_id
+            description: Source EPCI identifier.
             data_tests:
               - not_null
               - relationships:
@@ -38,6 +52,7 @@ sources:
                     field: id
 
           - name: geometry
+            description: Geometry of the commune (MULTIPOLYGON)
             data_tests:
               - not_null
               - unique
@@ -47,20 +62,41 @@ sources:
                     severity: warn
 
       - name: imope_parcelle
+        description: official cadastral footprint
         columns:
           - name: id
+            description: Unique identifier for each parcel
             data_tests:
               - not_null
               - unique
 
           - name: prefixe
+            description: Prefix of the parcel identifier
+            data_tests:
+              - not_null
+
           - name: section
+            description: Section of the parcel identifier
+            data_tests:
+              - not_null
+
           - name: numero
-          - name: contenance
-          - name: superficie
+            description: Number of the parcel identifier
+            data_tests:
+              - not_null
+
           - name: created
+            description: Creation timestamp of the parcel record
+            data_tests:
+              - not_null
+
           - name: updated
+            description: Update timestamp of the parcel record
+            data_tests:
+              - not_null
+
           - name: commune_id
+            description: Source commune identifier.
             data_tests:
               - not_null
               - relationships:
@@ -69,6 +105,7 @@ sources:
                     field: id
 
           - name: geometry
+            description: Geometry of the parcel (MULTIPOLYGON)
             data_tests:
               - not_null
               - unique
@@ -78,18 +115,32 @@ sources:
                     severity: warn
 
       - name: imope_iris
+        description: official sub-municipal geographical breakdown by INSEE
         columns:
           - name: id
+            description: Unique identifier for each IRIS
             data_tests:
               - not_null
               - unique
 
           - name: nom
+            description: Name of the IRIS
             data_tests:
               - not_null
+
           - name: type
+            description: Type of the IRIS
+            data_tests:
+              - not_null
+  
+
           - name: commune
+            description: Name of the commune
+            data_tests:
+              - not_null
+
           - name: commune_id
+            description: Source commune identifier.
             data_tests:
               - not_null
               - relationships:
@@ -98,6 +149,7 @@ sources:
                     field: id
 
           - name: geometry
+            description: Geometry of the IRIS (MULTIPOLYGON)
             data_tests:
               - not_null
               - unique
@@ -107,21 +159,26 @@ sources:
                     severity: warn
 
       - name: imope_epci
+        description : administrative and geographical reference framework for Public Establishments for Intercommunal Cooperation with their own tax-raising powers
         columns:
           - name: id
+            description: Unique identifier for each EPCI
             data_tests:
               - not_null
               - unique
 
           - name: nom
+            description: Name of the EPCI
             data_tests:
               - not_null
 
           - name: type
+            description: Type of the EPCI
             data_tests:
               - not_null 
           
           - name: geometry
+            description: Geometry of the EPCI (MULTIPOLYGON)
             data_tests:
               - not_null
               - unique

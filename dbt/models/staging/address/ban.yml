@@ -1,8 +1,8 @@
 models:
   - name: ban
+    description: Adresses de la Base Adresse Nationale (BAN) - transformation staging de l'officiel référence dataset from the *Base Adresse Nationale* (BAN). Intègre et standardise les adresses officielles dans la base U.R.B.S., établissant le lien entre les adresses postales officielles et les entités physiques (bâtiments, parcelles) au sein de l'écosystème IMOPE. Dérivé de raw_data.imope_ban.
     data_tests:
       - staging_audit
-    description: Adresses de la Base Adresse Nationale issues d'imope_ban.
     config:
       contract:
         enforced: true

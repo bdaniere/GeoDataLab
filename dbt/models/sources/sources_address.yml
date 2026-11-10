@@ -5,13 +5,15 @@ sources:
     schema: raw_data
     tables:
       - name: imope_adresse
+        description: It describes the French building stock at the address level and includes 178 fields organized into several major thematic categories.
         columns:
           - name: id
+            description: Non-unique address identifier
             data_tests:
               - not_null
-              # - unique
 
           - name: iris_id
+            description: Source IRIS identifier.
             data_tests:
               - not_null
               - relationships:
@@ -20,6 +22,7 @@ sources:
                     field: id
 
           - name: commune_id
+            description: Source commune identifier.
             data_tests:
               - not_null
               - relationships:
@@ -28,44 +31,58 @@ sources:
                     field: id
 
           - name: geometry
+            description: Source address POINT geometry.
             data_tests:
               - not_null
 
       - name : imope_ban
+        description : The official reference dataset from the *Base Adresse Nationale* (BAN) is integrated and standardized within the U.R.B.S. database. It establishes the link between official postal addresses and the physical entities (buildings, land parcels) within the IMOPE ecosystem.
         columns:
           - name: id
+            description: BAN identifier
             data_tests:
               - not_null
               - unique
 
-          - name: id_fantoir
-          - name: numero
-          - name: rep
           - name: nom_voie
+            description: Street name
             data_tests:
               - not_null
+
           - name: cp
+            description: Postal code
             data_tests:
               - not_null
+
           - name: commune
+            description: Commune name
             data_tests:
               - not_null
+
           - name: commune_id
+            description: Source commune identifier.
             data_tests:
               - not_null
               - relationships:
                   arguments:
                     to: source('raw_data', 'imope_commune')
                     field: id
+                    
           - name: parcelle_id
+            description: Source parcel identifier.
             # data_tests:
             #   - relationships:
             #       arguments:
             #         to: source('raw_data', 'imope_parcelle')
             #         field: id
+
+
           - name: adresse
+            description: Full address as a single string.
             data_tests:
               - not_null
+              
           - name: geometry
+            description: Source address POINT geometry.
             data_tests:
               - not_null

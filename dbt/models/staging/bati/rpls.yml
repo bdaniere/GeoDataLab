@@ -1,5 +1,6 @@
 models:
   - name: rpls
+    description: Staging transformation of Social Housing Directory (RPLS) data, integrating and geolocating rental housing owned by social landlords. Identifies, counts, and characterizes social housing units including their typology, floor area, energy performance rating (DPE), financing method, year of commissioning, and social landlord at each IMOPE address level. Derived from raw_data.imope_rpls.
     data_tests:
       - staging_audit
     config:

@@ -1,5 +1,6 @@
 models:
   - name: dpe
+    description: Staging transformation of energy performance rating (DPE) data linked to individual addresses. Contains DPE ratings, annual energy costs, greenhouse gas emissions, and evaluation dates. Derived from IMOPE building performance assessment data.
     data_tests:
       - staging_audit
     config:

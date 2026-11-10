@@ -1,5 +1,6 @@
 models:
   - name: energie_fournisseur
+    description: Staging transformation of energy consumption and connection data (electricity, natural gas, heating networks) collected and geolocated from grid operators and energy suppliers at the address level. Links consumption data directly to IMOPE addresses when anonymization thresholds are met, including annual consumption and supply-specific information. Derived from raw_data.imope_energie_fournisseur.
     data_tests:
       - staging_audit
     config:

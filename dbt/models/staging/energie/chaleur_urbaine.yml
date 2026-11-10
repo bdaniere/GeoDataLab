@@ -1,8 +1,8 @@
 models:
   - name: chaleur_urbaine
+    description: Staging transformation of annual thermal energy consumption (heating and cooling network deliveries, in MWh) and delivery point data at the IRIS level. Records consumption by sector (residential, commercial/tertiary, industrial) while ensuring compliance with statistical confidentiality requirements. Derived from raw_data.imope_chaleur_urbaine.
     data_tests:
       - staging_audit
-    description: Consommation de chaleur urbaine issue d'imope_chaleur_urbaine.
     config:
       contract:
         enforced: true

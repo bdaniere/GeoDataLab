@@ -1,5 +1,6 @@
 models:
   - name: electricite
+    description: Staging transformation of actual annual electricity consumption and delivery point data at the address level. Records actual electricity consumption (in MWh) and number of delivery points (PDL) sourced from grid operators, linked directly to IMOPE addresses when anonymization thresholds are met. Derived from raw_data.imope_electricite.
     data_tests:
       - staging_audit
     config:
