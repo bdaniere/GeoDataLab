@@ -11,7 +11,7 @@ SELECT
     CAST(operateur AS TEXT) AS operateur,
     CAST(annee AS BIGINT) AS annee,
     CAST(filiere AS VARCHAR(1)) AS filiere,
-    CAST(iris AS VARCHAR(9)) AS code_iris,
+    CAST(LPAD(CAST(iris AS TEXT), 9, '0') AS VARCHAR(9)) AS code_iris,
     CAST(conso AS TEXT) AS conso,
     CAST(NOW() AS TIMESTAMP) AS created_at,
     CAST(NOW() AS TIMESTAMP) AS updated_at,
