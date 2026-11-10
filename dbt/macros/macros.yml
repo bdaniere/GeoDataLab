@@ -1,0 +1,22 @@
+version: 2
+
+macros:
+  - name: audit_staging
+    description: Post-hook applied to every staging model (see dbt_project.yml). Sets the audit columns defaults (created_at and updated_at to CURRENT_TIMESTAMP, updated_by to CURRENT_USER) and creates a BEFORE UPDATE trigger (trg_staging_audit) backed by an audit_<model> function that refreshes updated_at and updated_by only when the row actually changes. Requires the model to expose the created_at, updated_at and updated_by columns.
+
+  - name: test_geometry_valid
+    description: Generic test checking that a geometry column is usable. Returns the rows where the geometry is NULL, empty (ST_IsEmpty) or invalid (ST_IsValid). Requires PostGIS.
+    arguments:
+      - name: model
+        type: string
+        description: Model or source being tested.
+      - name: column_name
+        type: string
+        description: Geometry column to validate.
+
+  - name: test_staging_audit
+    description: Generic test verifying that a staging table is correctly set up by the audit_staging macro. Reports a problem if the audit columns (created_at, updated_at, updated_by) are not the last columns (before geom or geometry when present, which must come last), if their default values are wrong, or if the trg_staging_audit trigger is missing, disabled, not a BEFORE UPDATE row-level trigger, or not bound to the audit_<model> function with an IS DISTINCT FROM condition.
+    arguments:
+      - name: model
+        type: string
+        description: Staging model being tested.
