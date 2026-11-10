@@ -53,14 +53,24 @@ models:
         data_type: float
       - name: pdl
         data_type: integer
+
+      - name: commune_id
+        description: Source commune identifier.
+        data_type: varchar(5)
+        data_tests:
+          - not_null
+
       - name: iris_id
         description: Identifiant IRIS source, sans contrainte de référence.
         data_type: varchar(9)
         data_tests:
           - not_null
+
       - name: ban_id
         description: Identifiant BAN source, éventuellement absent ou sans correspondance.
         data_type: varchar(22)
+
+
       - name: created_at
         data_type: timestamp
       - name: updated_at

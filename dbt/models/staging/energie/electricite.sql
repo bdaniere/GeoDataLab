@@ -15,6 +15,7 @@ SELECT
     CAST(commune AS TEXT) AS commune,
     CAST(conso AS FLOAT) AS conso,
     CAST(pdl AS INTEGER) AS pdl,
+    CAST(commune_id AS VARCHAR(5)) AS commune_id,
     CAST(iris_id AS VARCHAR(9)) AS iris_id,
     CAST(ban_id AS VARCHAR(22)) AS ban_id,
     CAST(NOW() AS TIMESTAMP) AS created_at,
