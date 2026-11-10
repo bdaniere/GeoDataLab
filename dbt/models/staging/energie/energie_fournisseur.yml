@@ -19,6 +19,7 @@ models:
 
     columns:
       - name: id
+        description: Identifiant unique de l'enregistrement.
         data_type: text
         constraints:
           - type: not_null
@@ -26,27 +27,35 @@ models:
           - not_null
           - unique
       - name: adresse
+        description: Adresse complète sous forme de texte unique.
         data_type: text
         data_tests:
           - not_null
       - name: annee
+        description: Année de la consommation.
         data_type: integer
         data_tests:
           - not_null
       - name: conso
+        description: Consommation d'énergie issue des fournisseurs (électricité, gaz, réseaux de chaleur).
         data_type: float
       - name: consomean
+        description: Consommation moyenne associée à l'adresse.
         data_type: float
       - name: adresse_id
         description: Identifiant adresse source, sans contrainte de référence.
         data_type: varchar(26)
       - name: commune_id
+        description: Identifiant de la commune (référence vers communes.id).
         data_type: varchar(5)
         data_tests:
           - not_null
       - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
         data_type: timestamp
       - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
         data_type: timestamp
       - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
         data_type: text

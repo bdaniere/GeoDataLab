@@ -14,6 +14,7 @@ models:
 
     columns:
       - name: id
+        description: Identifiant unique du bâtiment (UUID).
         data_type: uuid
         constraints:
           - type: not_null
@@ -22,21 +23,27 @@ models:
           - unique
 
       - name: type
+        description: Type de bâtiment (01 = bâti en dur, 02 = bâti léger).
         data_type: varchar(2)
 
       - name: nom
+        description: Nom du bâtiment.
         data_type: text
 
       - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
         data_type: TIMESTAMP
 
       - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
         data_type: TIMESTAMP
 
       - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
         data_type: text
 
       - name: geom
+        description: Emprise au sol du bâtiment (MULTIPOLYGON, Lambert-93).
         data_type: geometry(MultiPolygon,2154)
         data_tests:
               - not_null

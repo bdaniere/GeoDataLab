@@ -20,6 +20,7 @@ models:
     columns:
 
       - name: id
+        description: Identifiant unique de la commune.
         data_type: varchar(9)
         constraints:
           - type: not_null
@@ -28,6 +29,7 @@ models:
           - unique
 
       - name: code_insee
+        description: Code INSEE de la commune.
         data_type: varchar(5)
         constraints:
           - type: not_null
@@ -35,39 +37,51 @@ models:
           - not_null
 
       - name: nom
+        description: Nom de la commune.
         data_type: text
 
       - name: nom_unaccent
+        description: Nom de la commune sans accents.
         data_type: text
 
       - name: code_postal
+        description: Code postal de la commune.
         data_type: varchar(5)
 
       - name: superficie
+        description: Superficie de la commune.
         data_type: float
 
       - name: population
+        description: Population de la commune.
         data_type: integer
 
       - name: epci
+        description: Nom de l'EPCI de rattachement.
         data_type: text
 
       - name: epci_id
+        description: Identifiant de l'EPCI de rattachement (référence vers epci.id).
         data_type: varchar(9)
 
       - name: type_commune
+        description: Type de la commune.
         data_type: varchar(14)
 
       - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
         data_type: timestamp
 
       - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
         data_type: timestamp
 
       - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
         data_type: text
 
       - name: geom
+        description: Contour de la commune (MULTIPOLYGON, Lambert-93).
         data_type: geometry(MultiPolygon,2154)
         data_tests:
               - not_null

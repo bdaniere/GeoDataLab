@@ -24,6 +24,7 @@ models:
 
     columns:
       - name: id
+        description: Identifiant unique de l'adresse.
         data_type: text
         constraints:
           - type: not_null
@@ -33,9 +34,11 @@ models:
           - unique
 
       - name: adresse
+        description: Adresse complète sous forme de texte unique.
         data_type: text
 
       - name: commune
+        description: Nom de la commune.
         data_type: text
         constraints:
           - type: not_null
@@ -43,139 +46,185 @@ models:
           - not_null
 
       - name: iris
+        description: Nom de l'IRIS.
         data_type: text
 
       - name: nlogh
+        description: Nombre de logements à l'adresse.
         data_type: integer
 
       - name: cp
+        description: Code postal.
         data_type: varchar(9)
 
       - name: altitude
+        description: Altitude de l'adresse (m).
         data_type: integer
 
       - name: bailleursoc
+        description: Indique si l'adresse appartient à un bailleur social.
         data_type: boolean
 
       - name: batihist
+        description: Indique si le bâtiment est un bâti historique.
         data_type: boolean
 
       - name: chauffage
+        description: Mode de chauffage (individuel ou collectif).
         data_type: varchar(10)
 
       - name: consochauff
+        description: Consommation de chauffage à l'adresse.
         data_type: integer
 
       - name: consochurb
+        description: Consommation de chaleur urbaine à l'adresse.
         data_type: integer
 
       - name: consoelec
+        description: Consommation d'électricité à l'adresse.
         data_type: integer
 
       - name: consoelecm
+        description: Consommation d'électricité moyenne (version « m » de consoelec).
         data_type: integer
 
       - name: consogaz
+        description: Consommation de gaz à l'adresse.
         data_type: integer
 
       - name: consogazm
+        description: Consommation de gaz moyenne (version « m » de consogaz).
         data_type: integer
 
       - name: consotou
+        description: Consommation totale, toutes énergies confondues.
         data_type: integer
 
       - name: consotoum
+        description: Consommation totale moyenne (version « m » de consotou).
         data_type: integer
 
       - name: consochurbm
+        description: Consommation de chaleur urbaine moyenne (version « m » de consochurb).
         data_type: integer
 
       - name: diffprixpct
+        description: Écart de prix en pourcentage.
         data_type: integer
 
       - name: energie
+        description: Énergie principale de chauffage.
         data_type: varchar(16)
 
       - name: mur
+        description: Type de matériau des murs.
         data_type: varchar(20)
 
       - name: nbpdlelec
+        description: Nombre de points de livraison d'électricité.
         data_type: integer
 
       - name: nbpdlgaz
+        description: Nombre de points de livraison de gaz.
         data_type: integer
 
       - name: nivtot
+        description: Nombre total de niveaux du bâtiment.
         data_type: integer
 
       - name: nlogsoc
+        description: Nombre de logements sociaux à l'adresse.
         data_type: integer
 
       - name: pgaz
+        description: Indique la présence du gaz de réseau à l'adresse.
         data_type: boolean
 
       - name: prix
+        description: Prix associé à l'adresse.
         data_type: float
 
       - name: surfacemurs
+        description: Surface des murs (m²).
         data_type: float
 
       - name: surfaceplanchersbas
+        description: Surface des planchers bas (m²).
         data_type: float
 
       - name: surfaceplanchershauts
+        description: Surface des planchers hauts (m²).
         data_type: float
 
       - name: surfacetot
+        description: Surface totale (m²).
         data_type: float
 
       - name: toit
+        description: Type de toiture.
         data_type: varchar(25)
 
       - name: typehab
+        description: Type d'habitat (maison individuelle, logement collectif, etc.).
         data_type: varchar(11)
 
       - name: typobati
+        description: Typologie du bâti.
         data_type: varchar(22)
 
       - name: zoneargile
+        description: Niveau d'exposition au retrait-gonflement des argiles.
         data_type: varchar(6)
 
       - name: zonehist
+        description: Indique si l'adresse est en zone patrimoniale ou historique.
         data_type: boolean
 
       - name: zoneinond
+        description: Indique si l'adresse est en zone inondable.
         data_type: boolean
 
       - name: zoneqpv
+        description: Indique si l'adresse est en quartier prioritaire de la politique de la ville (QPV).
         data_type: boolean
 
       - name: zonezsp
+        description: Indique si l'adresse est en zone de sécurité prioritaire (ZSP).
         data_type: boolean
 
       - name: pmr
+        description: Accessibilité aux personnes à mobilité réduite (PMR).
         data_type: varchar(2)
 
       - name: commune_id
+        description: Identifiant de la commune (référence vers communes.id).
         data_type: varchar(5)
 
       - name: epci_id
+        description: Identifiant de l'EPCI de rattachement.
         data_type: varchar(9)
 
       - name: iris_id
+        description: Identifiant de l'IRIS (référence vers iris.id).
         data_type: varchar(9)
 
       - name: parcelle_id
+        description: Identifiant de la parcelle cadastrale.
         data_type: varchar(14)
 
       - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
         data_type: timestamp
 
       - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
         data_type: timestamp
 
       - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
         data_type: text
 
       - name: geometry
+        description: Position de l'adresse (MULTIPOINT, Lambert-93).
         data_type: geometry(MultiPoint,2154)

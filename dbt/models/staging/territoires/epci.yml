@@ -13,6 +13,7 @@ models:
 
     columns:
       - name: id
+        description: Identifiant unique de l'EPCI.
         data_type: varchar(9)
         constraints:
           - type: not_null
@@ -20,20 +21,26 @@ models:
           - not_null
           - unique
       - name: nom
+        description: Nom de l'EPCI.
         data_type: text
         data_tests:
           - not_null
       - name: type
+        description: Type d'EPCI (métropole, communauté d'agglomération, etc.).
         data_type: varchar(26)
         data_tests:
           - not_null
       - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
         data_type: timestamp
       - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
         data_type: timestamp
       - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
         data_type: text
       - name: geom
+        description: Contour de l'EPCI (MULTIPOLYGON, Lambert-93).
         data_type: geometry(MultiPolygon,2154)
         data_tests:
           - not_null

@@ -26,12 +26,15 @@ models:
         data_type: varchar(5)
 
       - name: operateur
+        description: Opérateur du réseau de chaleur ou de froid.
         data_type: text
 
       - name: annee
+        description: Année de la consommation.
         data_type: bigint
 
       - name: filiere
+        description: Filière (secteur d'activité) de la consommation.
         data_type: varchar(1)
 
       - name: code_iris
@@ -43,10 +46,13 @@ models:
         data_type: text
 
       - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
         data_type: timestamp
 
       - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
         data_type: timestamp
 
       - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
         data_type: text

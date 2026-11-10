@@ -18,6 +18,7 @@ models:
 
     columns:
       - name: id
+        description: Identifiant BAN de l'adresse.
         data_type: varchar(24)
         constraints:
           - type: not_null
@@ -26,30 +27,37 @@ models:
           - unique
 
       - name: id_fantoir
+        description: Identifiant FANTOIR de la voie.
         data_type: varchar(10)
 
       - name: numero
+        description: Numéro dans la voie.
         data_type: text
 
       - name: rep
+        description: Indice de répétition du numéro (bis, ter, A, etc.).
         data_type: text
 
       - name: nom_voie
+        description: Nom de la voie.
         data_type: text
         data_tests:
           - not_null
 
       - name: code_postal
+        description: Code postal.
         data_type: varchar(5)
         data_tests:
           - not_null
 
       - name: commune
+        description: Nom de la commune.
         data_type: text
         data_tests:
           - not_null
 
       - name: commune_id
+        description: Identifiant de la commune (référence vers la commune source).
         data_type: varchar(5)
         data_tests:
           - not_null
@@ -59,20 +67,25 @@ models:
         data_type: text
 
       - name: adresse
+        description: Adresse complète sous forme de texte unique.
         data_type: text
         data_tests:
           - not_null
 
       - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
         data_type: timestamp
 
       - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
         data_type: timestamp
 
       - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
         data_type: text
 
       - name: geometry
+        description: Position de l'adresse (MULTIPOINT, Lambert-93).
         data_type: geometry(MultiPoint,2154)
         data_tests:
           - not_null
