@@ -1,0 +1,85 @@
+models:
+  - name: chaleur_urbaine
+    description: Staging transformation of annual thermal energy consumption (heating and cooling network deliveries, in MWh) and delivery point data at the IRIS level. Records consumption by sector (residential, commercial/tertiary, industrial) while ensuring compliance with statistical confidentiality requirements. Derived from raw_data.imope_chaleur_urbaine.
+    data_tests:
+      - staging_audit
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+      - type: foreign_key
+        columns: [iris_id]
+        to: ref('iris')
+        to_columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant unique de l'enregistrement de chaleur urbaine.
+        data_type: varchar(36)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: fournisseur
+        description: Fournisseur ou opérateur du réseau de chaleur.
+        data_type: text
+        data_tests:
+          - not_null
+
+      - name: annee
+        description: Année de la consommation.
+        data_type: integer
+        data_tests:
+          - not_null
+
+      - name: filiere
+        description: Filière (secteur d'activité) de la consommation.
+        data_type: varchar(1)
+        data_tests:
+          - not_null
+
+      - name: iris
+        description: Nom de l'IRIS.
+        data_type: text
+        data_tests:
+          - not_null
+
+      - name: conso
+        description: Consommation de chaleur ou de froid livrée par le réseau (MWh).
+        data_type: float
+
+      - name: pdl
+        description: Nombre de points de livraison (PDL).
+        data_type: float
+
+      - name: iris_id
+        description: Identifiant de l'IRIS (référence vers iris.id).
+        data_type: varchar(9)
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('iris')
+                field: id
+
+      - name: ban_id
+        description: Identifiant BAN source, éventuellement absent ou sans correspondance.
+        data_type: varchar(18)
+
+      - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
+        data_type: text

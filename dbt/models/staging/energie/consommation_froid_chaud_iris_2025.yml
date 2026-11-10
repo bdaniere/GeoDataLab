@@ -1,0 +1,58 @@
+models:
+  - name: consommation_froid_chaud_iris_2025
+    description: Staging transformation of annual thermal energy consumption (heating and cooling network deliveries, in MWh) and delivery point data for 2025 at the IRIS (statistical neighborhood) level. Aggregated by sector of activity (residential, commercial/tertiary, industrial) with confidentiality-protected values preserved in source text format. Derived from raw_data.consommation_froid_chaud_iris_2025.
+    data_tests:
+      - staging_audit
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+    columns:
+      - name: id
+        description: UUID généré à chaque reconstruction du modèle.
+        data_type: uuid
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: id_source
+        description: Identifiant de la source, non unique.
+        data_type: varchar(5)
+
+      - name: operateur
+        description: Opérateur du réseau de chaleur ou de froid.
+        data_type: text
+
+      - name: annee
+        description: Année de la consommation.
+        data_type: bigint
+
+      - name: filiere
+        description: Filière (secteur d'activité) de la consommation.
+        data_type: varchar(1)
+
+      - name: code_iris
+        description: Code IRIS converti en texte à partir de la valeur numérique source.
+        data_type: varchar(9)
+
+      - name: conso
+        description: Valeur source conservée en texte, y compris les valeurs confidentielles.
+        data_type: text
+
+      - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
+        data_type: text

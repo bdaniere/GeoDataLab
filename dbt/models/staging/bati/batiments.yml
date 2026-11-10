@@ -1,0 +1,53 @@
+models:
+  - name: batiments
+    description: Surface footprints of all structures within the territory, staging transformation of raw building data distinguishing only between permanent buildings and lightweight structures, with no information regarding their height, usage, or number of housing units. Derived from raw_data.batiments.
+    data_tests:
+      - staging_audit
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        # name: pk_batiments
+        columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant unique du bâtiment (UUID).
+        data_type: uuid
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: type
+        description: Type de bâtiment (01 = bâti en dur, 02 = bâti léger).
+        data_type: varchar(2)
+
+      - name: nom
+        description: Nom du bâtiment.
+        data_type: text
+
+      - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
+        data_type: TIMESTAMP
+
+      - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
+        data_type: TIMESTAMP
+
+      - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
+        data_type: text
+
+      - name: geom
+        description: Emprise au sol du bâtiment (MULTIPOLYGON, Lambert-93).
+        data_type: geometry(MultiPolygon,2154)
+        data_tests:
+              - not_null
+              - unique
+              - geometry_valid:
+                  config:
+                    store_failures: true

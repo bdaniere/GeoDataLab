@@ -1,0 +1,91 @@
+models:
+  - name: electricite
+    description: Staging transformation of actual annual electricity consumption and delivery point data at the address level. Records actual electricity consumption (in MWh) and number of delivery points (PDL) sourced from grid operators, linked directly to IMOPE addresses when anonymization thresholds are met. Derived from raw_data.imope_electricite.
+    data_tests:
+      - staging_audit
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+      - type: foreign_key
+        columns: [commune_id]
+        references:
+          table: commune
+          columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant unique de l'enregistrement de consommation d'électricité.
+        data_type: text
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: fournisseur
+        description: Fournisseur ou opérateur d'électricité.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: annee
+        description: Année de la consommation.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: filiere
+        description: Filière (secteur d'activité) de la consommation.
+        data_type: varchar(1)
+        data_tests:
+          - not_null
+      - name: iris
+        description: Nom de l'IRIS.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: adresse
+        description: Adresse complète sous forme de texte unique.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: commune
+        description: Nom de la commune.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: conso
+        description: Consommation d'électricité (MWh).
+        data_type: float
+      - name: pdl
+        description: Nombre de points de livraison (PDL).
+        data_type: integer
+
+      - name: commune_id
+        description: Source commune identifier.
+        data_type: varchar(5)
+        data_tests:
+          - not_null
+
+      - name: iris_id
+        description: Identifiant IRIS source, sans contrainte de référence.
+        data_type: varchar(9)
+        data_tests:
+          - not_null
+
+      - name: ban_id
+        description: Identifiant BAN source, éventuellement absent ou sans correspondance.
+        data_type: varchar(22)
+
+
+      - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
+        data_type: timestamp
+      - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
+        data_type: timestamp
+      - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
+        data_type: text

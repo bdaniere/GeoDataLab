@@ -225,3 +225,8 @@ data/
 # Visual Studio
 .vs/
 .vscode/
+
+# dbt
+dbt/logs/
+dbt/target/
+dbt/dbt_packages/

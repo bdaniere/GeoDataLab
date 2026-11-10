@@ -218,7 +218,6 @@ class ShapefileFormat(ZipFormat):
                 )
 
 
-# Ajouter ici les nouveaux formats de données géographiques.
 FORMATS: list[type[DataFormat]] = [
     ShapefileFormat,
     SevenZipFormat,
@@ -597,7 +596,7 @@ class GeoDataset:
                             "converting them to lowercase"
                         )
                     gdf = gdf.set_geometry(geometry_column)
-                    gdf.to_postgis(name, conn, schema=schema, if_exists=if_exists)
+                    gdf.to_postgis(name, conn, schema=schema, if_exists="replace")
                     names.append(name)
                     logger.info("%d rows sent to %s.%s", len(gdf), schema, name)
                 for layer, frame in tables.items():
@@ -656,28 +655,3 @@ class GeoDataFetcher:
             if fmt_cls.matches(filename, content_type, content):
                 return fmt_cls()
         raise FetchError(f"Unsupported format ({filename}, {content_type})")
-
-
-# ███╗   ███╗ █████╗ ██╗███╗   ██╗
-# ████╗ ████║██╔══██╗██║████╗  ██║
-# ██╔████╔██║███████║██║██╔██╗ ██║
-# ██║╚██╔╝██║██╔══██║██║██║╚██╗██║
-# ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║
-# ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
-
-
-init_data = {
-    # "parcelles_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles",
-    # "batiments_69": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments",
-    # "iris_france": "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z",
-    # "communes_france": "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson",
-    "imope": "https://data.urbs.fr/onb_v3_2_2_dpt69.gpkg"
-}
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    # if len(sys.argv) != 2:
-    #     sys.exit("Usage : python geo_data_fetcher.py <url>")
-    # GeoDataFetcher(sys.argv[1]).fetch().export()
-
-    for table_name, url in init_data.items():
-        GeoDataFetcher(url).fetch().to_postgis(table=table_name, schema="raw_data")

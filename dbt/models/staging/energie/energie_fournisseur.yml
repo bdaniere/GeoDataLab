@@ -1,0 +1,61 @@
+models:
+  - name: energie_fournisseur
+    description: Staging transformation of energy consumption and connection data (electricity, natural gas, heating networks) collected and geolocated from grid operators and energy suppliers at the address level. Links consumption data directly to IMOPE addresses when anonymization thresholds are met, including annual consumption and supply-specific information. Derived from raw_data.imope_energie_fournisseur.
+    data_tests:
+      - staging_audit
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+      - type: foreign_key
+        columns: [commune_id]
+        references:
+          table: commune
+          columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant unique de l'enregistrement.
+        data_type: text
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: adresse
+        description: Adresse complète sous forme de texte unique.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: annee
+        description: Année de la consommation.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: conso
+        description: Consommation d'énergie issue des fournisseurs (électricité, gaz, réseaux de chaleur).
+        data_type: float
+      - name: consomean
+        description: Consommation moyenne associée à l'adresse.
+        data_type: float
+      - name: adresse_id
+        description: Identifiant adresse source, sans contrainte de référence.
+        data_type: varchar(26)
+      - name: commune_id
+        description: Identifiant de la commune (référence vers communes.id).
+        data_type: varchar(5)
+        data_tests:
+          - not_null
+      - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
+        data_type: timestamp
+      - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
+        data_type: timestamp
+      - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
+        data_type: text

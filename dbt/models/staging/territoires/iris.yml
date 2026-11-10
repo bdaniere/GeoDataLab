@@ -1,0 +1,66 @@
+models:
+  - name: iris
+    description: Staging transformation of official sub-municipal geographical breakdown by INSEE (IRIS - Ilôts Regroupés pour l'Information Statistique). Provides administrative and statistical reference framework at the infra-municipal level with geometry and classification. Derived from raw_data.imope_iris.
+    data_tests:
+      - staging_audit
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        # name: pk_iris
+        columns: [id]
+
+      - type: foreign_key
+        columns: [commune_id]
+        to: ref('communes')
+        to_columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant IRIS (9 caractères).
+        data_type: varchar(9)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: nom
+        description: Nom de l'IRIS.
+        data_type: text
+
+      - name: type
+        description: Type d'IRIS (H = habitat, A = activité, D = divers, Z = commune non découpée).
+        data_type: varchar(1)
+
+      - name: commune
+        description: Nom de la commune de rattachement.
+        data_type: text
+
+      - name: commune_id
+        description: Identifiant de la commune de rattachement (référence vers communes.id).
+        data_type: varchar(5)
+
+      - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
+        data_type: TIMESTAMP
+
+      - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
+        data_type: TIMESTAMP
+
+      - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
+        data_type: text
+
+      - name: geom
+        description: Contour de l'IRIS (MULTIPOLYGON, Lambert-93).
+        data_type: geometry(MultiPolygon,2154)
+        data_tests:
+              - not_null
+              - unique
+              - geometry_valid:
+                  config:
+                    store_failures: true

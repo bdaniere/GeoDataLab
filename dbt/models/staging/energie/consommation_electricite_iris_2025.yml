@@ -1,0 +1,70 @@
+models:
+  - name: consommation_electricite_iris_2025
+    description: Staging transformation of annual electricity consumption (in MWh) and number of delivery points for 2025 at the IRIS (statistical neighborhood) level. Aggregated by economic sector (residential, service, industrial, agricultural) with confidentiality-protected values. Includes rows without corresponding IRIS mappings. Derived from raw_data.consommation_electricite_iris_2025.
+    data_tests:
+      - staging_audit
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+    columns:
+      - name: id
+        description: UUID généré à chaque reconstruction du modèle.
+        data_type: uuid
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: operateur
+        description: Opérateur du réseau d'électricité.
+        data_type: text
+
+      - name: code_eic
+        description: Code EIC (Energy Identification Code) de l'opérateur.
+        data_type: varchar(16)
+
+      - name: nom_commune
+        description: Nom de la commune.
+        data_type: text
+
+      - name: annee
+        description: Année de la consommation.
+        data_type: bigint
+
+      - name: filiere
+        description: Filière (secteur d'activité) de la consommation.
+        data_type: text
+
+      - name: code_iris
+        description: Code IRIS source, référence logique vers iris.id sans contrainte SQL.
+        data_type: varchar(9)
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('iris')
+                field: id
+              config:
+                severity: warn
+
+      - name: conso
+        description: Valeur source conservée en texte, y compris les valeurs confidentielles.
+        data_type: text
+
+      - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
+        data_type: text

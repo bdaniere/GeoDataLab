@@ -1,0 +1,296 @@
+version: 2
+
+sources:
+  - name: raw_data
+    schema: raw_data
+    tables:
+      - name: consommation_electricite_iris_2025
+        description: lists annual electricity consumption (in MWh) and the number of delivery points for the year 2025 at the statistical neighborhood level (IRIS zone), broken down by economic sector (residential, service, industrial, agricultural)
+        columns:
+          - name: operateur
+            description: Electricity operator
+            data_tests:
+              - not_null
+
+          - name: nom_commune
+            description: Name of the commune
+            data_tests:
+              - not_null
+
+          - name: annee
+            description: Year of the data
+            data_tests:
+              - not_null
+
+          - name: filiere
+            description: Energy sector
+            data_tests:
+              - not_null
+
+          - name: code_iris
+            description : IRIS code (statistical neighborhood identifier)
+            data_tests:
+              - not_null
+
+          - name: conso
+            description: Electricity consumption (in MWh)
+            data_tests:
+              - not_null
+          
+      - name: consommation_froid_chaud_iris_2025
+        description: records annual thermal energy consumption (deliveries from heating and cooling networks, in MWh) and the number of delivery points for the year 2025 at the statistical neighborhood level (IRIS zone), broken down by sector of activity (residential, commercial/tertiary, industrial), while ensuring compliance with statistical confidentiality requirements.
+        columns:
+          - name: operateur
+            description: Thermal energy operator
+            data_tests:
+              - not_null
+
+          - name: annee
+            description: Year of the data
+            data_tests:
+              - not_null
+
+          - name: filiere
+            description: Energy sector
+            data_tests:
+              - not_null
+
+          - name: iris
+            description: IRIS code (statistical neighborhood identifier)
+            data_tests:
+              - not_null
+
+          - name: conso
+            description: Thermal energy consumption (in MWh)
+            data_tests:
+              - not_null
+      
+      - name : imope_chaleur_urbaine
+        description: records annual thermal energy consumption (deliveries from heating and cooling networks, in MWh) and the number of delivery points for the year 2025 at the statistical neighborhood level (IRIS zone), broken down by sector of activity (residential, commercial/tertiary, industrial), while ensuring compliance with statistical confidentiality requirements.
+        columns:
+          - name: id
+            description: Unique identifier for each record
+            data_tests:
+              - not_null
+              - unique
+  
+          - name: fournisseur
+            description: Thermal energy supplier
+            data_tests:
+              - not_null
+
+          - name: annee
+            description: Year of the data
+            data_tests:
+              - not_null 
+
+          - name: filiere
+            description: Energy sector
+            data_tests:
+              - not_null
+
+          - name: iris
+            description: IRIS name
+            data_tests:
+              - not_null
+
+          - name : iris_id
+            description: Source IRIS identifier.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw_data', 'imope_iris')
+                    field: id
+
+          # - name: parcelle_id
+          #   data_tests:
+          #     - relationships:
+          #         arguments:
+          #           to: source('raw_data', 'imope_parcelle')
+          #           field: id
+
+          # - name: ban_id
+          #   data_tests:
+          #     - relationships:
+          #         arguments:
+          #           to: source('raw_data', 'imope_ban')
+          #           field: id
+
+      - name : imope_electricite
+        description : records actual annual electricity consumption (in MWh) and the number of delivery points (PDL) directly at the level of each IMOPE address
+        columns:
+          - name: id
+            description: Unique identifier for each record
+            data_tests:
+              - not_null
+              - unique
+
+          - name: fournisseur
+            description: Electricity supplier
+            data_tests:
+              - not_null
+
+          - name: annee
+            description: Year of the data
+            data_tests:
+              - not_null 
+
+          - name: filiere
+            description: Energy sector
+            data_tests:
+              - not_null
+
+          - name: iris
+            description: IRIS name
+            data_tests:
+              - not_null
+
+          - name: adresse
+            description: Full address as a single string
+            data_tests:
+              - not_null
+          
+          - name : commune
+            description: Commune name
+            data_tests:
+              - not_null
+
+          - name: conso
+            description: Electricity consumption (in MWh)
+            data_tests:
+              - not_null
+
+          - name: pdl
+            description: Number of delivery points (PDL)
+            data_tests:
+              - not_null
+  
+          - name: commune_id
+            description: Source commune identifier.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw_data', 'imope_commune')
+                    field: id
+
+          - name : iris_id
+            description: Source IRIS identifier.
+            data_tests:
+              - not_null
+              # - relationships:
+              #     arguments:
+              #       to: source('raw_data', 'imope_iris')
+              #       field: id
+                    
+          - name: ban_id
+            description: Source BAN identifier.
+            # data_tests:
+            #   - relationships:
+            #       arguments:
+            #         to: source('raw_data', 'imope_ban')
+            #         field: id
+
+      - name: imope_energie_fournisseur
+        description : collects and geolocates actual energy consumption and connection data (electricity, natural gas, and heating networks) sourced from grid operators and energy suppliers, in order to link this data directly to specific addresses and buildings, provided that the legal thresholds for anonymization are met
+        columns:
+          - name: id
+            description: Unique identifier for each record
+            data_tests:
+              - not_null
+              - unique
+
+          - name: adresse
+            description: Full address as a single string
+            data_tests:
+              - not_null
+
+          - name: annee
+            description: Year of the data
+            data_tests:
+              - not_null 
+
+          - name : commune_id
+            description: Source commune identifier.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw_data', 'imope_commune')
+                    field: id
+              
+
+      - name: imope_gaz
+        columns:
+          - name: id
+            description: Unique identifier for each record
+            data_tests:
+              - not_null
+              - unique
+
+          - name: fournisseur
+            description: Energy supplier
+            data_tests:
+              - not_null
+
+          - name: annee
+            description: Year of the data
+            data_tests:
+              - not_null 
+
+          - name: filiere
+            description: Energy sector
+            data_tests:
+              - not_null
+
+          - name: iris
+            description: IRIS name
+            data_tests:
+              - not_null
+          
+          - name: adresse
+            description: Full address as a single string
+            data_tests:
+              - not_null
+          
+          - name: commune
+            description: Commune name
+            data_tests:
+              - not_null
+
+          - name: conso
+            description: Gas consumption (in MWh)
+            data_tests:
+              - not_null
+
+          - name: pdl
+            description: Point of delivery identifier
+            data_tests:
+              - not_null
+          
+          - name : iris_id
+            description: Source IRIS identifier.
+            data_tests:
+              - not_null
+              # - relationships:
+              #     arguments:
+              #       to: source('raw_data', 'imope_iris')
+              #       field: id
+
+          - name: commune_id
+            description: Source commune identifier.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw_data', 'imope_commune')
+                    field: id
+
+
+          # - name: ban_id
+          #   data_tests:
+          #     - relationships:
+          #         arguments:
+          #           to: source('raw_data', 'imope_ban')
+          #           field: id

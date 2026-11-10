@@ -1,0 +1,63 @@
+models:
+  - name: dpe
+    description: Staging transformation of energy performance rating (DPE) data linked to individual addresses. Contains DPE ratings, annual energy costs, greenhouse gas emissions, and evaluation dates. Derived from IMOPE building performance assessment data.
+    data_tests:
+      - staging_audit
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        # name: pk_dpe
+        columns: [numero_dpe]
+
+      - type: foreign_key
+        # name : fk_dpe_adresse_id
+        columns: [adresse_id]
+        to: ref('adresses')
+        to_columns: [id]
+
+    columns:
+      - name: numero_dpe
+        description: Numéro unique du DPE (identifiant ADEME).
+        data_type: varchar(13)
+        data_tests:
+          - not_null
+          - unique
+
+      - name: fraisannuelsenergie
+        description: Estimation des frais annuels d'énergie (€).
+        data_type: float
+
+      - name: ges
+        description: Classe d'émissions de gaz à effet de serre (A à G).
+        data_type: varchar(1)
+
+      - name: dpe
+        description: Classe énergétique du DPE (A à G).
+        data_type: varchar(1)
+
+      - name: date_dpe
+        description: Date de réalisation du DPE.
+        data_type: date
+
+      - name: nges
+        description: Valeur numérique des émissions de gaz à effet de serre.
+        data_type: integer
+
+      - name: adresse_id
+        description: Identifiant de l'adresse concernée (référence vers adresses.id).
+        data_type: text
+
+      - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
+        data_type: text

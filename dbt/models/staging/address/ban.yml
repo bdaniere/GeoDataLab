@@ -1,0 +1,95 @@
+models:
+  - name: ban
+    description: Adresses de la Base Adresse Nationale (BAN) - transformation staging de l'officiel référence dataset from the *Base Adresse Nationale* (BAN). Intègre et standardise les adresses officielles dans la base U.R.B.S., établissant le lien entre les adresses postales officielles et les entités physiques (bâtiments, parcelles) au sein de l'écosystème IMOPE. Dérivé de raw_data.imope_ban.
+    data_tests:
+      - staging_audit
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+      - type: foreign_key
+        columns: [commune_id]
+        to: ref('communes')
+        to_columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant BAN de l'adresse.
+        data_type: varchar(24)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: id_fantoir
+        description: Identifiant FANTOIR de la voie.
+        data_type: varchar(10)
+
+      - name: numero
+        description: Numéro dans la voie.
+        data_type: text
+
+      - name: rep
+        description: Indice de répétition du numéro (bis, ter, A, etc.).
+        data_type: text
+
+      - name: nom_voie
+        description: Nom de la voie.
+        data_type: text
+        data_tests:
+          - not_null
+
+      - name: code_postal
+        description: Code postal.
+        data_type: varchar(5)
+        data_tests:
+          - not_null
+
+      - name: commune
+        description: Nom de la commune.
+        data_type: text
+        data_tests:
+          - not_null
+
+      - name: commune_id
+        description: Identifiant de la commune (référence vers la commune source).
+        data_type: varchar(5)
+        data_tests:
+          - not_null
+
+      - name: parcelle_id
+        description: Identifiant de parcelle source, éventuellement absent ou multiple.
+        data_type: text
+
+      - name: adresse
+        description: Adresse complète sous forme de texte unique.
+        data_type: text
+        data_tests:
+          - not_null
+
+      - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
+        data_type: text
+
+      - name: geometry
+        description: Position de l'adresse (MULTIPOINT, Lambert-93).
+        data_type: geometry(MultiPoint,2154)
+        data_tests:
+          - not_null
+          - geometry_valid:
+              config:
+                store_failures: true
+                severity: warn

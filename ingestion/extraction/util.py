@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "raw_data"
+DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data" / "raw_data"
 USER_AGENT = "GeoDataLab/0.1"
 
 
@@ -24,7 +24,7 @@ def default_connection_string() -> str:
     """Connection string of the docker-compose PostGIS (POSTGRES_* env variables)."""
 
     current_dir = Path(__file__).resolve().parent
-    dotenv_path = current_dir / ".." / "docker" / ".env"
+    dotenv_path = current_dir.parents[1] / "docker" / ".env"
 
     if dotenv_path.exists():
         load_dotenv(dotenv_path=dotenv_path)

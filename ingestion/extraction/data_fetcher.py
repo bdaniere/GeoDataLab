@@ -7,6 +7,7 @@ Exemple :
 
 from __future__ import annotations
 
+import csv
 import logging
 import re
 import unicodedata
@@ -57,6 +58,8 @@ def read_csv(content: bytes) -> pd.DataFrame:
             )
         except UnicodeDecodeError as exc:
             last_error = exc
+        except csv.Error as exc:
+            raise FetchError(f"Invalid CSV : {exc}") from exc
         except (pd.errors.ParserError, pd.errors.EmptyDataError) as exc:
             raise FetchError(f"Invalid CSV : {exc}") from exc
     raise FetchError(f"Unable to decode CSV : {last_error}")
@@ -150,16 +153,3 @@ class DataFetcher:
         ):
             raise FetchError(f"Unsupported format ({filename}, {content_type})")
         return dataset
-
-
-init_data = {
-    # "example": "https://example.com/data.csv",
-    "consommation_froid_chaud_iris_2025": "https://www.data.gouv.fr/api/1/datasets/r/3d025cfc-2e76-4e29-ae5c-1b6d860d8cdc",
-    "consommation_electricite_iris_2025": "https://www.data.gouv.fr/api/1/datasets/r/e2db4605-3240-4791-9efb-d4199d49cb37",
-    "consommation_gaz_iris_2025": "https://www.data.gouv.fr/api/1/datasets/r/872afb3c-a383-4a67-8217-70d8bfa5219b",
-}
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    for table_name, url in init_data.items():
-        DataFetcher(url).fetch().to_postgres(table=table_name, schema="raw_data")
