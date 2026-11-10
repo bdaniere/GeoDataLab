@@ -2,10 +2,7 @@
     config(
         materialized='table',
         contract={'enforced': true},
-        post_hook=[
-            "CREATE INDEX IF NOT EXISTS idx_adresses_geometry
-             ON {{ this }} USING GIST (geometry)"
-        ]
+        indexes=[{'columns': ['geometry'], 'type': 'gist'}]
     )
 }}
 
