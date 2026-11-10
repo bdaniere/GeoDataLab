@@ -34,7 +34,7 @@ corrected AS (
         CAST(superficie AS FLOAT) AS superficie,
         CAST(population AS INTEGER) AS population,
         CAST(epci_id AS VARCHAR(9)) AS epci_id,
-        CAST(epci AS TEXT) AS epci,
+        epci,
         CASE
 
             WHEN id != insee THEN 'arrondissement'

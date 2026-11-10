@@ -50,7 +50,7 @@ models:
         data_type: integer
 
       - name: epci
-        data_type: varchar(9)
+        data_type: text
 
       - name: epci_id
         data_type: varchar(9)
