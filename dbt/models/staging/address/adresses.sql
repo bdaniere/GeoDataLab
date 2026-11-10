@@ -150,7 +150,7 @@ corrected AS (
         CAST(iris_id AS varchar(9)) AS iris_id,
         CAST(parcelle_id AS varchar(14)) AS parcelle_id,
         CAST(
-            ST_Transform(geometry, 2154)
+            ST_Multi(ST_Transform(geometry, 2154))
             AS geometry(MultiPoint, 2154)
         ) AS geometry
     FROM deduplicated
