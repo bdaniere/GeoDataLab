@@ -13,9 +13,8 @@ models:
 
       - type: foreign_key
         columns: [commune_id]
-        references:
-          to: source('raw_data', 'imope_commune')
-          field: id
+        to: ref('communes')
+        to_columns: [id]
 
     columns:
       - name: id
