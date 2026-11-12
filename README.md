@@ -122,13 +122,15 @@ un utilisateur applicatif individuel.
 ### Étape 3 — Qualité et transformations
 
 - [x] Mettre en place des tests automatisés.
-- [ ] Contrôler la qualité des données.
-- [ ] Structurer les transformations SQL et Python.
-- [ ] Évaluer l'intérêt de dbt.
+- [x] Contrôler la qualité des données.
+- [x] Structurer les transformations SQL et Python.
+- [x] Évaluer l'intérêt de dbt.
+- [x] Structurer les transformations avec DBT
 
 ### Étape 4 — Premier pipeline de données
 
 - [ ] Sélectionner un périmètre géographique restreint.
+- [ ] Corrgier les reférénces (FK) invalides.
 - [ ] Intégrer des données territoriales et des données métier.
 - [ ] Réaliser les premiers traitements.
 - [ ] Produire des indicateurs simples.
