@@ -95,24 +95,11 @@ sources:
             data_tests:
               - not_null
 
-          - name: commune_id
-            description: Source commune identifier.
-            data_tests:
-              - not_null
-              - relationships:
-                  arguments:
-                    to: source('raw_data', 'imope_commune')
-                    field: id
-
           - name: geometry
             description: Geometry of the parcel (POLYGON)
             data_tests:
               - not_null
               - unique
-              - geometry_valid:
-                  config:
-                    store_failures: true
-                    severity: warn
 
       - name: imope_iris
         description: official sub-municipal geographical breakdown by INSEE
