@@ -1,6 +1,6 @@
 models:
-  - name: gaz
-    description: Staging transformation of actual annual natural gas consumption and delivery point data at the address level. Records gas consumption (in MWh) and point of delivery information sourced from energy suppliers, linked directly to IMOPE addresses when anonymization thresholds are met. Derived from raw_data.imope_gaz.
+  - name: stg_electricite
+    description: Staging transformation of actual annual electricity consumption and delivery point data at the address level. Records actual electricity consumption (in MWh) and number of delivery points (PDL) sourced from grid operators, linked directly to IMOPE addresses when anonymization thresholds are met. Derived from raw_data.imope_electricite.
     data_tests:
       - staging_audit
     config:
@@ -19,15 +19,15 @@ models:
 
     columns:
       - name: id
-        description: Identifiant unique de l'enregistrement de consommation de gaz.
-        data_type: varchar(36)
+        description: Identifiant unique de l'enregistrement de consommation d'électricité.
+        data_type: text
         constraints:
           - type: not_null
         data_tests:
           - not_null
           - unique
       - name: fournisseur
-        description: Fournisseur ou opérateur de gaz.
+        description: Fournisseur ou opérateur d'électricité.
         data_type: text
         data_tests:
           - not_null
@@ -57,24 +57,29 @@ models:
         data_tests:
           - not_null
       - name: conso
-        description: Consommation de gaz (MWh).
+        description: Consommation d'électricité (MWh).
         data_type: float
       - name: pdl
         description: Nombre de points de livraison (PDL).
         data_type: integer
+
       - name: commune_id
-        description: Identifiant commune source, sans contrainte de référence.
+        description: Source commune identifier.
         data_type: varchar(5)
         data_tests:
           - not_null
+
       - name: iris_id
         description: Identifiant IRIS source, sans contrainte de référence.
         data_type: varchar(9)
         data_tests:
           - not_null
+
       - name: ban_id
         description: Identifiant BAN source, éventuellement absent ou sans correspondance.
         data_type: varchar(22)
+
+
       - name: created_at
         description: Date de création de la ligne (colonne d'audit).
         data_type: timestamp

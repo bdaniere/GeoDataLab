@@ -1,5 +1,5 @@
 models:
-  - name: communes
+  - name: stg_communes
     description: Staging transformation of administrative and statistical reference framework at the municipal level. Includes commune identifiers, INSEE codes, geography, demographics, and regional groupings (EPCI). Provides essential geographic and administrative hierarchy data. Derived from raw_data.imope_commune.
     data_tests:
       - staging_audit
@@ -14,7 +14,7 @@ models:
 
       - type: foreign_key
         columns: [epci_id]
-        to: ref('epci')
+        to: ref('stg_epci')
         to_columns: [id]
 
     columns:

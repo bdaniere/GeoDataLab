@@ -1,5 +1,5 @@
 models:
-  - name: iris
+  - name: stg_iris
     description: Staging transformation of official sub-municipal geographical breakdown by INSEE (IRIS - Ilôts Regroupés pour l'Information Statistique). Provides administrative and statistical reference framework at the infra-municipal level with geometry and classification. Derived from raw_data.imope_iris.
     data_tests:
       - staging_audit
@@ -14,7 +14,7 @@ models:
 
       - type: foreign_key
         columns: [commune_id]
-        to: ref('communes')
+        to: ref('stg_communes')
         to_columns: [id]
 
     columns:

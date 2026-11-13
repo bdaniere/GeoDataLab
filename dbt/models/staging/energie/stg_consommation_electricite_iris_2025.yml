@@ -1,5 +1,5 @@
 models:
-  - name: consommation_electricite_iris_2025
+  - name: stg_consommation_electricite_iris_2025
     description: Staging transformation of annual electricity consumption (in MWh) and number of delivery points for 2025 at the IRIS (statistical neighborhood) level. Aggregated by economic sector (residential, service, industrial, agricultural) with confidentiality-protected values. Includes rows without corresponding IRIS mappings. Derived from raw_data.consommation_electricite_iris_2025.
     data_tests:
       - staging_audit
@@ -48,7 +48,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: ref('iris')
+                to: ref('stg_iris')
                 field: id
               config:
                 severity: warn

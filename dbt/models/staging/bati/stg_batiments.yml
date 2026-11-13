@@ -1,5 +1,5 @@
 models:
-  - name: batiments
+  - name: stg_batiments
     description: Surface footprints of all structures within the territory, staging transformation of raw building data distinguishing only between permanent buildings and lightweight structures, with no information regarding their height, usage, or number of housing units. Derived from raw_data.batiments.
     data_tests:
       - staging_audit
