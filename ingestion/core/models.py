@@ -46,3 +46,15 @@ class IngestionResult:
             return None
 
         return (self.finished_at - self.started_at).total_seconds()
+
+
+@dataclass
+class SourceData:
+    """Represent data extracted from a source."""
+
+    source_name: str
+    source_type: str
+    content: Any
+
+    format: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
