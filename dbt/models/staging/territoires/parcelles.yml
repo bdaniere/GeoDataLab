@@ -8,13 +8,7 @@ models:
 
     constraints:
       - type: primary_key
-        # name: pk_parcelles
         columns: [id]
-
-      # - type: foreign_key
-      #   columns: [commune_id]
-      #   to: ref('communes')
-      #   to_columns: [id]
 
     columns:
       - name: id
@@ -44,10 +38,7 @@ models:
         data_type: integer
       
       - name: superficie
-        data_type: float
-
-      # - name: commune_id
-      #   data_type: varchar(5)
+        data_type: floa
 
       - name: created_at
         data_type: TIMESTAMP
