@@ -11,7 +11,7 @@
 
 
 WITH source_data AS (
-    SELECT * FROM {{ source('raw_data', 'imope_parcelle') }}
+    SELECT * FROM {{ source('raw_data', 'parcelles') }}
 ),
 
 
@@ -22,25 +22,18 @@ filtered AS (
       AND id IS NOT NULL
 ),
 
-deduplicated AS (
-    SELECT DISTINCT ON (geometry) *
-    FROM filtered
-    ORDER BY
-        geometry,
-        created DESC NULLS LAST
-),
 
-
+ 
 
 corrected AS (
     SELECT
         CAST(id AS TEXT) AS id,
+        CAST(commune AS TEXT) AS commune,
         CAST(prefixe AS VARCHAR(3)) AS prefixe,
         CAST(section AS VARCHAR(2)) AS section,
         CAST(numero AS VARCHAR(4)) AS numero,
         CAST(contenance AS INTEGER) AS contenance,
-        CAST(superficie AS FLOAT) AS superficie,
-        CAST(commune_id AS VARCHAR(5)) AS commune_id,
+        CAST(ST_Area(geometry) AS FLOAT) AS superficie,
         CAST(created AS TIMESTAMP) AS created_at,
         CAST(updated AS TIMESTAMP) AS updated_at,
         CAST(CURRENT_USER AS TEXT) AS updated_by,
@@ -56,7 +49,7 @@ corrected AS (
             ) AS geometry(MULTIPOLYGON, 2154)
         ) AS geom
 
-    FROM deduplicated
+    FROM filtered
 )
 
 SELECT *

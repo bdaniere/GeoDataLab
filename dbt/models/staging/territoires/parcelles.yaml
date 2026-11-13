@@ -11,10 +11,10 @@ models:
         # name: pk_parcelles
         columns: [id]
 
-      - type: foreign_key
-        columns: [commune_id]
-        to: ref('communes')
-        to_columns: [id]
+      # - type: foreign_key
+      #   columns: [commune_id]
+      #   to: ref('communes')
+      #   to_columns: [id]
 
     columns:
       - name: id
@@ -25,6 +25,11 @@ models:
         data_tests:
           - not_null
           - unique
+
+      - name: commune
+        data_type: text
+        data_tests:
+          - not_null
 
       - name: prefixe
         data_type: varchar(3)
@@ -41,8 +46,8 @@ models:
       - name: superficie
         data_type: float
 
-      - name: commune_id
-        data_type: varchar(5)
+      # - name: commune_id
+      #   data_type: varchar(5)
 
       - name: created_at
         data_type: TIMESTAMP
@@ -54,7 +59,7 @@ models:
         data_type: text
 
       - name: geom
-        data_type: geometry(MultiPolygon,2154)
+        data_type: geometry(POLYGON,2154)
         data_tests:
               - not_null
               - unique

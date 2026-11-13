@@ -61,7 +61,7 @@ sources:
                     store_failures: true
                     severity: warn
 
-      - name: imope_parcelle
+      - name: parcelles
         description: official cadastral footprint
         columns:
           - name: id
@@ -105,7 +105,7 @@ sources:
                     field: id
 
           - name: geometry
-            description: Geometry of the parcel (MULTIPOLYGON)
+            description: Geometry of the parcel (POLYGON)
             data_tests:
               - not_null
               - unique
