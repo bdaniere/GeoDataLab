@@ -19,7 +19,7 @@ pyyaml = "^6.0.3"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["extraction"]
+pythonpath = [".", "extraction"]
 python_files = ["test_*.py"]
 
 [build-system]
