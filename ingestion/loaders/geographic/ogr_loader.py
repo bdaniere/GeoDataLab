@@ -1,8 +1,11 @@
+import logging
 import os
+import re
 import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
 
+import psycopg2
 from dotenv import load_dotenv
 from pyproj import CRS
 from pyproj.exceptions import CRSError
@@ -14,9 +17,164 @@ from ingestion.core.models import (
 )
 from ingestion.loaders.base import BaseLoader
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 
 class OgrLoader(BaseLoader):
     """Load geographic files into PostGIS using ogr2ogr."""
+
+    @staticmethod
+    def _destination_table_exists(
+        schema: str,
+        table: str,
+        environment: dict[str, str],
+    ) -> bool:
+        """Check whether a destination table exists in PostgreSQL.
+
+        Args:
+            schema: Destination schema name.
+            table: Destination table name.
+            environment: PostgreSQL connection environment.
+
+        Returns:
+            bool: True if the table exists, False otherwise.
+        """
+
+        connection = psycopg2.connect(
+            host=environment["PGHOST"],
+            port=environment["PGPORT"],
+            dbname=environment["PGDATABASE"],
+            user=environment["PGUSER"],
+            password=environment["PGPASSWORD"],
+        )
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM information_schema.tables
+                        WHERE table_schema = %s
+                        AND table_name = %s
+                    )
+                    """,
+                    (schema, table),
+                )
+
+                row = cursor.fetchone()
+                if row is None:
+                    return False
+
+                return bool(row[0])
+
+        finally:
+            connection.close()
+
+    @staticmethod
+    def _validate_target_crs(target_crs: int | str | None) -> None:
+        """Validate the target EPSG code.
+
+        Args:
+            target_crs: Target EPSG code.
+
+        Raises:
+            ValueError: If the EPSG code is invalid.
+        """
+
+        if target_crs is None:
+            return
+
+        if isinstance(target_crs, bool) or not str(target_crs).isdigit():
+            raise ValueError(
+                f"Invalid target CRS: {target_crs}. Expected a valid EPSG code."
+            )
+
+        try:
+            CRS.from_epsg(int(target_crs))
+        except (CRSError, ValueError) as error:
+            raise ValueError(
+                f"Invalid target CRS: {target_crs}. Expected a valid EPSG code."
+            ) from error
+
+    @staticmethod
+    def _validate_source_layer(
+        source_path: Path,
+        source_layer: str | None,
+    ) -> None:
+        """Validate that the requested layer exists in the source file.
+
+        Args:
+            source_path: Path to the geographic source file.
+            source_layer: Name of the requested source layer.
+
+        Raises:
+            ValueError: If the requested layer does not exist.
+        """
+
+        if source_layer is None:
+            return
+
+        command = [
+            "ogrinfo",
+            "-ro",
+            "-q",
+            str(source_path),
+        ]
+
+        try:
+            process = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError as error:
+            raise ValueError(f"Unable to inspect source file: {source_path}") from error
+
+        available_layers = [
+            line.strip().split(": ", 1)[1].split(" ", 1)[0]
+            for line in process.stdout.splitlines()
+            if ": " in line
+        ]
+
+        if source_layer not in available_layers:
+            raise ValueError(
+                f"Source layer '{source_layer}' does not exist. "
+                f"Available layers: {', '.join(available_layers)}"
+            )
+
+    @staticmethod
+    def _validate_destination_identifiers(
+        schema: str,
+        table: str,
+    ) -> None:
+        """Validate PostgreSQL schema and table identifiers.
+
+        Args:
+            schema: Destination schema name.
+            table: Destination table name.
+
+        Raises:
+            ValueError: If an identifier is invalid.
+        """
+
+        identifier_pattern = re.compile(r"^[a-z_][a-z0-9_]*$")
+
+        for name, value in {"schema": schema, "table": table}.items():
+            if (
+                not isinstance(value, str)
+                or not value
+                or len(value.encode("utf-8")) > 63
+                or not identifier_pattern.fullmatch(value)
+            ):
+                raise ValueError(
+                    f"Invalid destination {name}: {value}. "
+                    "Expected a name containing only lowercase letters, "
+                    "digits and underscores, starting with a letter "
+                    "or underscore, with a maximum length of 63 characters."
+                )
 
     def load(
         self,
@@ -39,6 +197,10 @@ class OgrLoader(BaseLoader):
             raise ValueError(
                 f"Unsupported destination type: {destination.destination_type}"
             )
+        self._validate_destination_identifiers(
+            schema=destination.schema,
+            table=destination.table,
+        )
 
         if not isinstance(source.content, (str, Path)):
             raise TypeError("OgrLoader expects a local file path.")
@@ -105,8 +267,19 @@ class OgrLoader(BaseLoader):
 
         environment = self._get_database_environment()
 
+        if mode == "create" and self._destination_table_exists(
+            schema=destination.schema,
+            table=destination.table,
+            environment=environment,
+        ):
+            raise ValueError(
+                f"Destination table already exists: "
+                f"{destination.schema}.{destination.table}. "
+                "Use 'append' or 'overwrite' instead."
+            )
+
         try:
-            print(f"Running command: {' '.join(ogr_command)}")
+            logger.info(f"Running command: {' '.join(ogr_command)}")
             process = subprocess.run(
                 ogr_command,
                 capture_output=True,
@@ -185,76 +358,3 @@ class OgrLoader(BaseLoader):
         )
 
         return environment
-
-    @staticmethod
-    def _validate_target_crs(target_crs: int | str | None) -> None:
-        """Validate the target EPSG code.
-
-        Args:
-            target_crs: Target EPSG code.
-
-        Raises:
-            ValueError: If the EPSG code is invalid.
-        """
-
-        if target_crs is None:
-            return
-
-        if isinstance(target_crs, bool) or not str(target_crs).isdigit():
-            raise ValueError(
-                f"Invalid target CRS: {target_crs}. Expected a valid EPSG code."
-            )
-
-        try:
-            CRS.from_epsg(int(target_crs))
-        except (CRSError, ValueError) as error:
-            raise ValueError(
-                f"Invalid target CRS: {target_crs}. Expected a valid EPSG code."
-            ) from error
-
-    @staticmethod
-    def _validate_source_layer(
-        source_path: Path,
-        source_layer: str | None,
-    ) -> None:
-        """Validate that the requested layer exists in the source file.
-
-        Args:
-            source_path: Path to the geographic source file.
-            source_layer: Name of the requested source layer.
-
-        Raises:
-            ValueError: If the requested layer does not exist.
-        """
-
-        if source_layer is None:
-            return
-
-        command = [
-            "ogrinfo",
-            "-ro",
-            "-q",
-            str(source_path),
-        ]
-
-        try:
-            process = subprocess.run(
-                command,
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-        except subprocess.CalledProcessError as error:
-            raise ValueError(f"Unable to inspect source file: {source_path}") from error
-
-        available_layers = [
-            line.strip().split(": ", 1)[1].split(" ", 1)[0]
-            for line in process.stdout.splitlines()
-            if ": " in line
-        ]
-
-        if source_layer not in available_layers:
-            raise ValueError(
-                f"Source layer '{source_layer}' does not exist. "
-                f"Available layers: {', '.join(available_layers)}"
-            )
