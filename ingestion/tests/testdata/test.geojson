@@ -1,0 +1,19 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "nom": "Tour Eiffel",
+                "categorie": "Monument"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    2.2945,
+                    48.8584
+                ]
+            }
+        }    
+    ]
+}

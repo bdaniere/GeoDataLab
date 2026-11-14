@@ -27,6 +27,87 @@ def expected_rows(geopackage):
     return [(feature_id, name, 4326) for feature_id, name in rows]
 
 
+def imported_monuments(connection, schema):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT f_geometry_column FROM geometry_columns "
+            "WHERE f_table_schema = %s AND f_table_name = %s",
+            (schema, "features"),
+        )
+        geometry_columns = cursor.fetchall()
+        assert len(geometry_columns) == 1
+        geometry = sql.Identifier(geometry_columns[0][0])
+        cursor.execute(
+            sql.SQL(
+                "SELECT nom, categorie, ST_SRID({geometry}), "
+                "ST_X({geometry}), ST_Y({geometry}) "
+                "FROM {schema}.features ORDER BY nom"
+            ).format(geometry=geometry, schema=sql.Identifier(schema))
+        )
+        return cursor.fetchall()
+
+
+def assert_monuments(rows, count):
+    assert len(rows) == count
+    for name, category, srid, x, y in rows:
+        assert (name, category, srid) == ("Tour Eiffel", "Monument", 4326)
+        assert (x, y) == pytest.approx((2.2945, 48.8584))
+
+
+def test_import_vector_formats(postgis, vector_source):
+    connection, schema = postgis
+
+    result = OgrLoader().load(vector_source, destination(schema))
+
+    assert result.success, result.error
+    assert result.records_processed == 1
+    assert_monuments(imported_monuments(connection, schema), 1)
+
+
+def test_create_vector_formats_rejects_existing_table(postgis, vector_source):
+    connection, schema = postgis
+    loader = OgrLoader()
+    first = loader.load(vector_source, destination(schema))
+    assert first.success, first.error
+
+    with pytest.raises(ValueError, match="Destination table already exists"):
+        loader.load(vector_source, destination(schema))
+
+    assert_monuments(imported_monuments(connection, schema), 1)
+
+
+def test_append_vector_formats(postgis, vector_source):
+    connection, schema = postgis
+    loader = OgrLoader()
+    first = loader.load(vector_source, destination(schema))
+    assert first.success, first.error
+
+    result = loader.load(vector_source, destination(schema, "append"))
+
+    assert result.success, result.error
+    assert result.records_processed == 1
+    assert_monuments(imported_monuments(connection, schema), 2)
+
+
+def test_overwrite_vector_formats(postgis, vector_source):
+    connection, schema = postgis
+    loader = OgrLoader()
+    first = loader.load(vector_source, destination(schema))
+    assert first.success, first.error
+    with connection.cursor() as cursor:
+        cursor.execute(
+            sql.SQL("UPDATE {}.features SET nom = 'obsolete'").format(
+                sql.Identifier(schema)
+            )
+        )
+
+    result = loader.load(vector_source, destination(schema, "overwrite"))
+
+    assert result.success, result.error
+    assert result.records_processed == 1
+    assert_monuments(imported_monuments(connection, schema), 1)
+
+
 def test_import_geopackage(postgis, source, geopackage):
     connection, schema = postgis
 

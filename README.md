@@ -166,10 +166,10 @@ un utilisateur applicatif individuel.
 ## Tests
 
 Les tests de l'ingestion se trouvent dans `ingestion/tests`. Les tests d'intégration
-OGR utilisent le GeoPackage `ingestion/tests/testdata/test.gpkg`, GDAL (`ogrinfo` et
-`ogr2ogr`) et une base PostGIS dédiée aux tests. Ils créent puis suppriment un schéma
-temporaire dans cette base. Les fixtures réutilisables sont regroupées dans
-`ingestion/tests/conftest.py`.
+OGR utilisent les jeux GeoPackage, GeoJSON et Shapefile de `ingestion/tests/testdata`,
+GDAL (`ogrinfo` et `ogr2ogr`) et une base PostGIS dédiée aux tests. Ils créent puis
+suppriment un schéma temporaire dans cette base. Les fixtures réutilisables sont
+regroupées dans `ingestion/tests/conftest.py`.
 
 Avec Poetry, depuis le dossier `ingestion` :
 

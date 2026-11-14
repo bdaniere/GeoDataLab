@@ -29,6 +29,26 @@ def source(geopackage):
     )
 
 
+@pytest.fixture(
+    params=[
+        ("test.geojson", "geojson"),
+        ("test_shapefile/test.shp", "shp"),
+    ],
+    ids=["geojson", "shapefile"],
+)
+def vector_source(request):
+    relative_path, file_format = request.param
+    path = Path(__file__).parent / "testdata" / relative_path
+    assert path.is_file(), f"Missing test file: {path}"
+    return SourceData(
+        f"test_{file_format}",
+        "local",
+        path,
+        format=file_format,
+        metadata={"source_layer": "test"},
+    )
+
+
 @pytest.fixture
 def ogrinfo():
     if not shutil.which("ogrinfo"):
