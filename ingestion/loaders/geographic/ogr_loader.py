@@ -4,6 +4,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
+from pyproj import CRS
+from pyproj.exceptions import CRSError
 
 from ingestion.core.models import (
     DestinationConfig,
@@ -54,6 +56,7 @@ class OgrLoader(BaseLoader):
             raise ValueError(f"Unsupported loading mode: {mode}")
 
         target_crs = options.get("target_crs")
+        self._validate_target_crs(target_crs)
 
         source_layer = source.metadata.get("source_layer")
 
@@ -176,3 +179,29 @@ class OgrLoader(BaseLoader):
         )
 
         return environment
+
+    @staticmethod
+    def _validate_target_crs(target_crs: int | str | None) -> None:
+        """Validate the target EPSG code.
+
+        Args:
+            target_crs: Target EPSG code.
+
+        Raises:
+            ValueError: If the EPSG code is invalid.
+        """
+
+        if target_crs is None:
+            return
+
+        if isinstance(target_crs, bool) or not str(target_crs).isdigit():
+            raise ValueError(
+                f"Invalid target CRS: {target_crs}. Expected a valid EPSG code."
+            )
+
+        try:
+            CRS.from_epsg(int(target_crs))
+        except (CRSError, ValueError) as error:
+            raise ValueError(
+                f"Invalid target CRS: {target_crs}. Expected a valid EPSG code."
+            ) from error
