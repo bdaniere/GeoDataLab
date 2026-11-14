@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from core.models import SourceConfig, SourceData
+from ingestion.core.models import SourceConfig, SourceData
 
 
 class BaseSource(ABC):

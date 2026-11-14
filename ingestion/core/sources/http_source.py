@@ -1,9 +1,9 @@
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
-from core.download_manager import DownloadManager
-from core.models import SourceConfig, SourceData
-from core.sources.base import BaseSource
+from ingestion.core.download_manager import DownloadManager
+from ingestion.core.models import SourceConfig, SourceData
+from ingestion.core.sources.base import BaseSource
 
 
 class HttpSource(BaseSource):

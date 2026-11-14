@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from core.models import SourceConfig, SourceData
-from core.sources.base import BaseSource
+from ingestion.core.models import SourceConfig, SourceData
+from ingestion.core.sources.base import BaseSource
 
 
 class LocalSource(BaseSource):
