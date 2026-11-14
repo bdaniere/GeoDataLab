@@ -55,20 +55,33 @@ class OgrLoader(BaseLoader):
 
         target_crs = options.get("target_crs")
 
+        source_layer = source.metadata.get("source_layer")
+
         ogr_command = [
             "ogr2ogr",
             "-f",
             "PostgreSQL",
             "PG:",
             str(source_path),
-            "-nln",
-            destination.table,
-            "-lco",
-            f"SCHEMA={destination.schema}",
         ]
 
+        if source_layer:
+            ogr_command.append(source_layer)
+
+        ogr_command.extend(
+            [
+                "-nln",
+                f"{destination.schema}.{destination.table}",
+            ]
+        )
+
         if mode == "overwrite":
-            ogr_command.append("-overwrite")
+            ogr_command.extend(
+                [
+                    "-lco",
+                    "OVERWRITE=YES",
+                ]
+            )
 
         elif mode == "append":
             ogr_command.append("-append")
@@ -84,6 +97,7 @@ class OgrLoader(BaseLoader):
         environment = self._get_database_environment()
 
         try:
+            print(f"Running command: {' '.join(ogr_command)}")
             process = subprocess.run(
                 ogr_command,
                 capture_output=True,
@@ -99,6 +113,7 @@ class OgrLoader(BaseLoader):
                 finished_at=datetime.now(UTC),
                 metadata={
                     "source_file": str(source_path.resolve()),
+                    "source_layer": source_layer,
                     "destination_schema": destination.schema,
                     "destination_table": destination.table,
                     "loading_mode": mode,
@@ -116,6 +131,7 @@ class OgrLoader(BaseLoader):
                 error=error.stderr or str(error),
                 metadata={
                     "source_file": str(source_path.resolve()),
+                    "source_layer": source_layer,
                     "destination_schema": destination.schema,
                     "destination_table": destination.table,
                     "loading_mode": mode,
@@ -127,7 +143,7 @@ class OgrLoader(BaseLoader):
 
         env_path = Path(__file__).resolve().parents[3] / "docker" / ".env"
 
-        # if not env_path.is_file():
+        # if not env_path.is_file():  # TMP - Reactivation at the end of the development phase for use with Docker
         load_dotenv(dotenv_path=env_path)
 
         environment = os.environ.copy()
