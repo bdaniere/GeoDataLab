@@ -48,6 +48,12 @@ class OgrLoader(BaseLoader):
         if not source_path.is_file():
             raise FileNotFoundError(f"Source file does not exist: {source_path}")
 
+        source_layer = source.metadata.get("source_layer")
+        self._validate_source_layer(
+            source_path=source_path,
+            source_layer=source_layer,
+        )
+
         options = destination.options
 
         mode = options.get("mode", "create")
@@ -205,3 +211,50 @@ class OgrLoader(BaseLoader):
             raise ValueError(
                 f"Invalid target CRS: {target_crs}. Expected a valid EPSG code."
             ) from error
+
+    @staticmethod
+    def _validate_source_layer(
+        source_path: Path,
+        source_layer: str | None,
+    ) -> None:
+        """Validate that the requested layer exists in the source file.
+
+        Args:
+            source_path: Path to the geographic source file.
+            source_layer: Name of the requested source layer.
+
+        Raises:
+            ValueError: If the requested layer does not exist.
+        """
+
+        if source_layer is None:
+            return
+
+        command = [
+            "ogrinfo",
+            "-ro",
+            "-q",
+            str(source_path),
+        ]
+
+        try:
+            process = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError as error:
+            raise ValueError(f"Unable to inspect source file: {source_path}") from error
+
+        available_layers = [
+            line.strip().split(": ", 1)[1].split(" ", 1)[0]
+            for line in process.stdout.splitlines()
+            if ": " in line
+        ]
+
+        if source_layer not in available_layers:
+            raise ValueError(
+                f"Source layer '{source_layer}' does not exist. "
+                f"Available layers: {', '.join(available_layers)}"
+            )
