@@ -1,10 +1,9 @@
 import subprocess
 
 import pytest
-
-from ingestion.core.models import DestinationConfig, SourceData
-from ingestion.loaders.geographic import ogr_loader
-from ingestion.loaders.geographic.ogr_loader import OgrLoader
+from core.models import DestinationConfig, SourceData
+from loaders.geographic import ogr_loader
+from loaders.geographic.ogr_loader import OgrLoader
 
 
 @pytest.fixture
@@ -109,6 +108,16 @@ def test_load_passes_database_environment_to_ogr2ogr(docker_env, tmp_path, monke
         captured.update(kwargs["env"])
         return subprocess.CompletedProcess(command, 0, stdout="loaded", stderr="")
 
+    monkeypatch.setattr(
+        OgrLoader,
+        "_get_source_feature_count",
+        staticmethod(lambda source_path, source_layer: None),
+    )
+    monkeypatch.setattr(
+        OgrLoader,
+        "_destination_table_exists",
+        staticmethod(lambda schema, table, environment: False),
+    )
     monkeypatch.setattr(ogr_loader.subprocess, "run", fake_run)
 
     result = OgrLoader().load(source, destination)

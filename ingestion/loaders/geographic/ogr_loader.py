@@ -6,16 +6,15 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import psycopg2
-from dotenv import load_dotenv
-from pyproj import CRS
-from pyproj.exceptions import CRSError
-
-from ingestion.core.models import (
+from core.models import (
     DestinationConfig,
     IngestionResult,
     SourceData,
 )
-from ingestion.loaders.base import BaseLoader
+from dotenv import load_dotenv
+from loaders.base import BaseLoader
+from pyproj import CRS
+from pyproj.exceptions import CRSError
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -393,7 +392,9 @@ class OgrLoader(BaseLoader):
 
         env_path = Path(__file__).resolve().parents[3] / "docker" / ".env"
 
-        # if not env_path.is_file():  # TMP - Reactivation at the end of the development phase for use with Docker
+        if not env_path.is_file():
+            raise FileNotFoundError(f"Environment file not found: {env_path}")
+
         load_dotenv(dotenv_path=env_path)
 
         environment = os.environ.copy()

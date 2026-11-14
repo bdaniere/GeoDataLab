@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ingestion.core.models import (
+from core.models import (
     DestinationConfig,
     IngestionResult,
     SourceData,
