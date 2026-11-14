@@ -71,6 +71,27 @@ services:
     ports:
       - "8081:8080"
 
+  ingestion:
+    build:
+      context: ../ingestion
+      dockerfile: Dockerfile
+
+    container_name: ingestion
+
+    env_file:
+      - .env
+
+    environment:
+      POSTGRES_HOST: postgis
+      POSTGIS_PORT: "5432"
+
+    depends_on:
+      postgis:
+        condition: service_healthy
+
+    networks:
+      - geodatalab_network
+
 networks:
   geodatalab_network:
     driver: bridge
