@@ -176,6 +176,55 @@ class OgrLoader(BaseLoader):
                     "or underscore, with a maximum length of 63 characters."
                 )
 
+    @staticmethod
+    def _get_source_feature_count(
+        source_path: Path,
+        source_layer: str | None,
+    ) -> int | None:
+        """Retrieve the number of features in the source layer(s).
+
+        Args:
+            source_path: Path to the geographic source file.
+            source_layer: Optional name of the source layer.
+
+        Returns:
+            int | None: Total number of features, or None if unavailable.
+        """
+
+        command = [
+            "ogrinfo",
+            "-ro",
+            "-so",
+        ]
+
+        if source_layer is None:
+            command.append("-al")
+
+        command.append(str(source_path))
+
+        if source_layer is not None:
+            command.append(source_layer)
+
+        try:
+            process = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return None
+
+        feature_counts = re.findall(
+            r"Feature Count:\s*(\d+)",
+            process.stdout,
+        )
+
+        if not feature_counts:
+            return None
+
+        return sum(int(count) for count in feature_counts)
+
     def load(
         self,
         source: SourceData,
@@ -267,18 +316,22 @@ class OgrLoader(BaseLoader):
 
         environment = self._get_database_environment()
 
-        if mode == "create" and self._destination_table_exists(
-            schema=destination.schema,
-            table=destination.table,
-            environment=environment,
-        ):
-            raise ValueError(
-                f"Destination table already exists: "
-                f"{destination.schema}.{destination.table}. "
-                "Use 'append' or 'overwrite' instead."
-            )
-
         try:
+            source_feature_count = self._get_source_feature_count(
+                source_path=source_path,
+                source_layer=source_layer,
+            )
+            if mode == "create" and self._destination_table_exists(
+                schema=destination.schema,
+                table=destination.table,
+                environment=environment,
+            ):
+                raise ValueError(
+                    f"Destination table already exists: "
+                    f"{destination.schema}.{destination.table}. "
+                    "Use 'append' or 'overwrite' instead."
+                )
+
             logger.info(f"Running command: {' '.join(ogr_command)}")
             process = subprocess.run(
                 ogr_command,
@@ -293,6 +346,7 @@ class OgrLoader(BaseLoader):
                 success=True,
                 started_at=started_at,
                 finished_at=datetime.now(UTC),
+                records_processed=source_feature_count,
                 metadata={
                     "source_file": str(source_path.resolve()),
                     "source_layer": source_layer,
@@ -304,19 +358,33 @@ class OgrLoader(BaseLoader):
                 },
             )
 
-        except subprocess.CalledProcessError as error:
+        except ValueError:
+            raise
+
+        except (
+            psycopg2.Error,
+            subprocess.CalledProcessError,
+            FileNotFoundError,
+        ) as error:
+            error_message = (
+                error.stderr
+                if isinstance(error, subprocess.CalledProcessError) and error.stderr
+                else str(error)
+            )
+
             return IngestionResult(
                 source_name=source.source_name,
                 success=False,
                 started_at=started_at,
                 finished_at=datetime.now(UTC),
-                error=error.stderr or str(error),
+                error=error_message,
                 metadata={
                     "source_file": str(source_path.resolve()),
                     "source_layer": source_layer,
                     "destination_schema": destination.schema,
                     "destination_table": destination.table,
                     "loading_mode": mode,
+                    "target_crs": target_crs,
                 },
             )
 
