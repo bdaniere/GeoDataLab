@@ -2,9 +2,9 @@ import subprocess
 
 import pytest
 
-from core.models import DestinationConfig, SourceData
-from loaders.geographic import ogr_loader
-from loaders.geographic.ogr_loader import OgrLoader
+from ingestion.core.models import DestinationConfig, SourceData
+from ingestion.loaders.geographic import ogr_loader
+from ingestion.loaders.geographic.ogr_loader import OgrLoader
 
 
 @pytest.fixture
@@ -87,8 +87,7 @@ def test_database_environment_reports_missing_or_empty_variables(docker_env):
 @pytest.mark.parametrize("variable", ["POSTGRES_HOST", "POSTGIS_PORT"])
 def test_database_environment_reports_empty_host_or_port(docker_env, variable):
     docker_env.write_text(
-        "POSTGRES_USER=user\nPOSTGRES_PASSWORD=password\nPOSTGRES_DB=db\n"
-        f"{variable}=\n"
+        f"POSTGRES_USER=user\nPOSTGRES_PASSWORD=password\nPOSTGRES_DB=db\n{variable}=\n"
     )
 
     with pytest.raises(ValueError, match=variable):
