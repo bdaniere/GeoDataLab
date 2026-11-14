@@ -7,6 +7,22 @@ on:
 jobs:
   pytest:
     runs-on: ubuntu-24.04
+    services:
+      postgis:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: geodatalab_test
+          POSTGRES_USER: geodatalab_test
+          POSTGRES_PASSWORD: geodatalab_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U geodatalab_test -d geodatalab_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_POSTGIS_DSN: "host=127.0.0.1 port=5432 dbname=geodatalab_test user=geodatalab_test password=geodatalab_test"
     defaults:
       run:
         working-directory: ingestion
@@ -27,5 +43,8 @@ jobs:
       - name: Install project and test dependencies
         run: poetry install --no-interaction --with dev
 
-      - name: Run unit tests
+      - name: Install GDAL
+        run: sudo apt-get update && sudo apt-get install -y gdal-bin
+
+      - name: Run tests
         run: poetry run pytest
