@@ -1,0 +1,17 @@
+{
+    "source": {
+        "name": "communes_france",
+        "type": "http",
+        "location": "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson",
+        "options": {
+            "filename": "communes_france.geojson",
+            "download_dir": "data/downloads"
+        }
+    },
+    "destination": {
+        "type": "postgis",
+        "schema": "raw_data",
+        "mode": "overwrite",
+        "target_crs": 2154
+    }
+}

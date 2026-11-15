@@ -1,0 +1,17 @@
+{
+    "source": {
+        "name": "batiments",
+        "type": "http",
+        "location": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments",
+        "options": {
+            "filename": "batiments.geojson",
+            "download_dir": "data/downloads"
+        }
+    },
+    "destination": {
+        "type": "postgis",
+        "schema": "raw_data",
+        "mode": "overwrite",
+        "target_crs": 2154
+    }
+}

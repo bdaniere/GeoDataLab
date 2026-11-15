@@ -1,0 +1,17 @@
+{
+    "source": {
+        "name": "iris_france",
+        "type": "http",
+        "location": "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01/CONTOURS-IRIS_3-0__SHP_LAMB93_FXX_2024-01-01.7z",
+        "options": {
+            "filename": "contours_iris.7z",
+            "download_dir": "data/downloads"
+        }
+    },
+    "destination": {
+        "type": "postgis",
+        "schema": "raw_data",
+        "mode": "overwrite",
+        "target_crs": 2154
+    }
+}
