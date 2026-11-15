@@ -115,6 +115,11 @@ def test_load_passes_database_environment_to_ogr2ogr(docker_env, tmp_path, monke
     )
     monkeypatch.setattr(
         OgrLoader,
+        "_ensure_destination_schema",
+        staticmethod(lambda schema, environment: None),
+    )
+    monkeypatch.setattr(
+        OgrLoader,
         "_destination_table_exists",
         staticmethod(lambda schema, table, environment: False),
     )
@@ -128,3 +133,54 @@ def test_load_passes_database_environment_to_ogr2ogr(docker_env, tmp_path, monke
     assert captured["PGDATABASE"] == "db"
     assert captured["PGUSER"] == "user"
     assert captured["PGPASSWORD"] == "password"
+
+
+def test_load_creates_destination_schema(docker_env, tmp_path, monkeypatch):
+    docker_env.write_text(
+        "POSTGRES_USER=user\n"
+        "POSTGRES_PASSWORD=password\n"
+        "POSTGRES_DB=db\n"
+        "POSTGIS_PORT=5423\n"
+    )
+    source_path = tmp_path / "source.gpkg"
+    source_path.touch()
+    source = SourceData("source", "local", source_path)
+    destination = DestinationConfig(
+        "postgis",
+        "new_schema",
+        "features",
+    )
+    called = {}
+
+    def fake_ensure_destination_schema(schema, environment):
+        called["schema"] = schema
+        called["environment"] = environment
+
+    def fake_run(command, **kwargs):
+        return subprocess.CompletedProcess(command, 0, stdout="loaded", stderr="")
+
+    monkeypatch.setattr(
+        OgrLoader,
+        "_ensure_destination_schema",
+        staticmethod(fake_ensure_destination_schema),
+    )
+    monkeypatch.setattr(
+        OgrLoader,
+        "_get_source_feature_count",
+        staticmethod(lambda source_path, source_layer: None),
+    )
+    monkeypatch.setattr(
+        OgrLoader,
+        "_destination_table_exists",
+        staticmethod(lambda schema, table, environment: False),
+    )
+    monkeypatch.setattr(ogr_loader.subprocess, "run", fake_run)
+
+    result = OgrLoader().load(source, destination)
+
+    assert result.success
+    assert called["schema"] == "new_schema"
+    assert called["environment"]["PGHOST"] == "localhost"
+    assert called["environment"]["PGPORT"] == "5423"
+    assert called["environment"]["PGDATABASE"] == "db"
+    assert called["environment"]["PGUSER"] == "user"

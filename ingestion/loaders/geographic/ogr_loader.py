@@ -13,6 +13,7 @@ from core.models import (
 )
 from dotenv import load_dotenv
 from loaders.base import BaseLoader
+from psycopg2 import sql
 from pyproj import CRS
 from pyproj.exceptions import CRSError
 
@@ -22,6 +23,42 @@ logging.basicConfig(level=logging.INFO)
 
 class OgrLoader(BaseLoader):
     """Load geographic files into PostGIS using ogr2ogr."""
+
+    @staticmethod
+    def _ensure_destination_schema(
+        schema: str,
+        environment: dict[str, str],
+    ) -> None:
+        """Create the destination schema if it does not exist.
+
+        Args:
+            schema: Destination schema name.
+            environment: PostgreSQL connection environment.
+
+        Raises:
+            psycopg2.Error: If the schema cannot be created.
+        """
+
+        connection = psycopg2.connect(
+            host=environment["PGHOST"],
+            port=environment["PGPORT"],
+            dbname=environment["PGDATABASE"],
+            user=environment["PGUSER"],
+            password=environment["PGPASSWORD"],
+        )
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    sql.SQL("CREATE SCHEMA IF NOT EXISTS {}").format(
+                        sql.Identifier(schema)
+                    )
+                )
+
+            connection.commit()
+
+        finally:
+            connection.close()
 
     @staticmethod
     def _destination_table_exists(
@@ -316,6 +353,11 @@ class OgrLoader(BaseLoader):
         environment = self._get_database_environment()
 
         try:
+            self._ensure_destination_schema(
+                schema=destination.schema,
+                environment=environment,
+            )
+
             source_feature_count = self._get_source_feature_count(
                 source_path=source_path,
                 source_layer=source_layer,
