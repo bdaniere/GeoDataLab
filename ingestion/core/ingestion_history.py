@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from typing import Any
 
 import psycopg2
-from psycopg2.extras import Json
+from psycopg2.extras import Json, RealDictCursor
 
 
 class IngestionHistory:
@@ -241,3 +241,70 @@ class IngestionHistory:
                     ingestion_id,
                 ),
             )
+
+    def get_ingestion(self, ingestion_id: int) -> dict | None:
+        """Retrieve a global ingestion record by its identifier."""
+
+        with (
+            self._connection() as connection,
+            connection.cursor(cursor_factory=RealDictCursor) as cursor,
+        ):
+            cursor.execute(
+                """
+                    SELECT *
+                    FROM ingestion_meta.ingestions
+                    WHERE id = %s;
+                    """,
+                (ingestion_id,),
+            )
+
+            result = cursor.fetchone()
+
+            return dict(result) if result else None
+
+    def get_recent_ingestions(
+        self,
+        limit: int = 20,
+    ) -> list[dict]:
+        """Retrieve the most recent ingestion records."""
+
+        if limit < 1:
+            raise ValueError("Limit must be greater than zero.")
+
+        with (
+            self._connection() as connection,
+            connection.cursor(cursor_factory=RealDictCursor) as cursor,
+        ):
+            cursor.execute(
+                """
+                    SELECT *
+                    FROM ingestion_meta.ingestions
+                    ORDER BY started_at DESC, id DESC
+                    LIMIT %s;
+                    """,
+                (limit,),
+            )
+
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_layer_results(
+        self,
+        ingestion_id: int,
+    ) -> list[dict]:
+        """Retrieve all layer results for a given ingestion."""
+
+        with (
+            self._connection() as connection,
+            connection.cursor(cursor_factory=RealDictCursor) as cursor,
+        ):
+            cursor.execute(
+                """
+                    SELECT *
+                    FROM ingestion_meta.layer_ingestions
+                    WHERE ingestion_id = %s
+                    ORDER BY id;
+                    """,
+                (ingestion_id,),
+            )
+
+            return [dict(row) for row in cursor.fetchall()]
