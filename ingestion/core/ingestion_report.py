@@ -29,8 +29,9 @@ class IngestionReport:
         status = "SUCCESS" if result.success else "FAILED"
 
         metadata = result.metadata or {}
-        schema = metadata.get("schema")
-        table = metadata.get("table")
+
+        schema = metadata.get("destination_schema") or metadata.get("schema")
+        table = metadata.get("destination_table") or metadata.get("table")
 
         destination = f"{schema}.{table}" if schema and table else table or "N/A"
 

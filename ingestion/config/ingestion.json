@@ -1,7 +1,12 @@
 {
     "source": {
-        "path": "/home/bn/Documents/maquette/imope-42005-gpkg/imope-42005.gpkg",
-        "type": "geopackage"
+        "name": "parcelles_69",
+        "type": "http",
+        "location": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles",
+        "options": {
+            "filename": "parcelles.geojson",
+            "download_dir": "data/downloads"
+        }
     },
     "destination": {
         "type": "postgis",

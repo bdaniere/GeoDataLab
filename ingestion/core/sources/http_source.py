@@ -1,9 +1,11 @@
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
-from ingestion.core.download_manager import DownloadManager
-from ingestion.core.models import SourceConfig, SourceData
-from ingestion.core.sources.base import BaseSource
+from core.download_manager import DownloadManager
+from core.models import SourceConfig, SourceData
+from core.sources.base import BaseSource
+
+USER_AGENT = "GeoDataLab/1.0"
 
 
 class HttpSource(BaseSource):
@@ -31,7 +33,17 @@ class HttpSource(BaseSource):
         if not config.location:
             raise ValueError("HTTP source URL is missing.")
 
-        download_dir = Path(config.options.get("download_dir", "data/downloads"))
+        project_dir = Path(__file__).resolve().parents[2]
+
+        download_dir = Path(
+            config.options.get(
+                "download_dir",
+                project_dir / "data" / "downloads",
+            )
+        ).expanduser()
+
+        if not download_dir.is_absolute():
+            download_dir = project_dir / download_dir
 
         filename = config.options.get("filename")
 
@@ -46,9 +58,15 @@ class HttpSource(BaseSource):
 
         destination = download_dir / filename
 
+        headers = {
+            "User-Agent": USER_AGENT,
+            **(config.options.get("headers") or {}),
+        }
+
         downloaded_file = self.download_manager.download(
             url=config.location,
             destination=destination,
+            headers=headers,
         )
 
         return SourceData(
