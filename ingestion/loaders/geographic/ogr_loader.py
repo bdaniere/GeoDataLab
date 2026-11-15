@@ -109,6 +109,59 @@ class OgrLoader(BaseLoader):
             connection.close()
 
     @staticmethod
+    def _get_destination_record_count(
+        schema: str,
+        table: str,
+        environment: dict[str, str],
+    ) -> int | None:
+        """Retrieve the number of records in a destination table.
+
+        Args:
+            schema: Destination schema name.
+            table: Destination table name.
+            environment: PostgreSQL connection environment.
+
+        Returns:
+            int | None: Number of records, or None if unavailable.
+        """
+
+        connection = None
+
+        try:
+            connection = psycopg2.connect(
+                host=environment["PGHOST"],
+                port=environment["PGPORT"],
+                dbname=environment["PGDATABASE"],
+                user=environment["PGUSER"],
+                password=environment["PGPASSWORD"],
+            )
+
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    sql.SQL("SELECT COUNT(*) FROM {}.{}").format(
+                        sql.Identifier(schema),
+                        sql.Identifier(table),
+                    )
+                )
+
+                row = cursor.fetchone()
+
+                return int(row[0]) if row is not None else None
+
+        except psycopg2.Error as error:
+            logger.warning(
+                "Unable to retrieve record count for %s.%s: %s",
+                schema,
+                table,
+                error,
+            )
+            return None
+
+        finally:
+            if connection is not None:
+                connection.close()
+
+    @staticmethod
     def _validate_target_crs(target_crs: int | str | None) -> None:
         """Validate the target EPSG code.
 
@@ -282,6 +335,7 @@ class OgrLoader(BaseLoader):
             raise ValueError(
                 f"Unsupported destination type: {destination.destination_type}"
             )
+
         self._validate_destination_identifiers(
             schema=destination.schema,
             table=destination.table,
@@ -296,13 +350,13 @@ class OgrLoader(BaseLoader):
             raise FileNotFoundError(f"Source file does not exist: {source_path}")
 
         source_layer = source.metadata.get("source_layer")
+
         self._validate_source_layer(
             source_path=source_path,
             source_layer=source_layer,
         )
 
         options = destination.options
-
         mode = options.get("mode", "create")
 
         if mode not in {"create", "overwrite", "append"}:
@@ -310,8 +364,6 @@ class OgrLoader(BaseLoader):
 
         target_crs = options.get("target_crs")
         self._validate_target_crs(target_crs)
-
-        source_layer = source.metadata.get("source_layer")
 
         ogr_command = [
             "ogr2ogr",
@@ -352,6 +404,10 @@ class OgrLoader(BaseLoader):
 
         environment = self._get_database_environment()
 
+        source_feature_count = None
+        records_before = None
+        records_after = None
+
         try:
             self._ensure_destination_schema(
                 schema=destination.schema,
@@ -362,6 +418,7 @@ class OgrLoader(BaseLoader):
                 source_path=source_path,
                 source_layer=source_layer,
             )
+
             if mode == "create" and self._destination_table_exists(
                 schema=destination.schema,
                 table=destination.table,
@@ -373,7 +430,14 @@ class OgrLoader(BaseLoader):
                     "Use 'append' or 'overwrite' instead."
                 )
 
-            logger.info(f"Running command: {' '.join(ogr_command)}")
+            records_before = self._get_destination_record_count(
+                schema=destination.schema,
+                table=destination.table,
+                environment=environment,
+            )
+
+            logger.info("Running command: %s", " ".join(ogr_command))
+
             process = subprocess.run(
                 ogr_command,
                 capture_output=True,
@@ -382,12 +446,30 @@ class OgrLoader(BaseLoader):
                 env=environment,
             )
 
+            records_after = self._get_destination_record_count(
+                schema=destination.schema,
+                table=destination.table,
+                environment=environment,
+            )
+
+            if mode == "append":
+                records_inserted = (
+                    records_after - records_before
+                    if records_before is not None and records_after is not None
+                    else None
+                )
+            else:
+                records_inserted = records_after
+
             return IngestionResult(
                 source_name=source.source_name,
                 success=True,
                 started_at=started_at,
                 finished_at=datetime.now(UTC),
                 records_processed=source_feature_count,
+                source_feature_count=source_feature_count,
+                destination_record_count=records_after,
+                records_inserted=records_inserted,
                 metadata={
                     "source_file": str(source_path.resolve()),
                     "source_layer": source_layer,
@@ -395,6 +477,7 @@ class OgrLoader(BaseLoader):
                     "destination_table": destination.table,
                     "loading_mode": mode,
                     "target_crs": target_crs,
+                    "records_before": records_before,
                     "command_output": process.stdout,
                 },
             )
@@ -413,11 +496,30 @@ class OgrLoader(BaseLoader):
                 else str(error)
             )
 
+            records_after = self._get_destination_record_count(
+                schema=destination.schema,
+                table=destination.table,
+                environment=environment,
+            )
+
+            if mode == "append":
+                records_inserted = (
+                    records_after - records_before
+                    if records_before is not None and records_after is not None
+                    else None
+                )
+            else:
+                records_inserted = records_after
+
             return IngestionResult(
                 source_name=source.source_name,
                 success=False,
                 started_at=started_at,
                 finished_at=datetime.now(UTC),
+                records_processed=source_feature_count,
+                source_feature_count=source_feature_count,
+                destination_record_count=records_after,
+                records_inserted=records_inserted,
                 error=error_message,
                 metadata={
                     "source_file": str(source_path.resolve()),
@@ -426,6 +528,7 @@ class OgrLoader(BaseLoader):
                     "destination_table": destination.table,
                     "loading_mode": mode,
                     "target_crs": target_crs,
+                    "records_before": records_before,
                 },
             )
 

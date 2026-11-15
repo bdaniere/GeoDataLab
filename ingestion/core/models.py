@@ -34,8 +34,11 @@ class IngestionResult:
     finished_at: datetime | None = None
 
     records_processed: int | None = None
-    error: str | None = None
+    source_feature_count: int | None = None
+    destination_record_count: int | None = None
+    records_inserted: int | None = None
 
+    error: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
