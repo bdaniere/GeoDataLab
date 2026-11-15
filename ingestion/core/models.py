@@ -83,6 +83,41 @@ class MultiLayerIngestionResult:
 
         return sum(not result.success for result in self.layer_results.values())
 
+    @property
+    def source_feature_count(self) -> int | None:
+        """Return the total number of source features across all layers."""
+
+        counts = [result.source_feature_count for result in self.layer_results.values()]
+
+        if not counts or any(count is None for count in counts):
+            return None
+
+        return sum(counts)
+
+    @property
+    def destination_record_count(self) -> int | None:
+        """Return the total number of destination records across all layers."""
+
+        counts = [
+            result.destination_record_count for result in self.layer_results.values()
+        ]
+
+        if not counts or any(count is None for count in counts):
+            return None
+
+        return sum(counts)
+
+    @property
+    def records_inserted(self) -> int | None:
+        """Return the total number of records inserted across all layers."""
+
+        counts = [result.records_inserted for result in self.layer_results.values()]
+
+        if not counts or any(count is None for count in counts):
+            return None
+
+        return sum(counts)
+
 
 @dataclass
 class SourceData:

@@ -1,3 +1,4 @@
+import logging
 from dataclasses import replace
 from datetime import UTC, datetime
 
@@ -10,6 +11,8 @@ from core.models import (
 from core.table_naming import generate_table_names
 from extraction.layer_discovery import LayerDiscovery
 from loaders.geographic.ogr_loader import OgrLoader
+
+logger = logging.getLogger(__name__)
 
 
 class IngestionRunner:
@@ -52,6 +55,16 @@ class IngestionRunner:
 
         layers = self.layer_discovery.discover(source.content)
 
+        logger.info(
+            "Ingestion started | source=%s | layers=%d | schema=%s | mode=%s",
+            source.source_name,
+            len(layers),
+            destination.schema,
+            destination.options.get("mode", "create"),
+        )
+
+        layers = self.layer_discovery.discover(source.content)
+
         table_names = generate_table_names(
             source_path=source.content,
             layer_names=[layer.name for layer in layers],
@@ -77,11 +90,35 @@ class IngestionRunner:
                 options=destination.options.copy(),
             )
 
+            logger.info(
+                "Layer ingestion started | source=%s | layer=%s | table=%s",
+                source.source_name,
+                layer.name,
+                table_name,
+            )
+
             try:
                 result = self.loader.load(
                     source=layer_source,
                     destination=layer_destination,
                 )
+
+                if result.success:
+                    logger.info(
+                        "Layer ingestion completed | layer=%s | source_features=%s "
+                        "| destination_records=%s | records_inserted=%s | duration=%.2fs",
+                        layer.name,
+                        result.source_feature_count,
+                        result.destination_record_count,
+                        result.records_inserted,
+                        result.duration_seconds or 0,
+                    )
+                else:
+                    logger.warning(
+                        "Layer ingestion failed | layer=%s | error=%s",
+                        layer.name,
+                        result.error,
+                    )
 
             except Exception as error:
                 result = IngestionResult(
@@ -97,9 +134,24 @@ class IngestionRunner:
                     },
                 )
 
+                logger.exception(
+                    "Unexpected error during layer ingestion | layer=%s",
+                    layer.name,
+                )
+
             layer_results[layer.name] = result
 
         finished_at = datetime.now(UTC)
+
+        logger.info(
+            "Ingestion completed | source=%s | success=%s "
+            "| successful_layers=%d | failed_layers=%d | duration=%.2fs",
+            source.source_name,
+            all(result.success for result in layer_results.values()),
+            sum(result.success for result in layer_results.values()),
+            sum(not result.success for result in layer_results.values()),
+            (finished_at - started_at).total_seconds(),
+        )
 
         return MultiLayerIngestionResult(
             source_name=source.source_name,
