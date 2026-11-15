@@ -1,0 +1,12 @@
+{
+    "source": {
+        "path": "/home/bn/Documents/maquette/imope-42005-gpkg/imope-42005.gpkg",
+        "type": "geopackage"
+    },
+    "destination": {
+        "type": "postgis",
+        "schema": "raw_data",
+        "mode": "overwrite",
+        "target_crs": 2154
+    }
+}
