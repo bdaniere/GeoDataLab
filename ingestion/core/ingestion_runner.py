@@ -217,7 +217,7 @@ class IngestionRunner:
             if not values or any(value is None for value in values):
                 return None
 
-            return sum(values)
+            return sum(v for v in values if v is not None)
 
         source_count = total_count("source_feature_count")
         destination_count = total_count("destination_record_count")

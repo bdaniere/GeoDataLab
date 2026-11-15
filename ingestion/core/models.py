@@ -92,7 +92,7 @@ class MultiLayerIngestionResult:
         if not counts or any(count is None for count in counts):
             return None
 
-        return sum(counts)
+        return sum(counts)  # type: ignore
 
     @property
     def destination_record_count(self) -> int | None:
@@ -105,7 +105,7 @@ class MultiLayerIngestionResult:
         if not counts or any(count is None for count in counts):
             return None
 
-        return sum(counts)
+        return sum(counts)  # type: ignore
 
     @property
     def records_inserted(self) -> int | None:
@@ -116,7 +116,7 @@ class MultiLayerIngestionResult:
         if not counts or any(count is None for count in counts):
             return None
 
-        return sum(counts)
+        return sum(counts)  # type: ignore
 
 
 @dataclass
