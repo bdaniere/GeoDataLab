@@ -652,9 +652,9 @@ sqlalchemy = "^2.1.6"
 
 [package.source]
 type = "git"
-url = "ssh://git@github.com/bdaniere/GeoDataLab-Ingestion.git"
-reference = "v0.1.2"
-resolved_reference = "adc28da33f6c1162dd2cf156707e989b2eaaa936"
+url = "https://github.com/bdaniere/GeoDataLab-Ingestion.git"
+reference = "v0.2.0"
+resolved_reference = "270d461933121c4978e56798ed28592eaa9dacda"
 
 [[package]]
 name = "geopandas"
@@ -1903,4 +1903,4 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.13.0"
-content-hash = "9a91d1c36accd1b42138665cd8f83d0ebda92ac6827762cc53cd5e6bf1849e71"
+content-hash = "c1c4db995fa11ea1a097287aef61b9b2d9df87401476f3f49f9c4340be3c96e3"

@@ -10,10 +10,12 @@ from geodatalab_ingestion.core.sources.factory import SourceFactory
 
 import os
 
-os.environ.setdefault(
-    "GEODATALAB_ENV_FILE",
-    str(Path(__file__).resolve().parent.parent / "docker" / ".env"),
-)
+if not os.environ.get("POSTGRES_HOST"):
+    os.environ.setdefault(
+        "GEODATALAB_ENV_FILE",
+        str(Path(__file__).resolve().parent.parent / "docker" / ".env"),
+    )
+
 
 def load_configuration(config_path: Path) -> dict:
     """Load ingestion configuration from a JSON file."""
