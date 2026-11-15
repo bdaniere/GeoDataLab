@@ -40,8 +40,12 @@ class DownloadManager:
 
         for attempt in range(1, MAX_DOWNLOAD_ATTEMPTS + 1):
             try:
+                logger.info(
+                    "Attempt %s/%s: Downloading %s", attempt, MAX_DOWNLOAD_ATTEMPTS, url
+                )
                 self._download_once(url, temporary_path, headers)
                 temporary_path.replace(destination)
+                logger.info("Download completed: %s", url)
                 return destination
             except (
                 requests.ConnectionError,
@@ -64,7 +68,12 @@ class DownloadManager:
                     MAX_DOWNLOAD_ATTEMPTS,
                 )
                 time.sleep(delay)
-            except (requests.RequestException, OSError, ValueError, DownloadError) as error:
+            except (
+                requests.RequestException,
+                OSError,
+                ValueError,
+                DownloadError,
+            ) as error:
                 temporary_path.unlink(missing_ok=True)
                 if isinstance(error, DownloadError):
                     raise
