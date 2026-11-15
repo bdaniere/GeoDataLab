@@ -18,7 +18,7 @@ class DestinationConfig:
     """Describes the destination of the data."""
 
     destination_type: str
-    schema: str
+    schema: "raw_data"
     table: str
     options: dict[str, Any] = field(default_factory=dict)
 
