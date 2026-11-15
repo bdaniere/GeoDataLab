@@ -29,10 +29,16 @@ def test_generate_name_for_single_layer():
     }
 
 
-def test_normalize_identifier():
-    assert normalize_identifier("IMOPÉ-42005") == "imope_42005"
-    assert normalize_identifier("My Source (2026)") == "my_source_2026"
-    assert normalize_identifier("123_data") == "_123_data"
+@pytest.mark.parametrize(
+    ("identifier", "expected"),
+    [
+        ("IMOPÉ-42005", "imope_42005"),
+        ("My Source (2026)", "my_source_2026"),
+        ("123_data", "_123_data"),
+    ],
+)
+def test_normalize_identifier(identifier, expected):
+    assert normalize_identifier(identifier) == expected
 
 
 def test_generated_names_respect_postgres_limit():
