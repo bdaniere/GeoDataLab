@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "GeoDataLab_ingestion"
+name = "geodatalab"
 version = "0.1.0"
 description = ""
 authors = ["bdaniere <benjamin.daniere@gmail.com>"]
@@ -16,6 +16,7 @@ python-dotenv = "^1.2.4"
 py7zr = "^1.0.0"
 pandas = "^3.1.0"
 pyyaml = "^6.0.3"
+geodatalab-ingestion = { git = "ssh://git@github.com/bdaniere/GeoDataLab-Ingestion.git", tag = "v0.1.1" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

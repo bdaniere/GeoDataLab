@@ -630,6 +630,33 @@ SQLAlchemy = ">=1.4"
 shapely = ["Shapely (>=1.7)"]
 
 [[package]]
+name = "geodatalab-ingestion"
+version = "0.1.0"
+description = "Geospatial data ingestion library for GeoDataLab"
+optional = false
+python-versions = "~3.13.0"
+groups = ["main"]
+files = []
+develop = false
+
+[package.dependencies]
+geoalchemy2 = "^0.20.0"
+geopandas = "^1.1.4"
+pandas = "^3.1.0"
+psycopg2-binary = "^2.9.13"
+py7zr = "^1.0.0"
+python-dotenv = "^1.2.4"
+pyyaml = "^6.0.3"
+requests = "^2.34.2"
+sqlalchemy = "^2.1.6"
+
+[package.source]
+type = "git"
+url = "ssh://git@github.com/bdaniere/GeoDataLab-Ingestion.git"
+reference = "v0.1.1"
+resolved_reference = "83b47a080114884b1ac5e99848cec6d0375c572f"
+
+[[package]]
 name = "geopandas"
 version = "1.2.0"
 description = "Geographic pandas extensions"
@@ -1876,4 +1903,4 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.13.0"
-content-hash = "6337920ac6cb7581ac64f01a86b71450b4f2b144dba3cb5bb9d62437a170bc2c"
+content-hash = "967fa5aec5031a1d74a6ea8e2b9520826c4f87f118915bc0b09a237a7b445f41"
