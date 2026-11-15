@@ -18,8 +18,8 @@ class DestinationConfig:
     """Describes the destination of the data."""
 
     destination_type: str
-    schema: "raw_data"
-    table: str
+    schema: str = "raw_data"
+    table: str | None = None
     options: dict[str, Any] = field(default_factory=dict)
 
 
@@ -46,6 +46,39 @@ class IngestionResult:
             return None
 
         return (self.finished_at - self.started_at).total_seconds()
+
+
+@dataclass
+class MultiLayerIngestionResult:
+    """Contains the results of a multi-layer ingestion operation."""
+
+    source_name: str
+    success: bool
+    started_at: datetime
+    finished_at: datetime | None = None
+
+    layer_results: dict[str, IngestionResult] = field(default_factory=dict)
+
+    @property
+    def duration_seconds(self) -> float | None:
+        """Calculate the duration of the ingestion."""
+
+        if self.finished_at is None:
+            return None
+
+        return (self.finished_at - self.started_at).total_seconds()
+
+    @property
+    def successful_layers(self) -> int:
+        """Return the number of successfully loaded layers."""
+
+        return sum(result.success for result in self.layer_results.values())
+
+    @property
+    def failed_layers(self) -> int:
+        """Return the number of failed layers."""
+
+        return sum(not result.success for result in self.layer_results.values())
 
 
 @dataclass
