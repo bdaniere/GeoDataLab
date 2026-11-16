@@ -92,6 +92,9 @@ services:
     networks:
       - geodatalab_network
 
+    volumes:
+      - ../ingestion/config:/app/ingestion/config:ro
+
 networks:
   geodatalab_network:
     driver: bridge
