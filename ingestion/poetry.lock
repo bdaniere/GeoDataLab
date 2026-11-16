@@ -667,8 +667,8 @@ xlrd = ">=2.0.2,<3"
 [package.source]
 type = "git"
 url = "https://github.com/bdaniere/GeoDataLab-Ingestion.git"
-reference = "44af60a2a2850f91a223377489a6aa45d3254ddc"
-resolved_reference = "44af60a2a2850f91a223377489a6aa45d3254ddc"
+reference = "v0.2.4"
+resolved_reference = "e206bbd2ff2416256a746e4b76e7d3fb34ff4f7d"
 
 [[package]]
 name = "geopandas"
@@ -1949,4 +1949,4 @@ test = ["pytest", "pytest-cov"]
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.13.0"
-content-hash = "16122604fa0b1267aec027119e18571ac02900551c2729c2f51918bf9ca49c1a"
+content-hash = "3142764d63864c32fbc05e16e8b246525aa38eff8027dc91521fd672ad4ed4e0"
