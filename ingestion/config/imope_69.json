@@ -1,0 +1,17 @@
+{
+    "source": {
+        "name": "imope",
+        "type": "http",
+        "location": "https://data.urbs.fr/onb_v3_2_2_dpt69.gpkg",
+        "options": {
+            "filename": "onb_v3_2_2_dpt69.gpkg",
+            "download_dir": "data/downloads"
+        }
+    },
+    "destination": {
+        "type": "postgis",
+        "schema": "raw_data",
+        "mode": "create",
+        "target_crs": 2154
+    }
+}

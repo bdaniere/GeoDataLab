@@ -1,6 +1,6 @@
 {
     "source": {
-        "name": "batiments",
+        "name": "batiments_69",
         "type": "http",
         "location": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/batiments",
         "options": {
