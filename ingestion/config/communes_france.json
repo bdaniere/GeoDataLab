@@ -1,0 +1,18 @@
+{
+    "source": {
+        "name": "communes_france_2025",
+        "type": "http",
+        "location": "https://www.data.gouv.fr/api/1/datasets/r/87ca1555-b9d3-402a-ae3c-5ab590a4a418",
+        "options": {
+            "filename": "Commune2025_FRA-shp.zip",
+            "download_dir": "data/downloads",
+            "archive_member": "Commune2025.shp"
+        }
+    },
+    "destination": {
+        "type": "postgis",
+        "schema": "raw_data",
+        "mode": "overwrite",
+        "target_crs": 2154
+    }
+}

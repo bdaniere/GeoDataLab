@@ -1,0 +1,17 @@
+{
+    "source": {
+        "name": "parcelles_69",
+        "type": "http",
+        "location": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles",
+        "options": {
+            "filename": "parcelles.geojson",
+            "download_dir": "data/downloads"
+        }
+    },
+    "destination": {
+        "type": "postgis",
+        "schema": "raw_data",
+        "mode": "overwrite",
+        "target_crs": 2154
+    }
+}
