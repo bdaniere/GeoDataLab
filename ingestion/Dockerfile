@@ -8,18 +8,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN pip install --no-cache-dir poetry
+# Install uv
+RUN pip install --no-cache-dir uv==0.13.8
 
 # Set working directory
 WORKDIR /app/ingestion
 
 # Copy dependency files
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml uv.lock ./
 
 # Install Python dependencies, including GeoDataLab-Ingestion
-RUN poetry config virtualenvs.create false \
-    && poetry install --only main --no-root --no-interaction
+RUN uv sync --locked --no-dev
+
+ENV PATH="/app/ingestion/.venv/bin:$PATH"
 
 # Copy application code and configuration
 COPY . .

@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -7,8 +8,6 @@ from geodatalab_ingestion.core.ingestion_report import IngestionReport
 from geodatalab_ingestion.core.ingestion_runner import IngestionRunner
 from geodatalab_ingestion.core.models import DestinationConfig, SourceConfig
 from geodatalab_ingestion.core.sources.factory import SourceFactory
-
-import os
 
 if not os.environ.get("POSTGRES_HOST"):
     os.environ.setdefault(
