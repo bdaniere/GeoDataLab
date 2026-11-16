@@ -1,11 +1,14 @@
 {
     "source": {
-        "name": "parcelles_69",
+        "name": "consommation_froid_chaud_iris_2025",
         "type": "http",
-        "location": "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/departements/69/geojson/parcelles",
+        "location": "https://www.data.gouv.fr/api/1/datasets/r/3d025cfc-2e76-4e29-ae5c-1b6d860d8cdc",
         "options": {
-            "filename": "parcelles.geojson",
-            "download_dir": "data/downloads"
+            "filename": "consommation_froid_chaud_iris_2025.csv",
+            "read_options": {
+                "sep": ";",
+                "encoding": "utf-8"
+            }
         }
     },
     "destination": {

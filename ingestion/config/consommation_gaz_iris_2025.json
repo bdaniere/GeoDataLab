@@ -1,0 +1,20 @@
+{
+    "source": {
+        "name": "consommation_gaz_iris_2025",
+        "type": "http",
+        "location": "https://www.data.gouv.fr/api/1/datasets/r/872afb3c-a383-4a67-8217-70d8bfa5219b",
+        "options": {
+            "filename": "consommation_gaz_iris_2025.csv",
+            "read_options": {
+                "sep": ";",
+                "encoding": "utf-8"
+            }
+        }
+    },
+    "destination": {
+        "type": "postgis",
+        "schema": "raw_data",
+        "mode": "overwrite",
+        "target_crs": 2154
+    }
+}

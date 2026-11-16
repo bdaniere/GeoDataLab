@@ -1,0 +1,20 @@
+{
+    "source": {
+        "name": "consommation_froid_chaud_iris_2025",
+        "type": "http",
+        "location": "https://www.data.gouv.fr/api/1/datasets/r/3d025cfc-2e76-4e29-ae5c-1b6d860d8cdc",
+        "options": {
+            "filename": "consommation_froid_chaud_iris_2025.csv",
+            "read_options": {
+                "sep": ";",
+                "encoding": "utf-8"
+            }
+        }
+    },
+    "destination": {
+        "type": "postgis",
+        "schema": "raw_data",
+        "mode": "overwrite",
+        "target_crs": 2154
+    }
+}
