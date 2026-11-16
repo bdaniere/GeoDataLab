@@ -1,0 +1,20 @@
+{
+    "source": {
+        "name": "consommation_electricite_iris_2025",
+        "type": "http",
+        "location": "https://www.data.gouv.fr/api/1/datasets/r/e2db4605-3240-4791-9efb-d4199d49cb37",
+        "options": {
+            "filename": "consommation_electricite_iris_2025.csv",
+            "read_options": {
+                "sep": ";",
+                "encoding": "utf-8"
+            }
+        }
+    },
+    "destination": {
+        "type": "postgis",
+        "schema": "raw_data",
+        "mode": "overwrite",
+        "target_crs": 2154
+    }
+}
