@@ -16,7 +16,7 @@ python-dotenv = "^1.2.4"
 py7zr = "^1.0.0"
 pandas = "^3.1.0"
 pyyaml = "^6.0.3"
-geodatalab-ingestion = { git = "https://github.com/bdaniere/GeoDataLab-Ingestion.git", tag = "v0.2.3" }
+geodatalab-ingestion = { git = "https://github.com/bdaniere/GeoDataLab-Ingestion.git", tag = "v0.2.4" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

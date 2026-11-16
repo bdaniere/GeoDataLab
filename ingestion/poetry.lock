@@ -657,7 +657,7 @@ geopandas = ">=1.1.4,<2"
 openpyxl = ">=3.1.5,<4"
 pandas = ">=3.1.0,<4"
 psycopg2-binary = ">=2.9.13,<3"
-py7zr = ">=1.0.0,<2"
+py7zr = ">=1.1.4,<2"
 python-dotenv = ">=1.2.4,<2"
 pyyaml = ">=6.0.3,<7"
 requests = ">=2.34.2,<3"
@@ -667,8 +667,8 @@ xlrd = ">=2.0.2,<3"
 [package.source]
 type = "git"
 url = "https://github.com/bdaniere/GeoDataLab-Ingestion.git"
-reference = "v0.2.3"
-resolved_reference = "ca6b6f807adfc18a0549156005ff70004c832b2d"
+reference = "44af60a2a2850f91a223377489a6aa45d3254ddc"
+resolved_reference = "44af60a2a2850f91a223377489a6aa45d3254ddc"
 
 [[package]]
 name = "geopandas"
@@ -1949,4 +1949,4 @@ test = ["pytest", "pytest-cov"]
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.13.0"
-content-hash = "9e0d47bc73ac42f069bc0aef3d0393b9fb43f3e793d9108658780b22764fd869"
+content-hash = "16122604fa0b1267aec027119e18571ac02900551c2729c2f51918bf9ca49c1a"
