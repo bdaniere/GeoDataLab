@@ -1,11 +1,12 @@
 {
     "source": {
-        "name": "communes_france",
+        "name": "communes_france_2025",
         "type": "http",
-        "location": "https://contours-administratifs.s3.rbx.io.cloud.ovh.net/2026/geojson/communes-5m.geojson",
+        "location": "https://www.data.gouv.fr/api/1/datasets/r/87ca1555-b9d3-402a-ae3c-5ab590a4a418",
         "options": {
-            "filename": "communes_france.geojson",
-            "download_dir": "data/downloads"
+            "filename": "Commune2025_FRA-shp.zip",
+            "download_dir": "data/downloads",
+            "archive_member": "Commune2025.shp"
         }
     },
     "destination": {
