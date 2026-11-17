@@ -5,7 +5,7 @@ sources:
     schema: raw_data
     tables:
          
-      - name: batiments
+      - name: batiments_69
         description : surface footprints of all structures within the territory, distinguishing only between permanent buildings and lightweight structures, with no information regarding their height, usage, or number of housing units
         columns:
           - name: commune
@@ -18,13 +18,14 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values: ['01', '02']
+                  arguments:
+                    values: ['01', '02']
 
 
           - name: nom
             description: Name of the building
 
-          - name: geometry
+          - name: wkb_geometry
             description: Geometry of the building footprint (MULTIPOLYGON)
             data_tests:
               - not_null

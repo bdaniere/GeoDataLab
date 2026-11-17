@@ -30,7 +30,7 @@ sources:
                     to: source('raw_data', 'imope_commune')
                     field: id
 
-          - name: geometry
+          - name: geom
             description: Source address POINT geometry.
             data_tests:
               - not_null
@@ -82,7 +82,7 @@ sources:
             data_tests:
               - not_null
               
-          - name: geometry
+          - name: geom
             description: Source address POINT geometry.
             data_tests:
               - not_null

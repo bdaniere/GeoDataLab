@@ -51,7 +51,7 @@ sources:
                     to: source('raw_data', 'imope_epci')
                     field: id
 
-          - name: geometry
+          - name: geom
             description: Geometry of the commune (MULTIPOLYGON)
             data_tests:
               - not_null
@@ -61,7 +61,7 @@ sources:
                     store_failures: true
                     severity: warn
 
-      - name: parcelles
+      - name: parcelles_69
         description: official cadastral footprint
         columns:
           - name: id
@@ -95,7 +95,7 @@ sources:
             data_tests:
               - not_null
 
-          - name: geometry
+          - name: wkb_geometry
             description: Geometry of the parcel (POLYGON)
             data_tests:
               - not_null
@@ -135,7 +135,7 @@ sources:
                     to: source('raw_data', 'imope_commune')
                     field: id
 
-          - name: geometry
+          - name: geom
             description: Geometry of the IRIS (MULTIPOLYGON)
             data_tests:
               - not_null
@@ -164,7 +164,7 @@ sources:
             data_tests:
               - not_null 
           
-          - name: geometry
+          - name: geom
             description: Geometry of the EPCI (MULTIPOLYGON)
             data_tests:
               - not_null
