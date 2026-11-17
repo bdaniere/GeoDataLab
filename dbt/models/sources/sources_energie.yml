@@ -7,32 +7,38 @@ sources:
       - name: consommation_electricite_iris_2025
         description: lists annual electricity consumption (in MWh) and the number of delivery points for the year 2025 at the statistical neighborhood level (IRIS zone), broken down by economic sector (residential, service, industrial, agricultural)
         columns:
-          - name: operateur
+          - name: OPERATEUR
+            quote: true
             description: Electricity operator
             data_tests:
               - not_null
 
-          - name: nom_commune
+          - name: NOM_COMMUNE
+            quote: true
             description: Name of the commune
             data_tests:
               - not_null
 
-          - name: annee
+          - name: ANNEE
+            quote: true
             description: Year of the data
             data_tests:
               - not_null
 
-          - name: filiere
+          - name: FILIERE
+            quote: true
             description: Energy sector
             data_tests:
               - not_null
 
-          - name: code_iris
+          - name: CODE_IRIS
+            quote: true
             description : IRIS code (statistical neighborhood identifier)
             data_tests:
               - not_null
 
-          - name: conso
+          - name: CONSO
+            quote: true
             description: Electricity consumption (in MWh)
             data_tests:
               - not_null
@@ -40,27 +46,32 @@ sources:
       - name: consommation_froid_chaud_iris_2025
         description: records annual thermal energy consumption (deliveries from heating and cooling networks, in MWh) and the number of delivery points for the year 2025 at the statistical neighborhood level (IRIS zone), broken down by sector of activity (residential, commercial/tertiary, industrial), while ensuring compliance with statistical confidentiality requirements.
         columns:
-          - name: operateur
+          - name: OPERATEUR
+            quote: true
             description: Thermal energy operator
             data_tests:
               - not_null
 
-          - name: annee
+          - name: ANNEE
+            quote: true
             description: Year of the data
             data_tests:
               - not_null
 
-          - name: filiere
+          - name: FILIERE
+            quote: true
             description: Energy sector
             data_tests:
               - not_null
 
-          - name: iris
+          - name: IRIS
+            quote: true
             description: IRIS code (statistical neighborhood identifier)
             data_tests:
               - not_null
 
-          - name: conso
+          - name: CONSO
+            quote: true
             description: Thermal energy consumption (in MWh)
             data_tests:
               - not_null
