@@ -4,12 +4,20 @@ models:
     data_tests:
       - staging_audit
     config:
+      alias: consommation_electricite_iris_2025
       contract:
         enforced: true
 
     constraints:
       - type: primary_key
         columns: [id]
+
+      - type: foreign_key
+        columns: [code_iris]
+        references:
+          table: iris
+          columns: [id]
+          to: ref('stg_iris')
 
     columns:
       - name: id
@@ -46,12 +54,6 @@ models:
         data_type: varchar(9)
         data_tests:
           - not_null
-          - relationships:
-              arguments:
-                to: ref('stg_iris')
-                field: id
-              config:
-                severity: warn
 
       - name: conso
         description: Valeur source conservée en texte, y compris les valeurs confidentielles.

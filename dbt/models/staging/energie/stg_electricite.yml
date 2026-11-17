@@ -4,6 +4,7 @@ models:
     data_tests:
       - staging_audit
     config:
+      alias: electricite
       contract:
         enforced: true
 
@@ -16,6 +17,7 @@ models:
         references:
           table: commune
           columns: [id]
+          to: ref('stg_commune')
 
     columns:
       - name: id

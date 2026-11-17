@@ -4,6 +4,7 @@ models:
     data_tests:
       - staging_audit
     config:
+      alias: chaleur_urbaine
       contract:
         enforced: true
 
@@ -12,9 +13,12 @@ models:
         columns: [id]
 
       - type: foreign_key
-        columns: [iris_id]
-        to: ref('stg_iris')
-        to_columns: [id]
+        columns: [code_iris]
+        references:
+          table: iris
+          columns: [id]
+          to: ref('stg_iris')
+
 
     columns:
       - name: id
