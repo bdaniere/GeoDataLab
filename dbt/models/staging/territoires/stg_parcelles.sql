@@ -23,8 +23,6 @@ filtered AS (
 ),
 
 
- 
-
 corrected AS (
     SELECT
         CAST(id AS TEXT) AS id,
@@ -38,15 +36,8 @@ corrected AS (
         CAST(updated AS TIMESTAMP) AS updated_at,
         CAST(CURRENT_USER AS TEXT) AS updated_by,
         CAST(
-            ST_Transform(
-                ST_Multi(
-                    CASE
-                        WHEN ST_IsValid(wkb_geometry) THEN wkb_geometry
-                        ELSE ST_CollectionExtract(ST_MakeValid(wkb_geometry), 3)
-                    END
-                ),
-                2154
-            ) AS geometry(MULTIPOLYGON, 2154)
+            {{ largest_valid_polygon('wkb_geometry') }}
+            AS geometry(POLYGON, 2154)
         ) AS geom
 
     FROM filtered

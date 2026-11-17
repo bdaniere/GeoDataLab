@@ -40,6 +40,7 @@ models:
       
       - name: superficie
         data_type: float
+        description: Surface calculée sur la géométrie source, avant correction.
 
       - name: created_at
         data_type: TIMESTAMP
@@ -51,7 +52,13 @@ models:
         data_type: text
 
       - name: geom
-        data_type: geometry(MULTIPOLYGON,2154)
+        description: >
+          Polygone en EPSG:2154. Après correction, seule la plus grande partie
+          polygonale est conservée ; les autres parties sont écartées. Si aucune
+          partie polygonale ne subsiste, la contrainte not_null fait échouer le modèle.
+        data_type: geometry(POLYGON,2154)
+        constraints:
+          - type: not_null
         data_tests:
               - not_null
               - unique
