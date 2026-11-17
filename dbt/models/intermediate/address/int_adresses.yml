@@ -1,0 +1,157 @@
+models:
+  - name: int_adresses
+    description: Adresses atomisées (un point par ligne) avec parcelle_id corrigé. Les parcelle_id invalides ou manquants sont rattachés par intersection spatiale, puis au plus proche voisin (50 m max). Approche discutable, mais l'objectif du projet est de pratiquer.
+    config:
+      alias: adresses
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+      - type: foreign_key
+        columns: [parcelle_id]
+        to: ref('int_parcelles')
+        to_columns: [id]
+
+      - type: foreign_key
+        columns: [commune_id]
+        to: ref('int_communes')
+        to_columns: [id]
+
+      - type: foreign_key
+        columns: [epci_id]
+        to: ref('int_epci')
+        to_columns: [id]
+
+      - type: foreign_key
+        columns: [iris_id]
+        to: ref('int_iris')
+        to_columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant unique du point (UUID déterministe).
+        data_type: uuid
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: source_id
+        description: Identifiant de l'adresse source (stg_adresses.id).
+        data_type: text
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_adresses')
+                field: id
+
+      - name: adresse
+        data_type: text
+      - name: commune
+        data_type: text
+      - name: iris
+        data_type: text
+      - name: nlogh
+        data_type: integer
+      - name: cp
+        data_type: varchar(9)
+      - name: altitude
+        data_type: integer
+      - name: bailleursoc
+        data_type: boolean
+      - name: batihist
+        data_type: boolean
+      - name: chauffage
+        data_type: varchar(10)
+      - name: consochauff
+        data_type: integer
+      - name: consochurb
+        data_type: integer
+      - name: consoelec
+        data_type: integer
+      - name: consoelecm
+        data_type: integer
+      - name: consogaz
+        data_type: integer
+      - name: consogazm
+        data_type: integer
+      - name: consotou
+        data_type: integer
+      - name: consotoum
+        data_type: integer
+      - name: consochurbm
+        data_type: integer
+      - name: diffprixpct
+        data_type: integer
+      - name: energie
+        data_type: varchar(16)
+      - name: mur
+        data_type: varchar(20)
+      - name: nbpdlelec
+        data_type: integer
+      - name: nbpdlgaz
+        data_type: integer
+      - name: nivtot
+        data_type: integer
+      - name: nlogsoc
+        data_type: integer
+      - name: pgaz
+        data_type: boolean
+      - name: prix
+        data_type: float
+      - name: surfacemurs
+        data_type: float
+      - name: surfaceplanchersbas
+        data_type: float
+      - name: surfaceplanchershauts
+        data_type: float
+      - name: surfacetot
+        data_type: float
+      - name: toit
+        data_type: varchar(25)
+      - name: typehab
+        data_type: varchar(11)
+      - name: typobati
+        data_type: varchar(22)
+      - name: zoneargile
+        data_type: varchar(6)
+      - name: zonehist
+        data_type: boolean
+      - name: zoneinond
+        data_type: boolean
+      - name: zoneqpv
+        data_type: boolean
+      - name: zonezsp
+        data_type: boolean
+      - name: pmr
+        data_type: varchar(2)
+      - name: commune_id
+        data_type: varchar(5)
+      - name: epci_id
+        data_type: varchar(9)
+      - name: iris_id
+        data_type: varchar(9)
+
+      - name: parcelle_id
+        description: Identifiant de la parcelle cadastrale (corrigé par jointure spatiale).
+        data_type: varchar(14)
+        data_tests:
+          - not_null
+
+      - name: created_at
+        data_type: timestamp
+      - name: updated_at
+        data_type: timestamp
+      - name: updated_by
+        data_type: text
+
+      - name: geom
+        description: Position de l'adresse (POINT, Lambert-93).
+        data_type: geometry(Point,2154)
