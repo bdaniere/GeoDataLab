@@ -2,7 +2,7 @@
     config(
         materialized='table',
         contract={'enforced': true},
-        indexes=[{'columns': ['geometry'], 'type': 'gist'}]
+        indexes=[{'columns': ['geom'], 'type': 'gist'}]
     )
 }}
 
@@ -53,7 +53,7 @@ WITH source_data AS (
         epci_id,
         iris_id,
         parcelle_id,
-        geometry
+        geom
     FROM {{ source('raw_data', 'imope_adresse') }}
 ),
 
@@ -61,8 +61,8 @@ filtered AS (
     SELECT *
     FROM source_data
     WHERE id IS NOT NULL
-      AND geometry IS NOT NULL
-      AND NOT ST_IsEmpty(geometry)
+      AND geom IS NOT NULL
+      AND NOT ST_IsEmpty(geom)
 ),
 
 deduplicated AS (
@@ -80,16 +80,8 @@ corrected AS (
         CAST(nlogh AS integer) AS nlogh,
         CAST(cp AS varchar(9)) AS cp,
         CAST(altitude AS integer) AS altitude,
-        CASE
-            WHEN bailleursoc = 1 THEN TRUE
-            WHEN bailleursoc = 0 THEN FALSE
-            ELSE NULL
-        END AS bailleursoc,
-        CASE
-            WHEN batihist = 1 THEN TRUE
-            WHEN batihist = 0 THEN FALSE
-            ELSE NULL
-        END AS batihist,
+        CAST(bailleursoc AS boolean) AS bailleursoc,
+        CAST(batihist AS boolean) AS batihist,
         CAST(chauffage AS varchar(10)) AS chauffage,
         CAST(consochauff AS integer) AS consochauff,
         CAST(consochurb AS integer) AS consochurb,
@@ -121,35 +113,24 @@ corrected AS (
         CAST(typehab AS varchar(11)) AS typehab,
         CAST(typobati AS varchar(22)) AS typobati,
         CAST(zoneargile AS varchar(6)) AS zoneargile,
+        CAST(zonehist AS boolean) AS zonehist,  
         CASE
-            WHEN zonehist = 1 THEN TRUE
-            WHEN zonehist = 0 THEN FALSE
-            ELSE NULL
-        END AS zonehist,
-        CASE
+        
             WHEN zoneinond = 'true' THEN TRUE
             WHEN zoneinond = 'false' THEN FALSE
             ELSE NULL
         END AS zoneinond,
-        CASE
-            WHEN zoneqpv = 1 THEN TRUE
-            WHEN zoneqpv = 0 THEN FALSE
-            ELSE NULL
-        END AS zoneqpv,
-        CASE
-            WHEN zonezsp = 1 THEN TRUE
-            WHEN zonezsp = 0 THEN FALSE
-            ELSE NULL
-        END AS zonezsp,
+        CAST(zoneqpv AS boolean) AS zoneqpv,
+        CAST(zonezsp AS boolean) AS zonezsp,
         CAST(pmr AS varchar(2)) AS pmr,
         CAST(commune_id AS varchar(5)) AS commune_id,
         CAST(epci_id AS varchar(9)) AS epci_id,
         CAST(iris_id AS varchar(9)) AS iris_id,
         CAST(parcelle_id AS varchar(14)) AS parcelle_id,
         CAST(
-            ST_Multi(ST_Transform(geometry, 2154))
+            ST_Multi(ST_Transform(geom, 2154))
             AS geometry(MultiPoint, 2154)
-        ) AS geometry
+        ) AS geom
     FROM deduplicated
 )
 
@@ -202,5 +183,5 @@ SELECT
     CAST(NOW() AS TIMESTAMP) AS created_at,
     CAST(NOW() AS TIMESTAMP) AS updated_at,
     CAST(CURRENT_USER AS TEXT) AS updated_by,
-    geometry
+    geom
 FROM corrected

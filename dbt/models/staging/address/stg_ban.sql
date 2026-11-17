@@ -4,7 +4,7 @@
         contract={'enforced': true},
         post_hook=[
             "CREATE INDEX IF NOT EXISTS idx_ban_geometry
-             ON {{ this }} USING GIST (geometry)"
+             ON {{ this }} USING GIST (geom)"
         ]
     )
 }}
@@ -23,5 +23,5 @@ SELECT
     CAST(NOW() AS TIMESTAMP) AS created_at,
     CAST(NOW() AS TIMESTAMP) AS updated_at,
     CAST(CURRENT_USER AS TEXT) AS updated_by,
-    CAST(ST_Multi(ST_Transform(geometry, 2154)) AS geometry(MultiPoint, 2154)) AS geometry
+    CAST(ST_Multi(ST_Transform(geom, 2154)) AS geometry(MultiPoint, 2154)) AS geom
 FROM {{ source('raw_data', 'imope_ban') }}

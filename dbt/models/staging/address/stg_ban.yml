@@ -84,7 +84,7 @@ models:
         description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
         data_type: text
 
-      - name: geometry
+      - name: geom
         description: Position de l'adresse (MULTIPOINT, Lambert-93).
         data_type: geometry(MultiPoint,2154)
         data_tests:
