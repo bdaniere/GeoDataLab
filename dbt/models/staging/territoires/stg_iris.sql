@@ -18,15 +18,15 @@ WITH source_data AS (
 filtered AS (
     SELECT *
     FROM source_data
-    WHERE NOT ST_IsEmpty(geometry)
+    WHERE NOT ST_IsEmpty(geom)
       AND id IS NOT NULL
 ),
 
 deduplicated AS (
-    SELECT DISTINCT ON (geometry) *
+    SELECT DISTINCT ON (geom) *
     FROM filtered
     ORDER BY
-        geometry DESC NULLS LAST
+        geom DESC NULLS LAST
 ),
 
 
@@ -46,8 +46,8 @@ corrected AS (
             ST_Transform(
                 ST_Multi(
                     CASE
-                        WHEN ST_IsValid(geometry) THEN geometry
-                        ELSE ST_CollectionExtract(ST_MakeValid(geometry), 3)
+                        WHEN ST_IsValid(geom) THEN geom
+                        ELSE ST_CollectionExtract(ST_MakeValid(geom), 3)
                     END
                 ),
                 2154
