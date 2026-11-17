@@ -3,6 +3,7 @@ models:
     data_tests:
       - staging_audit
     config:
+      alias: parcelles
       contract:
         enforced: true
 

@@ -11,14 +11,14 @@
 
 
 WITH source_data AS (
-    SELECT * FROM {{ source('raw_data', 'parcelles') }}
+    SELECT * FROM {{ source('raw_data', 'parcelles_69') }}
 ),
 
 
 filtered AS (
     SELECT *
     FROM source_data
-    WHERE NOT ST_IsEmpty(geometry)
+    WHERE NOT ST_IsEmpty(wkb_geometry)
       AND id IS NOT NULL
 ),
 
@@ -33,7 +33,7 @@ corrected AS (
         CAST(section AS VARCHAR(2)) AS section,
         CAST(numero AS VARCHAR(4)) AS numero,
         CAST(contenance AS INTEGER) AS contenance,
-        CAST(ST_Area(geometry) AS FLOAT) AS superficie,
+        CAST(ST_Area(wkb_geometry) AS FLOAT) AS superficie,
         CAST(created AS TIMESTAMP) AS created_at,
         CAST(updated AS TIMESTAMP) AS updated_at,
         CAST(CURRENT_USER AS TEXT) AS updated_by,
@@ -41,8 +41,8 @@ corrected AS (
             ST_Transform(
                 ST_Multi(
                     CASE
-                        WHEN ST_IsValid(geometry) THEN geometry
-                        ELSE ST_CollectionExtract(ST_MakeValid(geometry), 3)
+                        WHEN ST_IsValid(wkb_geometry) THEN wkb_geometry
+                        ELSE ST_CollectionExtract(ST_MakeValid(wkb_geometry), 3)
                     END
                 ),
                 2154
