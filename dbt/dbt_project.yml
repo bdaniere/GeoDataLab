@@ -17,3 +17,6 @@ models:
       +materialized: table
       +post-hook:
         - "{{ audit_staging() }}"
+    intermediate:
+      +materialized: table
+      +schema: intermediate
