@@ -4,6 +4,7 @@ models:
     data_tests:
       - staging_audit
     config:
+      alias: rpls
       contract:
         enforced: true
 
@@ -13,9 +14,10 @@ models:
 
       - type: foreign_key
         columns: [commune_id]
-        to: ref('stg_communes')
-        to_columns: [id]
-
+        references:
+          table: commune
+          columns: [id]
+          to: ref('stg_communes')
 
     columns:
       - name: id
