@@ -20,11 +20,12 @@ SELECT
         ST_Transform(
             ST_Multi(
                 CASE
-                    WHEN ST_IsValid(geometry) THEN geometry
-                    ELSE ST_CollectionExtract(ST_MakeValid(geometry), 3)
+                    WHEN ST_IsValid(geom) THEN geom
+                    ELSE ST_CollectionExtract(ST_MakeValid(geom), 3)
                 END
             ),
             2154
         ) AS geometry(MultiPolygon, 2154)
     ) AS geom
+    
 FROM {{ source('raw_data', 'imope_epci') }}
