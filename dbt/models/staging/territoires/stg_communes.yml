@@ -4,12 +4,12 @@ models:
     data_tests:
       - staging_audit
     config:
+      alias: communes
       contract:
         enforced: true
 
     constraints:
       - type: primary_key
-        # name: pk_communes_france
         columns: [id]
 
       - type: foreign_key

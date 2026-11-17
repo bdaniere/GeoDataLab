@@ -18,8 +18,8 @@ WITH source_data AS (
 filtered AS (
     SELECT *
     FROM source_data
-    WHERE geometry IS NOT NULL
-      AND NOT ST_IsEmpty(geometry)
+    WHERE geom IS NOT NULL
+      AND NOT ST_IsEmpty(geom)
 ),
 
 
@@ -45,8 +45,8 @@ corrected AS (
             ST_Transform(
                 ST_Multi(
                     CASE
-                        WHEN ST_IsValid(geometry) THEN geometry
-                        ELSE ST_CollectionExtract(ST_MakeValid(geometry), 3)
+                        WHEN ST_IsValid(geom) THEN geom
+                        ELSE ST_CollectionExtract(ST_MakeValid(geom), 3)
                     END
                 ),
                 2154
