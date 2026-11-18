@@ -1,0 +1,69 @@
+models:
+  - name: int_ban
+    description: Adresses BAN avec parcelle_id corrigé. Les parcelle_id invalides, multiples ou manquants sont rattachés par intersection spatiale, puis au plus proche voisin (50 m max). Approche discutable, mais l'objectif du projet est de pratiquer.
+    config:
+      alias: ban
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+      - type : foreign_key
+        columns: [parcelle_id]
+        references:
+          table: ref('parcelles')
+          columns: [id]
+
+      - type : foreign_key
+        columns: [commune_id]
+        references:
+          table: ref('communes')
+          columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant BAN de l'adresse (stg_ban.id).
+        data_type: varchar(24)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('stg_ban')
+                field: id
+
+      - name: id_fantoir
+        data_type: varchar(10)
+      - name: numero
+        data_type: text
+      - name: rep
+        data_type: text
+      - name: nom_voie
+        data_type: text
+      - name: code_postal
+        data_type: varchar(5)
+      - name: commune
+        data_type: text
+      - name: commune_id
+        data_type: varchar(5)
+
+      - name: parcelle_id
+        description: Identifiant de la parcelle cadastrale (corrigé par jointure spatiale).
+        data_type: text
+
+      - name: adresse
+        data_type: text
+      - name: created_at
+        data_type: timestamp
+      - name: updated_at
+        data_type: timestamp
+      - name: updated_by
+        data_type: text
+
+      - name: geom
+        description: Position de l'adresse (POINT, Lambert-93).
+        data_type: geometry(Point,2154)

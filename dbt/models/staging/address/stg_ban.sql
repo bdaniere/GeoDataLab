@@ -23,5 +23,5 @@ SELECT
     CAST(NOW() AS TIMESTAMP) AS created_at,
     CAST(NOW() AS TIMESTAMP) AS updated_at,
     CAST(CURRENT_USER AS TEXT) AS updated_by,
-    CAST(ST_Multi(ST_Transform(geom, 2154)) AS geometry(MultiPoint, 2154)) AS geom
+    CAST(geom AS geometry(POINT, 2154)) AS geom
 FROM {{ source('raw_data', 'imope_ban') }}
