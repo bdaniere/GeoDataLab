@@ -60,6 +60,7 @@ models:
         constraints:
           - type: not_null
         data_tests:
+              - spatial_index
               - not_null
               - unique
               - geometry_valid:

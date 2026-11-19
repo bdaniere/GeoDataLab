@@ -89,6 +89,7 @@ models:
         description: Position de l'adresse (MULTIPOINT, Lambert-93).
         data_type: geometry(POINT,2154)
         data_tests:
+          - spatial_index
           - not_null
           - geometry_valid:
               config:

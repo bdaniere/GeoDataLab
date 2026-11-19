@@ -28,3 +28,5 @@ models:
         data_type: text
       - name: geom
         data_type: geometry(MultiPolygon,2154)
+        data_tests:
+          - spatial_index

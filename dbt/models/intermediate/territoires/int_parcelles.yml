@@ -40,5 +40,7 @@ models:
       - name: geom
         description: Plus grande partie polygonale de la géométrie corrigée, en EPSG:2154.
         data_type: geometry(Polygon,2154)
+        data_tests:
+          - spatial_index
         constraints:
           - type: not_null

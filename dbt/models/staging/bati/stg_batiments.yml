@@ -51,6 +51,7 @@ models:
         description: Emprise au sol du bâtiment (MULTIPOLYGON, Lambert-93).
         data_type: geometry(MultiPolygon,2154)
         data_tests:
+              - spatial_index
               - not_null
               - unique
               - geometry_valid:

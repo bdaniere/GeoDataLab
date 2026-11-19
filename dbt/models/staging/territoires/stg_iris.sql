@@ -2,10 +2,7 @@
     config(
         materialized='table',
         contract={'enforced': true},
-        post_hook=[
-            "CREATE INDEX IF NOT EXISTS idx_iris_geom
-             ON {{ this }} USING GIST (geom)"
-        ]
+        indexes=[{'columns': ['geom'], 'type': 'gist'}]
     )
 }}
 
