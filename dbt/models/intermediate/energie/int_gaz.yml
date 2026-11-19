@@ -1,0 +1,144 @@
+models:
+  - name: int_gaz
+    description: >-
+      Consommations de gaz issues de stg_gaz. Les identifiants source sont
+      conservés ; les clés commune, IRIS et BAN valent NULL lorsqu'elles
+      n'ont pas de correspondance dans les référentiels intermediate.
+    config:
+      alias: gaz
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+      - type: foreign_key
+        columns: [commune_id]
+        to: ref('int_communes')
+        to_columns: [id]
+
+      - type: foreign_key
+        columns: [iris_id]
+        to: ref('int_iris')
+        to_columns: [id]
+        
+      - type: foreign_key
+        columns: [ban_id]
+        to: ref('int_ban')
+        to_columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant unique de l'enregistrement de consommation de gaz.
+        data_type: varchar(36)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: fournisseur
+        description: Fournisseur ou opérateur de gaz.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: annee
+        description: Année de la consommation.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: filiere
+        description: Filière de la consommation.
+        data_type: varchar(1)
+        data_tests:
+          - not_null
+      - name: iris
+        description: Nom de l'IRIS.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: adresse
+        description: Adresse complète.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: commune
+        description: Nom de la commune.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: conso
+        description: Consommation de gaz (MWh).
+        data_type: float
+      - name: pdl
+        description: Nombre de points de livraison.
+        data_type: integer
+      - name: source_commune_id
+        description: Identifiant de commune d'origine dans stg_gaz.
+        data_type: varchar(5)
+      - name: source_iris_id
+        description: Identifiant IRIS d'origine dans stg_gaz.
+        data_type: varchar(9)
+      - name: source_ban_id
+        description: Identifiant BAN d'origine dans stg_gaz.
+        data_type: varchar(22)
+      - name: commune_id
+        description: Identifiant de commune valide, sinon NULL.
+        data_type: varchar(5)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_communes')
+                field: id
+      - name: iris_id
+        description: Identifiant IRIS valide, sinon NULL.
+        data_type: varchar(9)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_iris')
+                field: id
+      - name: ban_id
+        description: Identifiant BAN valide, sinon NULL.
+        data_type: varchar(22)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_ban')
+                field: id
+      - name: created_at
+        description: Date de création de la ligne dans le staging.
+        data_type: timestamp
+      - name: updated_at
+        description: Date de dernière modification de la ligne dans le staging.
+        data_type: timestamp
+      - name: updated_by
+        description: Utilisateur de la dernière modification dans le staging.
+        data_type: text
+
+unit_tests:
+  - name: int_gaz_identifiants_valides_et_invalides
+    description: Conserve chaque ligne et les identifiants source, même sans correspondance.
+    model: int_gaz
+    given:
+      - input: ref('stg_gaz')
+        rows:
+          - {id: '1', commune_id: '69001', iris_id: '690010101', ban_id: 'ban-valide'}
+          - {id: '2', commune_id: '99999', iris_id: '999999999', ban_id: 'ban-invalide'}
+          - {id: '3', commune_id: null, iris_id: null, ban_id: null}
+          - {id: '4', commune_id: '69001', iris_id: '999999999', ban_id: 'ban-valide'}
+      - input: ref('int_communes')
+        format: sql
+        rows: "SELECT CAST('69001' AS varchar(9)) AS id"
+      - input: ref('int_iris')
+        format: sql
+        rows: "SELECT CAST('690010101' AS varchar(9)) AS id"
+      - input: ref('int_ban')
+        format: sql
+        rows: "SELECT CAST('ban-valide' AS varchar(24)) AS id"
+    expect:
+      rows:
+        - {id: '1', source_commune_id: '69001', source_iris_id: '690010101', source_ban_id: 'ban-valide', commune_id: '69001', iris_id: '690010101', ban_id: 'ban-valide'}
+        - {id: '2', source_commune_id: '99999', source_iris_id: '999999999', source_ban_id: 'ban-invalide', commune_id: null, iris_id: null, ban_id: null}
+        - {id: '3', source_commune_id: null, source_iris_id: null, source_ban_id: null, commune_id: null, iris_id: null, ban_id: null}
+        - {id: '4', source_commune_id: '69001', source_iris_id: '999999999', source_ban_id: 'ban-valide', commune_id: '69001', iris_id: null, ban_id: 'ban-valide'}

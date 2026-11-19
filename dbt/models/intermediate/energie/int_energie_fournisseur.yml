@@ -1,0 +1,67 @@
+models:
+  - name: int_energie_fournisseur
+    description: >-
+      Consommations des fournisseurs conservées à la granularité du staging.
+      adresse_id est l'identifiant source et peut ne correspondre à aucune adresse
+      intermédiaire. Les liens vers les points figurent dans
+      int_energie_fournisseur_adresses ; les consommations ne doivent pas être
+      additionnées après jointure sans tenir compte de la multiplicité des points.
+    config:
+      alias: energie_fournisseur
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+      - type: foreign_key
+        columns: [commune_id]
+        to: ref('int_communes')
+        to_columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant unique de l'enregistrement fournisseur.
+        data_type: text
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: adresse
+        description: Adresse complète.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: annee
+        description: Année de la consommation.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: conso
+        description: Consommation d'énergie issue des fournisseurs.
+        data_type: float
+      - name: consomean
+        description: Consommation moyenne associée à l'adresse.
+        data_type: float
+      - name: adresse_id
+        description: Identifiant de l'adresse source, conservé même sans correspondance.
+        data_type: varchar(26)
+      - name: commune_id
+        description: Identifiant de la commune intermédiaire.
+        data_type: varchar(5)
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('int_communes')
+                field: id
+      - name: created_at
+        description: Date de création dans le staging.
+        data_type: timestamp
+      - name: updated_at
+        description: Date de dernière modification dans le staging.
+        data_type: timestamp
+      - name: updated_by
+        description: Utilisateur de la dernière modification dans le staging.
+        data_type: text

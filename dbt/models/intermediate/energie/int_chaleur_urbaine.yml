@@ -1,0 +1,115 @@
+models:
+  - name: int_chaleur_urbaine
+    description: >-
+      Consommations de chaleur urbaine issues de stg_chaleur_urbaine.
+      Les identifiants source sont conservés ; les clés IRIS et BAN valent
+      NULL lorsqu'elles n'ont pas de correspondance dans intermediate.
+    config:
+      alias: chaleur_urbaine
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+      - type: foreign_key
+        columns: [iris_id]
+        to: ref('int_iris')
+        to_columns: [id]
+      - type: foreign_key
+        columns: [ban_id]
+        to: ref('int_ban')
+        to_columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant unique de l'enregistrement de chaleur urbaine.
+        data_type: varchar(36)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: fournisseur
+        description: Fournisseur ou opérateur du réseau de chaleur.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: annee
+        description: Année de la consommation.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: filiere
+        description: Filière de la consommation.
+        data_type: varchar(1)
+        data_tests:
+          - not_null
+      - name: iris
+        description: Nom de l'IRIS.
+        data_type: text
+        data_tests:
+          - not_null
+      - name: conso
+        description: Consommation de chaleur ou de froid livrée par le réseau (MWh).
+        data_type: float
+      - name: pdl
+        description: Nombre de points de livraison.
+        data_type: float
+      - name: source_iris_id
+        description: Identifiant IRIS d'origine dans stg_chaleur_urbaine.
+        data_type: varchar(9)
+      - name: source_ban_id
+        description: Identifiant BAN d'origine dans stg_chaleur_urbaine.
+        data_type: varchar(18)
+      - name: iris_id
+        description: Identifiant IRIS valide, sinon NULL.
+        data_type: varchar(9)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_iris')
+                field: id
+      - name: ban_id
+        description: Identifiant BAN valide, sinon NULL.
+        data_type: varchar(18)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_ban')
+                field: id
+      - name: created_at
+        description: Date de création dans le staging.
+        data_type: timestamp
+      - name: updated_at
+        description: Date de dernière modification dans le staging.
+        data_type: timestamp
+      - name: updated_by
+        description: Utilisateur de la dernière modification dans le staging.
+        data_type: text
+
+unit_tests:
+  - name: int_chaleur_urbaine_identifiants_valides_et_invalides
+    description: Conserve chaque ligne et les identifiants source, même sans correspondance.
+    model: int_chaleur_urbaine
+    given:
+      - input: ref('stg_chaleur_urbaine')
+        rows:
+          - {id: '1', iris_id: '690010101', ban_id: 'ban-valide', conso: 10.5, pdl: 1.5}
+          - {id: '2', iris_id: '999999999', ban_id: 'ban-invalide'}
+          - {id: '3', iris_id: null, ban_id: null}
+          - {id: '4', iris_id: '999999999', ban_id: 'ban-valide'}
+          - {id: '5', iris_id: '690010101', ban_id: 'ban-invalide'}
+      - input: ref('int_iris')
+        format: sql
+        rows: "SELECT CAST('690010101' AS varchar(9)) AS id"
+      - input: ref('int_ban')
+        format: sql
+        rows: "SELECT CAST('ban-valide' AS varchar(24)) AS id"
+    expect:
+      rows:
+        - {id: '1', source_iris_id: '690010101', source_ban_id: 'ban-valide', iris_id: '690010101', ban_id: 'ban-valide', conso: 10.5, pdl: 1.5}
+        - {id: '2', source_iris_id: '999999999', source_ban_id: 'ban-invalide', iris_id: null, ban_id: null, conso: null, pdl: null}
+        - {id: '3', source_iris_id: null, source_ban_id: null, iris_id: null, ban_id: null, conso: null, pdl: null}
+        - {id: '4', source_iris_id: '999999999', source_ban_id: 'ban-valide', iris_id: null, ban_id: 'ban-valide', conso: null, pdl: null}
+        - {id: '5', source_iris_id: '690010101', source_ban_id: 'ban-invalide', iris_id: '690010101', ban_id: null, conso: null, pdl: null}
