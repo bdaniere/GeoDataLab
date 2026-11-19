@@ -27,3 +27,4 @@ FROM {{ ref('stg_consommation_electricite_iris_2025') }} AS s
 LEFT JOIN {{ ref('int_iris') }} AS i ON i.id = s.code_iris
 LEFT JOIN {{ ref('int_communes') }} AS c
     ON length(s.code_iris) >= 5 AND c.id = left(s.code_iris, 5)
+WHERE left(s.code_iris, 2) = '69'

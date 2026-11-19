@@ -2,6 +2,7 @@ WITH source AS (
     SELECT id, operateur, code_eic, nom_commune, annee, filiere, code_iris,
            conso, created_at, updated_at, updated_by
     FROM {{ ref('stg_consommation_electricite_iris_2025') }}
+    WHERE left(code_iris, 2) = '69'
 ),
 intermediate AS (
     SELECT id, operateur, code_eic, nom_commune, annee, filiere, code_iris,
