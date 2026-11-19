@@ -3,9 +3,9 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.3" use-changelog="false" max-obj-count="18"
+<dbmodel pgmodeler-ver="1.2.3" use-changelog="false" max-obj-count="19"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,0" last-zoom="0.3" scene-rect="0,0,2444.65,2975.72"
+	 last-position="0,0" last-zoom="0.5" scene-rect="0,0,2471.11,2358.32"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -20,16 +20,20 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <schema name="public" layers="0" rect-visible="true" fill-color="#e1e1e1" name-color="#000000" sql-disabled="true">
 </schema>
 
-<schema name="topology" layers="0" rect-visible="true" fill-color="#6f8799" name-color="#000000">
+<schema name="topology" layers="0" rect-visible="true" fill-color="#03846e" name-color="#000000">
 	<role name="postgres"/>
 	<comment> <![CDATA[PostGIS Topology schema]]> </comment>
 </schema>
 
-<schema name="tiger" layers="0" rect-visible="true" fill-color="#cafd67" name-color="#000000">
+<schema name="tiger" layers="0" rect-visible="true" fill-color="#8be9d5" name-color="#000000">
 	<role name="postgres"/>
 </schema>
 
-<schema name="staging" layers="0" rect-visible="true" fill-color="#ccaafa" name-color="#000000">
+<schema name="ogr_system_tables" layers="0" rect-visible="true" fill-color="#2d871e" name-color="#000000">
+	<role name="postgres"/>
+</schema>
+
+<schema name="staging" layers="0" rect-visible="true" fill-color="#7156f5" name-color="#000000">
 	<role name="postgres"/>
 	<comment> <![CDATA[Cleaned and normalized data]]> </comment>
 </schema>
@@ -69,6 +73,229 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<object name="norm_addy" type="usertype"/>
 </extension>
 
+<function name="event_trigger_function_for_metadata"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="ogr_system_tables"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="event_trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[DECLARE
+    obj record;
+BEGIN
+  IF has_schema_privilege('ogr_system_tables', 'USAGE') THEN
+   IF has_table_privilege('ogr_system_tables.metadata', 'DELETE') THEN
+    FOR obj IN SELECT * FROM pg_event_trigger_dropped_objects()
+    LOOP
+        IF obj.object_type = 'table' THEN
+            DELETE FROM ogr_system_tables.metadata m WHERE m.schema_name = obj.schema_name AND m.table_name = obj.object_name;
+        END IF;
+    END LOOP;
+   END IF;
+  END IF;
+END;]]> </definition>
+</function>
+
+<eventtrigger name="ogr_system_tables_event_trigger_for_metadata" event="sql_drop">
+	<role name="postgres"/>
+	<function signature="ogr_system_tables.event_trigger_function_for_metadata()"/>
+	<filter variable="TAG" values=""/>
+</eventtrigger>
+
+<table name="chaleur_urbaine" layers="0" collapse-mode="2" max-obj-count="14" z-value="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<position x="60" y="60"/>
+	<column name="id" not-null="true">
+		<type name="character varying" length="36"/>
+	</column>
+	<column name="fournisseur">
+		<type name="text" length="0"/>
+	</column>
+	<column name="annee">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="filiere">
+		<type name="character varying" length="1"/>
+	</column>
+	<column name="iris">
+		<type name="text" length="0"/>
+	</column>
+	<column name="conso">
+		<type name="double precision" length="0"/>
+	</column>
+	<column name="pdl">
+		<type name="double precision" length="0"/>
+	</column>
+	<column name="iris_id">
+		<type name="character varying" length="9"/>
+	</column>
+	<column name="ban_id">
+		<type name="character varying" length="18"/>
+	</column>
+	<column name="created_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_by" default-value="CURRENT_USER">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="chaleur_urbaine__dbt_tmp_pkey" type="pk-constr" table="staging.chaleur_urbaine">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="consommation_froid_chaud_iris_2025" layers="0" collapse-mode="2" max-obj-count="12" z-value="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<position x="500" y="60"/>
+	<column name="id" not-null="true">
+		<type name="uuid" length="0"/>
+	</column>
+	<column name="id_source">
+		<type name="character varying" length="5"/>
+	</column>
+	<column name="operateur">
+		<type name="text" length="0"/>
+	</column>
+	<column name="annee">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="filiere">
+		<type name="character varying" length="1"/>
+	</column>
+	<column name="code_iris">
+		<type name="character varying" length="9"/>
+	</column>
+	<column name="conso">
+		<type name="text" length="0"/>
+	</column>
+	<column name="created_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_by" default-value="CURRENT_USER">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="consommation_froid_chaud_iris_2025__dbt_tmp_pkey" type="pk-constr" table="staging.consommation_froid_chaud_iris_2025">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="batiments" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<position x="1080" y="60"/>
+	<column name="id" not-null="true">
+		<type name="uuid" length="0"/>
+	</column>
+	<column name="type">
+		<type name="character varying" length="2"/>
+	</column>
+	<column name="nom">
+		<type name="text" length="0"/>
+	</column>
+	<column name="created_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_by" default-value="CURRENT_USER">
+		<type name="text" length="0"/>
+	</column>
+	<column name="geom">
+		<type name="public.geometry" length="0"/>
+	</column>
+	<constraint name="batiments__dbt_tmp_pkey" type="pk-constr" table="staging.batiments">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="consommation_electricite_iris_2025" layers="0" collapse-mode="2" max-obj-count="13" z-value="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<position x="1560" y="60"/>
+	<column name="id" not-null="true">
+		<type name="uuid" length="0"/>
+	</column>
+	<column name="operateur">
+		<type name="text" length="0"/>
+	</column>
+	<column name="code_eic">
+		<type name="character varying" length="16"/>
+	</column>
+	<column name="nom_commune">
+		<type name="text" length="0"/>
+	</column>
+	<column name="annee">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="filiere">
+		<type name="text" length="0"/>
+	</column>
+	<column name="code_iris">
+		<type name="character varying" length="9"/>
+	</column>
+	<column name="conso">
+		<type name="text" length="0"/>
+	</column>
+	<column name="created_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_by" default-value="CURRENT_USER">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="consommation_electricite_iris_2025__dbt_tmp_pkey" type="pk-constr" table="staging.consommation_electricite_iris_2025">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<function name="audit_chaleur_urbaine"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
+
+<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="staging.chaleur_urbaine">
+	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
+		<function signature="staging.audit_chaleur_urbaine()"/>
+</trigger>
+
 <function name="audit_consommation_froid_chaud_iris_2025"
 		window-func="false"
 		returns-setof="false"
@@ -92,53 +319,107 @@ CAUTION: Do not modify this file unless you know what you are doing.
     ]]> </definition>
 </function>
 
-<function name="audit_communes"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
+<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="staging.consommation_froid_chaud_iris_2025">
+	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
+		<function signature="staging.audit_consommation_froid_chaud_iris_2025()"/>
+</trigger>
+
+<table name="electricite" layers="0" collapse-mode="2" max-obj-count="18" z-value="0">
 	<schema name="staging"/>
 	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
+	<position x="2120" y="60"/>
+	<column name="id" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="fournisseur">
+		<type name="text" length="0"/>
+	</column>
+	<column name="annee">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="filiere">
+		<type name="character varying" length="1"/>
+	</column>
+	<column name="iris">
+		<type name="text" length="0"/>
+	</column>
+	<column name="adresse">
+		<type name="text" length="0"/>
+	</column>
+	<column name="commune">
+		<type name="text" length="0"/>
+	</column>
+	<column name="conso">
+		<type name="double precision" length="0"/>
+	</column>
+	<column name="pdl">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="commune_id">
+		<type name="character varying" length="5"/>
+	</column>
+	<column name="iris_id">
+		<type name="character varying" length="9"/>
+	</column>
+	<column name="ban_id">
+		<type name="character varying" length="22"/>
+	</column>
+	<column name="created_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_by" default-value="CURRENT_USER">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="electricite__dbt_tmp_pkey" type="pk-constr" table="staging.electricite">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="energie_fournisseur" layers="0" collapse-mode="2" max-obj-count="12" z-value="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<position x="60" y="560"/>
+	<column name="id" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="adresse">
+		<type name="text" length="0"/>
+	</column>
+	<column name="annee">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="conso">
+		<type name="double precision" length="0"/>
+	</column>
+	<column name="consomean">
+		<type name="double precision" length="0"/>
+	</column>
+	<column name="adresse_id">
+		<type name="character varying" length="26"/>
+	</column>
+	<column name="commune_id">
+		<type name="character varying" length="5"/>
+	</column>
+	<column name="created_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_by" default-value="CURRENT_USER">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="energie_fournisseur__dbt_tmp_pkey" type="pk-constr" table="staging.energie_fournisseur">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
 
 <function name="audit_energie_fournisseur"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
-
-<function name="audit_epci"
 		window-func="false"
 		returns-setof="false"
 		behavior-type="CALLED ON NULL INPUT"
@@ -184,538 +465,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
     ]]> </definition>
 </function>
 
-<function name="audit_iris"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
-
-<function name="audit_gaz"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
-
-<function name="audit_consommation_electricite_iris_2025"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
-
-<function name="audit_rpls"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
-
-<function name="audit_ban"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
-
-<function name="audit_chaleur_urbaine"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
-
-<function name="audit_batiments"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
-
-<function name="audit_adresses"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
-
-<function name="audit_dpe"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
-
-<function name="audit_parcelles"
-		window-func="false"
-		returns-setof="false"
-		behavior-type="CALLED ON NULL INPUT"
-		function-type="VOLATILE"
-		security-type="SECURITY INVOKER"
-		parallel-type="PARALLEL UNSAFE"
-		execution-cost="100"
-		row-amount="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<language name="plpgsql"/>
-	<return-type>
-	<type name="trigger" length="0"/>
-	</return-type>
-	<definition> <![CDATA[    BEGIN
-        NEW.updated_at = statement_timestamp();
-        NEW.updated_by = CURRENT_USER;
-        RETURN NEW;
-    END;
-    ]]> </definition>
-</function>
-
-<table name="batiments" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<position x="60" y="60"/>
-	<column name="id" not-null="true">
-		<type name="uuid" length="0"/>
-	</column>
-	<column name="type">
-		<type name="character varying" length="2"/>
-	</column>
-	<column name="nom">
-		<type name="text" length="0"/>
-	</column>
-	<column name="created_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_by" default-value="CURRENT_USER">
-		<type name="text" length="0"/>
-	</column>
-	<column name="geom">
-		<type name="public.geometry" length="0"/>
-	</column>
-	<constraint name="batiments__dbt_tmp_pkey" type="pk-constr" table="staging.batiments">
-		<columns names="id" ref-type="src-columns"/>
-	</constraint>
-</table>
-
-<table name="consommation_electricite_iris_2025" layers="0" collapse-mode="2" max-obj-count="13" z-value="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<position x="460" y="60"/>
-	<column name="id" not-null="true">
-		<type name="uuid" length="0"/>
-	</column>
-	<column name="operateur">
-		<type name="text" length="0"/>
-	</column>
-	<column name="code_eic">
-		<type name="character varying" length="16"/>
-	</column>
-	<column name="nom_commune">
-		<type name="text" length="0"/>
-	</column>
-	<column name="annee">
-		<type name="bigint" length="0"/>
-	</column>
-	<column name="filiere">
-		<type name="text" length="0"/>
-	</column>
-	<column name="code_iris">
-		<type name="character varying" length="9"/>
-	</column>
-	<column name="conso">
-		<type name="text" length="0"/>
-	</column>
-	<column name="created_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_by" default-value="CURRENT_USER">
-		<type name="text" length="0"/>
-	</column>
-	<constraint name="consommation_electricite_iris_2025__dbt_tmp_pkey" type="pk-constr" table="staging.consommation_electricite_iris_2025">
-		<columns names="id" ref-type="src-columns"/>
-	</constraint>
-</table>
-
-<table name="consommation_froid_chaud_iris_2025" layers="0" collapse-mode="2" max-obj-count="12" z-value="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<position x="1020" y="80"/>
-	<column name="id" not-null="true">
-		<type name="uuid" length="0"/>
-	</column>
-	<column name="id_source">
-		<type name="character varying" length="5"/>
-	</column>
-	<column name="operateur">
-		<type name="text" length="0"/>
-	</column>
-	<column name="annee">
-		<type name="bigint" length="0"/>
-	</column>
-	<column name="filiere">
-		<type name="character varying" length="1"/>
-	</column>
-	<column name="code_iris">
-		<type name="character varying" length="9"/>
-	</column>
-	<column name="conso">
-		<type name="text" length="0"/>
-	</column>
-	<column name="created_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_by" default-value="CURRENT_USER">
-		<type name="text" length="0"/>
-	</column>
-	<constraint name="consommation_froid_chaud_iris_2025__dbt_tmp_pkey" type="pk-constr" table="staging.consommation_froid_chaud_iris_2025">
-		<columns names="id" ref-type="src-columns"/>
-	</constraint>
-</table>
-
-<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
-	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
-	 table="staging.consommation_froid_chaud_iris_2025">
-	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
-		<function signature="staging.audit_consommation_froid_chaud_iris_2025()"/>
-</trigger>
-
-<table name="energie_fournisseur" layers="0" collapse-mode="2" max-obj-count="12" z-value="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<position x="1600" y="60"/>
-	<column name="id" not-null="true">
-		<type name="text" length="0"/>
-	</column>
-	<column name="adresse">
-		<type name="text" length="0"/>
-	</column>
-	<column name="annee">
-		<type name="integer" length="0"/>
-	</column>
-	<column name="conso">
-		<type name="double precision" length="0"/>
-	</column>
-	<column name="consomean">
-		<type name="double precision" length="0"/>
-	</column>
-	<column name="adresse_id">
-		<type name="character varying" length="26"/>
-	</column>
-	<column name="commune_id">
-		<type name="character varying" length="5"/>
-	</column>
-	<column name="created_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_by" default-value="CURRENT_USER">
-		<type name="text" length="0"/>
-	</column>
-	<constraint name="energie_fournisseur__dbt_tmp_pkey1" type="pk-constr" table="staging.energie_fournisseur">
-		<columns names="id" ref-type="src-columns"/>
-	</constraint>
-</table>
-
-<table name="electricite" layers="0" collapse-mode="2" max-obj-count="16" z-value="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<position x="2080" y="60"/>
-	<column name="id" not-null="true">
-		<type name="text" length="0"/>
-	</column>
-	<column name="fournisseur">
-		<type name="text" length="0"/>
-	</column>
-	<column name="annee">
-		<type name="integer" length="0"/>
-	</column>
-	<column name="filiere">
-		<type name="character varying" length="1"/>
-	</column>
-	<column name="iris">
-		<type name="text" length="0"/>
-	</column>
-	<column name="adresse">
-		<type name="text" length="0"/>
-	</column>
-	<column name="commune">
-		<type name="text" length="0"/>
-	</column>
-	<column name="conso">
-		<type name="double precision" length="0"/>
-	</column>
-	<column name="pdl">
-		<type name="integer" length="0"/>
-	</column>
-	<column name="iris_id">
-		<type name="character varying" length="9"/>
-	</column>
-	<column name="ban_id">
-		<type name="character varying" length="22"/>
-	</column>
-	<column name="created_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_by" default-value="CURRENT_USER">
-		<type name="text" length="0"/>
-	</column>
-	<constraint name="electricite__dbt_tmp_pkey1" type="pk-constr" table="staging.electricite">
-		<columns names="id" ref-type="src-columns"/>
-	</constraint>
-</table>
-
 <trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
 	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
 	 table="staging.energie_fournisseur">
 	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
 		<function signature="staging.audit_energie_fournisseur()"/>
 </trigger>
-
-<table name="epci" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<position x="60" y="540"/>
-	<column name="id" not-null="true">
-		<type name="character varying" length="9"/>
-	</column>
-	<column name="nom">
-		<type name="text" length="0"/>
-	</column>
-	<column name="type">
-		<type name="character varying" length="26"/>
-	</column>
-	<column name="created_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_by" default-value="CURRENT_USER">
-		<type name="text" length="0"/>
-	</column>
-	<column name="geom">
-		<type name="geometry" length="0" spatial-type="MULTIPOLYGON" variation="0" srid="2154"/>
-	</column>
-	<constraint name="epci__dbt_tmp_pkey1" type="pk-constr" table="staging.epci">
-		<columns names="id" ref-type="src-columns"/>
-	</constraint>
-</table>
-
-<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
-	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
-	 table="staging.epci">
-	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
-		<function signature="staging.audit_epci()"/>
-</trigger>
-
-<table name="ban" layers="0" collapse-mode="2" max-obj-count="16" z-value="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<position x="500" y="540"/>
-	<column name="id" not-null="true">
-		<type name="character varying" length="24"/>
-	</column>
-	<column name="id_fantoir">
-		<type name="character varying" length="10"/>
-	</column>
-	<column name="numero">
-		<type name="text" length="0"/>
-	</column>
-	<column name="rep">
-		<type name="text" length="0"/>
-	</column>
-	<column name="nom_voie">
-		<type name="text" length="0"/>
-	</column>
-	<column name="code_postal">
-		<type name="character varying" length="5"/>
-	</column>
-	<column name="commune">
-		<type name="text" length="0"/>
-	</column>
-	<column name="commune_id">
-		<type name="character varying" length="5"/>
-	</column>
-	<column name="parcelle_id">
-		<type name="text" length="0"/>
-	</column>
-	<column name="adresse">
-		<type name="text" length="0"/>
-	</column>
-	<column name="created_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_by" default-value="CURRENT_USER">
-		<type name="text" length="0"/>
-	</column>
-	<column name="geometry">
-		<type name="geometry" length="0" spatial-type="MULTIPOINT" variation="0" srid="2154"/>
-	</column>
-	<constraint name="ban__dbt_tmp_pkey" type="pk-constr" table="staging.ban">
-		<columns names="id" ref-type="src-columns"/>
-	</constraint>
-</table>
 
 <trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
 	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
@@ -724,10 +479,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<function signature="staging.audit_electricite()"/>
 </trigger>
 
-<table name="gaz" layers="0" collapse-mode="2" max-obj-count="16" z-value="0">
+<table name="gaz" layers="0" collapse-mode="2" max-obj-count="18" z-value="0">
 	<schema name="staging"/>
 	<role name="postgres"/>
-	<position x="140" y="1520"/>
+	<position x="520" y="560"/>
 	<column name="id" not-null="true">
 		<type name="character varying" length="36"/>
 	</column>
@@ -755,6 +510,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="pdl">
 		<type name="integer" length="0"/>
 	</column>
+	<column name="commune_id">
+		<type name="character varying" length="5"/>
+	</column>
 	<column name="iris_id">
 		<type name="character varying" length="9"/>
 	</column>
@@ -770,110 +528,15 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="updated_by" default-value="CURRENT_USER">
 		<type name="text" length="0"/>
 	</column>
-	<constraint name="gaz__dbt_tmp_pkey1" type="pk-constr" table="staging.gaz">
+	<constraint name="gaz__dbt_tmp_pkey" type="pk-constr" table="staging.gaz">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
-	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
-	 table="staging.gaz">
-	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
-		<function signature="staging.audit_gaz()"/>
-</trigger>
-
-<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
-	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
-	 table="staging.consommation_electricite_iris_2025">
-	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
-		<function signature="staging.audit_consommation_electricite_iris_2025()"/>
-</trigger>
-
-<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
-	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
-	 table="staging.ban">
-	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
-		<function signature="staging.audit_ban()"/>
-</trigger>
-
-<index name="idx_ban_geometry" table="staging.ban"
-	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
-	 index-type="gist" factor="90">
-		<idxelement use-sorting="false">
-			<column name="geometry"/>
-		</idxelement>
-</index>
-
-<table name="communes" layers="0" collapse-mode="2" max-obj-count="16" z-value="0">
+<table name="epci" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
 	<schema name="staging"/>
 	<role name="postgres"/>
-	<position x="1320" y="540"/>
-	<column name="id" not-null="true">
-		<type name="character varying" length="9"/>
-	</column>
-	<column name="code_insee" not-null="true">
-		<type name="character varying" length="5"/>
-	</column>
-	<column name="nom">
-		<type name="text" length="0"/>
-	</column>
-	<column name="nom_unaccent">
-		<type name="text" length="0"/>
-	</column>
-	<column name="code_postal">
-		<type name="character varying" length="5"/>
-	</column>
-	<column name="superficie">
-		<type name="double precision" length="0"/>
-	</column>
-	<column name="population">
-		<type name="integer" length="0"/>
-	</column>
-	<column name="epci">
-		<type name="character varying" length="9"/>
-	</column>
-	<column name="epci_id">
-		<type name="character varying" length="9"/>
-	</column>
-	<column name="type_commune">
-		<type name="character varying" length="14"/>
-	</column>
-	<column name="created_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_by" default-value="CURRENT_USER">
-		<type name="text" length="0"/>
-	</column>
-	<column name="geom">
-		<type name="geometry" length="0" spatial-type="MULTIPOLYGON" variation="0" srid="2154"/>
-	</column>
-	<constraint name="communes__dbt_tmp_pkey" type="pk-constr" table="staging.communes">
-		<columns names="id" ref-type="src-columns"/>
-	</constraint>
-</table>
-
-<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
-	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
-	 table="staging.communes">
-	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
-		<function signature="staging.audit_communes()"/>
-</trigger>
-
-<index name="idx_communes_geom" table="staging.communes"
-	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
-	 index-type="gist" factor="90">
-		<idxelement use-sorting="false">
-			<column name="geom"/>
-		</idxelement>
-</index>
-
-<table name="iris" layers="0" collapse-mode="2" max-obj-count="10" z-value="0">
-	<schema name="staging"/>
-	<role name="postgres"/>
-	<position x="1940" y="540"/>
+	<position x="920" y="560"/>
 	<column name="id" not-null="true">
 		<type name="character varying" length="9"/>
 	</column>
@@ -881,13 +544,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="text" length="0"/>
 	</column>
 	<column name="type">
-		<type name="character varying" length="1"/>
-	</column>
-	<column name="commune">
-		<type name="text" length="0"/>
-	</column>
-	<column name="commune_id">
-		<type name="character varying" length="5"/>
+		<type name="character varying" length="26"/>
 	</column>
 	<column name="created_at" default-value="CURRENT_TIMESTAMP">
 		<type name="timestamp" length="0"/>
@@ -901,16 +558,57 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="geom">
 		<type name="geometry" length="0" spatial-type="MULTIPOLYGON" variation="0" srid="2154"/>
 	</column>
-	<constraint name="iris__dbt_tmp_pkey" type="pk-constr" table="staging.iris">
+	<constraint name="epci__dbt_tmp_pkey" type="pk-constr" table="staging.epci">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
+<index name="9c679ab95d0a61d1704ca5994a5ac380" table="staging.epci"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="gist" factor="90">
+		<idxelement use-sorting="false">
+			<column name="geom"/>
+		</idxelement>
+</index>
+
+<function name="audit_epci"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
+
+<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="staging.epci">
+	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
+		<function signature="staging.audit_epci()"/>
+</trigger>
+
 <table name="parcelles" layers="0" collapse-mode="2" max-obj-count="13" z-value="0">
 	<schema name="staging"/>
 	<role name="postgres"/>
-	<position x="60" y="1060"/>
+	<position x="1400" y="560"/>
 	<column name="id" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="commune">
 		<type name="text" length="0"/>
 	</column>
 	<column name="prefixe">
@@ -928,9 +626,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="superficie">
 		<type name="double precision" length="0"/>
 	</column>
-	<column name="commune_id">
-		<type name="character varying" length="5"/>
-	</column>
 	<column name="created_at" default-value="CURRENT_TIMESTAMP">
 		<type name="timestamp" length="0"/>
 	</column>
@@ -940,33 +635,48 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="updated_by" default-value="CURRENT_USER">
 		<type name="text" length="0"/>
 	</column>
-	<column name="geom">
-		<type name="geometry" length="0" spatial-type="MULTIPOLYGON" variation="0" srid="2154"/>
+	<column name="geom" not-null="true">
+		<type name="geometry" length="0" spatial-type="POLYGON" variation="0" srid="2154"/>
 	</column>
-	<constraint name="parcelles__dbt_tmp_pkey1" type="pk-constr" table="staging.parcelles">
+	<constraint name="parcelles__dbt_tmp_pkey" type="pk-constr" table="staging.parcelles">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
+<function name="audit_gaz"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
+
 <trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
 	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
-	 table="staging.iris">
+	 table="staging.gaz">
 	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
-		<function signature="staging.audit_iris()"/>
+		<function signature="staging.audit_gaz()"/>
 </trigger>
-
-<index name="idx_iris_geom" table="staging.iris"
-	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
-	 index-type="gist" factor="90">
-		<idxelement use-sorting="false">
-			<column name="geom"/>
-		</idxelement>
-</index>
 
 <table name="rpls" layers="0" collapse-mode="2" max-obj-count="18" z-value="0">
 	<schema name="staging"/>
 	<role name="postgres"/>
-	<position x="520" y="1060"/>
+	<position x="1880" y="560"/>
 	<column name="id" not-null="true">
 		<type name="character varying" length="36"/>
 	</column>
@@ -1012,15 +722,327 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="updated_by" default-value="CURRENT_USER">
 		<type name="text" length="0"/>
 	</column>
-	<constraint name="rpls__dbt_tmp_pkey1" type="pk-constr" table="staging.rpls">
+	<constraint name="rpls__dbt_tmp_pkey" type="pk-constr" table="staging.rpls">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
+<function name="audit_rpls"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
+
+<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="staging.rpls">
+	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
+		<function signature="staging.audit_rpls()"/>
+</trigger>
+
+<function name="audit_consommation_electricite_iris_2025"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
+
+<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="staging.consommation_electricite_iris_2025">
+	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
+		<function signature="staging.audit_consommation_electricite_iris_2025()"/>
+</trigger>
+
+<table name="communes" layers="0" collapse-mode="2" max-obj-count="16" z-value="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<position x="60" y="1060"/>
+	<column name="id" not-null="true">
+		<type name="character varying" length="9"/>
+	</column>
+	<column name="code_insee" not-null="true">
+		<type name="character varying" length="5"/>
+	</column>
+	<column name="nom">
+		<type name="text" length="0"/>
+	</column>
+	<column name="nom_unaccent">
+		<type name="text" length="0"/>
+	</column>
+	<column name="code_postal">
+		<type name="character varying" length="5"/>
+	</column>
+	<column name="superficie">
+		<type name="double precision" length="0"/>
+	</column>
+	<column name="population">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="epci">
+		<type name="text" length="0"/>
+	</column>
+	<column name="epci_id">
+		<type name="character varying" length="9"/>
+	</column>
+	<column name="type_commune">
+		<type name="character varying" length="14"/>
+	</column>
+	<column name="created_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_by" default-value="CURRENT_USER">
+		<type name="text" length="0"/>
+	</column>
+	<column name="geom">
+		<type name="geometry" length="0" spatial-type="MULTIPOLYGON" variation="0" srid="2154"/>
+	</column>
+	<constraint name="communes__dbt_tmp_pkey" type="pk-constr" table="staging.communes">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<index name="915566330b275c876521022b4e223406" table="staging.communes"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="gist" factor="90">
+		<idxelement use-sorting="false">
+			<column name="geom"/>
+		</idxelement>
+</index>
+
+<function name="audit_communes"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
+
+<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="staging.communes">
+	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
+		<function signature="staging.audit_communes()"/>
+</trigger>
+
+<table name="ban" layers="0" collapse-mode="2" max-obj-count="16" z-value="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<position x="540" y="1060"/>
+	<column name="id" not-null="true">
+		<type name="character varying" length="24"/>
+	</column>
+	<column name="id_fantoir">
+		<type name="character varying" length="10"/>
+	</column>
+	<column name="numero">
+		<type name="text" length="0"/>
+	</column>
+	<column name="rep">
+		<type name="text" length="0"/>
+	</column>
+	<column name="nom_voie">
+		<type name="text" length="0"/>
+	</column>
+	<column name="code_postal">
+		<type name="character varying" length="5"/>
+	</column>
+	<column name="commune">
+		<type name="text" length="0"/>
+	</column>
+	<column name="commune_id">
+		<type name="character varying" length="5"/>
+	</column>
+	<column name="parcelle_id">
+		<type name="text" length="0"/>
+	</column>
+	<column name="adresse">
+		<type name="text" length="0"/>
+	</column>
+	<column name="created_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_by" default-value="CURRENT_USER">
+		<type name="text" length="0"/>
+	</column>
+	<column name="geom">
+		<type name="geometry" length="0" spatial-type="POINT" variation="0" srid="2154"/>
+	</column>
+	<constraint name="ban__dbt_tmp_pkey" type="pk-constr" table="staging.ban">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="iris" layers="0" collapse-mode="2" max-obj-count="10" z-value="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<position x="1020" y="1060"/>
+	<column name="id" not-null="true">
+		<type name="character varying" length="9"/>
+	</column>
+	<column name="nom">
+		<type name="text" length="0"/>
+	</column>
+	<column name="type">
+		<type name="character varying" length="1"/>
+	</column>
+	<column name="commune">
+		<type name="text" length="0"/>
+	</column>
+	<column name="commune_id">
+		<type name="character varying" length="5"/>
+	</column>
+	<column name="created_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_by" default-value="CURRENT_USER">
+		<type name="text" length="0"/>
+	</column>
+	<column name="geom">
+		<type name="geometry" length="0" spatial-type="MULTIPOLYGON" variation="0" srid="2154"/>
+	</column>
+	<constraint name="iris__dbt_tmp_pkey" type="pk-constr" table="staging.iris">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<index name="4b74eccd7b68dc51f9c859ad891e04b9" table="staging.ban"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="gist" factor="90">
+		<idxelement use-sorting="false">
+			<column name="geom"/>
+		</idxelement>
+</index>
+
+<function name="audit_ban"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
+
+<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="staging.ban">
+	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
+		<function signature="staging.audit_ban()"/>
+</trigger>
+
+<index name="c4343e9c2bc331a10216d85b6986207b" table="staging.iris"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="gist" factor="90">
+		<idxelement use-sorting="false">
+			<column name="geom"/>
+		</idxelement>
+</index>
+
+<function name="audit_iris"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
+
+<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="staging.iris">
+	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
+		<function signature="staging.audit_iris()"/>
+</trigger>
+
 <table name="adresses" layers="0" collapse-mode="2" max-obj-count="58" z-value="0">
 	<schema name="staging"/>
 	<role name="postgres"/>
-	<position x="760" y="1660"/>
+	<position x="1520" y="1060"/>
 	<column name="id" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -1165,13 +1187,44 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="updated_by" default-value="CURRENT_USER">
 		<type name="text" length="0"/>
 	</column>
-	<column name="geometry">
+	<column name="geom">
 		<type name="geometry" length="0" spatial-type="MULTIPOINT" variation="0" srid="2154"/>
 	</column>
 	<constraint name="adresses__dbt_tmp_pkey" type="pk-constr" table="staging.adresses">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
 </table>
+
+<index name="df8c6771b48fddde6ea9d7d7ebfc441a" table="staging.batiments"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="gist" factor="90">
+		<idxelement use-sorting="false">
+			<column name="geom"/>
+		</idxelement>
+</index>
+
+<function name="audit_batiments"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
 
 <trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
 	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
@@ -1180,71 +1233,36 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<function signature="staging.audit_batiments()"/>
 </trigger>
 
-<table name="chaleur_urbaine" layers="0" collapse-mode="2" max-obj-count="14" z-value="0">
+<index name="6be0ff09593545adade1c9598543bfba" table="staging.adresses"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="gist" factor="90">
+		<idxelement use-sorting="false">
+			<column name="geom"/>
+		</idxelement>
+</index>
+
+<function name="audit_adresses"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
 	<schema name="staging"/>
 	<role name="postgres"/>
-	<position x="1480" y="1080"/>
-	<column name="id" not-null="true">
-		<type name="character varying" length="36"/>
-	</column>
-	<column name="fournisseur">
-		<type name="text" length="0"/>
-	</column>
-	<column name="annee">
-		<type name="integer" length="0"/>
-	</column>
-	<column name="filiere">
-		<type name="character varying" length="1"/>
-	</column>
-	<column name="iris">
-		<type name="text" length="0"/>
-	</column>
-	<column name="conso">
-		<type name="double precision" length="0"/>
-	</column>
-	<column name="pdl">
-		<type name="double precision" length="0"/>
-	</column>
-	<column name="iris_id">
-		<type name="character varying" length="9"/>
-	</column>
-	<column name="ban_id">
-		<type name="character varying" length="18"/>
-	</column>
-	<column name="created_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_at" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp" length="0"/>
-	</column>
-	<column name="updated_by" default-value="CURRENT_USER">
-		<type name="text" length="0"/>
-	</column>
-	<constraint name="chaleur_urbaine__dbt_tmp_pkey" type="pk-constr" table="staging.chaleur_urbaine">
-		<columns names="id" ref-type="src-columns"/>
-	</constraint>
-</table>
-
-<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
-	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
-	 table="staging.chaleur_urbaine">
-	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
-		<function signature="staging.audit_chaleur_urbaine()"/>
-</trigger>
-
-<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
-	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
-	 table="staging.parcelles">
-	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
-		<function signature="staging.audit_parcelles()"/>
-</trigger>
-
-<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
-	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
-	 table="staging.rpls">
-	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
-		<function signature="staging.audit_rpls()"/>
-</trigger>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
 
 <trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
 	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
@@ -1256,7 +1274,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="dpe" layers="0" collapse-mode="2" max-obj-count="12" z-value="0">
 	<schema name="staging"/>
 	<role name="postgres"/>
-	<position x="1780" y="2060"/>
+	<position x="2020" y="1060"/>
 	<column name="numero_dpe" not-null="true">
 		<type name="character varying" length="13"/>
 	</column>
@@ -1292,11 +1310,72 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
+<index name="94777f05fae4593e7d7e9f3272ba4f18" table="staging.parcelles"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="gist" factor="90">
+		<idxelement use-sorting="false">
+			<column name="geom"/>
+		</idxelement>
+</index>
+
+<function name="audit_dpe"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
+
 <trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
 	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
 	 table="staging.dpe">
 	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
 		<function signature="staging.audit_dpe()"/>
+</trigger>
+
+<function name="audit_parcelles"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="staging"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[    BEGIN
+        NEW.updated_at = statement_timestamp();
+        NEW.updated_by = CURRENT_USER;
+        RETURN NEW;
+    END;
+    ]]> </definition>
+</function>
+
+<trigger name="trg_staging_audit" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="staging.parcelles">
+	<condition> <![CDATA[(old.* IS DISTINCT FROM new.*)]]> </condition>
+		<function signature="staging.audit_parcelles()"/>
 </trigger>
 
 <constraint name="communes__dbt_tmp_epci_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
@@ -1305,20 +1384,14 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
+<constraint name="ban__dbt_tmp_commune_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="staging.communes" table="staging.ban">
+	<columns names="commune_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
 <constraint name="iris__dbt_tmp_commune_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="staging.communes" table="staging.iris">
-	<columns names="commune_id" ref-type="src-columns"/>
-	<columns names="id" ref-type="dst-columns"/>
-</constraint>
-
-<constraint name="parcelles__dbt_tmp_commune_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="staging.communes" table="staging.parcelles">
-	<columns names="commune_id" ref-type="src-columns"/>
-	<columns names="id" ref-type="dst-columns"/>
-</constraint>
-
-<constraint name="rpls__dbt_tmp_commune_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="staging.communes" table="staging.rpls">
 	<columns names="commune_id" ref-type="src-columns"/>
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
@@ -1335,12 +1408,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
-<constraint name="chaleur_urbaine__dbt_tmp_iris_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="staging.iris" table="staging.chaleur_urbaine">
-	<columns names="iris_id" ref-type="src-columns"/>
-	<columns names="id" ref-type="dst-columns"/>
-</constraint>
-
 <constraint name="dpe__dbt_tmp_adresse_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="staging.adresses" table="staging.dpe">
 	<columns names="adresse_id" ref-type="src-columns"/>
@@ -1348,49 +1415,37 @@ CAUTION: Do not modify this file unless you know what you are doing.
 </constraint>
 
 <relationship name="rel_communes_epci" type="relfk" layers="0"
-	 custom-color="#cea4fe"
+	 custom-color="#3a6d59"
 	 src-table="staging.communes"
 	 dst-table="staging.epci" reference-fk="communes__dbt_tmp_epci_id_fkey"
 	 src-required="false" dst-required="false"/>
 
+<relationship name="rel_ban_communes" type="relfk" layers="0"
+	 custom-color="#bc6785"
+	 src-table="staging.ban"
+	 dst-table="staging.communes" reference-fk="ban__dbt_tmp_commune_id_fkey"
+	 src-required="false" dst-required="false"/>
+
 <relationship name="rel_iris_communes" type="relfk" layers="0"
-	 custom-color="#ea2f56"
+	 custom-color="#06d1e5"
 	 src-table="staging.iris"
 	 dst-table="staging.communes" reference-fk="iris__dbt_tmp_commune_id_fkey"
 	 src-required="false" dst-required="false"/>
 
-<relationship name="rel_parcelles_communes" type="relfk" layers="0"
-	 custom-color="#723318"
-	 src-table="staging.parcelles"
-	 dst-table="staging.communes" reference-fk="parcelles__dbt_tmp_commune_id_fkey"
-	 src-required="false" dst-required="false"/>
-
-<relationship name="rel_rpls_communes" type="relfk" layers="0"
-	 custom-color="#329df2"
-	 src-table="staging.rpls"
-	 dst-table="staging.communes" reference-fk="rpls__dbt_tmp_commune_id_fkey"
-	 src-required="false" dst-required="false"/>
-
 <relationship name="rel_adresses_communes" type="relfk" layers="0"
-	 custom-color="#bb448e"
+	 custom-color="#1b5023"
 	 src-table="staging.adresses"
 	 dst-table="staging.communes" reference-fk="adresses__dbt_tmp_commune_id_fkey"
 	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_adresses_iris" type="relfk" layers="0"
-	 custom-color="#49467e"
+	 custom-color="#4be1d4"
 	 src-table="staging.adresses"
 	 dst-table="staging.iris" reference-fk="adresses__dbt_tmp_iris_id_fkey"
 	 src-required="false" dst-required="false"/>
 
-<relationship name="rel_chaleur_urbaine_iris" type="relfk" layers="0"
-	 custom-color="#8a6f07"
-	 src-table="staging.chaleur_urbaine"
-	 dst-table="staging.iris" reference-fk="chaleur_urbaine__dbt_tmp_iris_id_fkey"
-	 src-required="false" dst-required="false"/>
-
 <relationship name="rel_dpe_adresses" type="relfk" layers="0"
-	 custom-color="#101d86"
+	 custom-color="#aec9a2"
 	 src-table="staging.dpe"
 	 dst-table="staging.adresses" reference-fk="dpe__dbt_tmp_adresse_id_fkey"
 	 src-required="false" dst-required="false"/>
