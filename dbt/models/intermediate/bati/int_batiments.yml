@@ -12,17 +12,17 @@ models:
 
       - type: foreign_key
         columns: [commune_id]
-        to: ref('stg_communes')
+        to: ref('int_communes')
         to_columns: [id]
 
       - type: foreign_key
         columns: [iris_id]
-        to: ref('stg_iris')
+        to: ref('int_iris')
         to_columns: [id]
 
       - type: foreign_key
         columns: [parcelle_id]
-        to: ref('stg_parcelles')
+        to: ref('int_parcelles')
         to_columns: [id]
 
     columns:
@@ -73,7 +73,7 @@ models:
         data_tests:
           - relationships:
               arguments:
-                to: ref('stg_communes')
+                to: ref('int_communes')
                 field: id
 
       - name: iris_id
@@ -82,7 +82,7 @@ models:
         data_tests:
           - relationships:
               arguments:
-                to: ref('stg_iris')
+                to: ref('int_iris')
                 field: id
 
       - name: parcelle_id
@@ -91,5 +91,5 @@ models:
         data_tests:
           - relationships:
               arguments:
-                to: ref('stg_parcelles')
+                to: ref('int_parcelles')
                 field: id
