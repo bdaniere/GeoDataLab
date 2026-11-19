@@ -4,6 +4,9 @@ config-version: 2
 
 profile: geodatalab
 
+flags:
+  indirect_selection: buildable
+
 model-paths: ["models"]
 test-paths: ["tests"]
 
