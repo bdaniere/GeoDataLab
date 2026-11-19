@@ -163,34 +163,6 @@ un utilisateur applicatif individuel.
 - Introduire les technologies progressivement.
 - Vérifier les licences et les conditions de réutilisation des sources.
 
-## Tests
-
-Les tests de l'ingestion se trouvent dans `ingestion/tests`. Les tests d'intégration
-OGR utilisent les jeux GeoPackage, GeoJSON et Shapefile de `ingestion/tests/testdata`,
-GDAL (`ogrinfo` et `ogr2ogr`) et une base PostGIS dédiée aux tests. Ils créent puis
-suppriment un schéma temporaire dans cette base. Les fixtures réutilisables sont
-regroupées dans `ingestion/tests/conftest.py`.
-
-Avec Poetry, depuis le dossier `ingestion` :
-
-```bash
-poetry install --with dev
-poetry run pytest
-```
-
-Pour exécuter les tests PostGIS, installer GDAL, démarrer une base PostGIS dédiée et
-définir ses paramètres de connexion avant de lancer pytest :
-
-```bash
-export TEST_POSTGIS_DSN="host=127.0.0.1 port=5432 dbname=geodatalab_test user=geodatalab_test password=geodatalab_test"
-poetry run pytest
-```
-
-Sans `TEST_POSTGIS_DSN`, les tests nécessitant PostGIS sont explicitement ignorés ; le
-test de couche inexistante est aussi ignoré si `ogrinfo` n'est pas installé. GitHub
-Actions installe GDAL et démarre PostGIS pour exécuter toute la suite lors des push et
-des pull requests.
-
 ## Statut
 
 Projet en cours de définition. Les choix techniques et la feuille de route évolueront au fil des expérimentations.
