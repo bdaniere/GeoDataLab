@@ -12,15 +12,13 @@ models:
 
       - type : foreign_key
         columns: [parcelle_id]
-        references:
-          table: ref('parcelles')
-          columns: [id]
+        to: ref('int_parcelles')
+        to_columns: [id]
 
       - type : foreign_key
         columns: [commune_id]
-        references:
-          table: ref('communes')
-          columns: [id]
+        to: ref('int_communes')
+        to_columns: [id]
 
     columns:
       - name: id
