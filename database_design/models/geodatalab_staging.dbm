@@ -92,7 +92,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
     obj record;
 BEGIN
   IF has_schema_privilege('ogr_system_tables', 'USAGE') THEN
-   IF has_table_privilege('ogr_system_tables.metadata', 'DELETE') THEN
+   IF has_table_privilege(to_regclass('ogr_system_tables.metadata'), 'DELETE') THEN
     FOR obj IN SELECT * FROM pg_event_trigger_dropped_objects()
     LOOP
         IF obj.object_type = 'table' THEN
