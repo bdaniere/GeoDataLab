@@ -56,15 +56,11 @@ Cette liste est indicative et sera affinée en fonction de la disponibilité des
 ### Ingestion
 
 - Python.
-- Airbyte.
 
 ### Transformation et qualité
 
-- Python.
 - SQL.
-- GeoPandas.
-- Pytest.
-- dbt, à explorer.
+- dbt
 
 Le projet dbt se trouve dans `dbt/` et son profil de connexion dans
 `config/dbt/profiles.yml`. Docker Compose monte ce répertoire de configuration en
@@ -129,11 +125,10 @@ un utilisateur applicatif individuel.
 
 ### Étape 4 — Premier pipeline de données
 
-- [ ] Sélectionner un périmètre géographique restreint.
-- [ ] Corrgier les reférénces (FK) invalides.
-- [ ] Intégrer des données territoriales et des données métier.
-- [ ] Réaliser les premiers traitements.
-- [ ] Produire des indicateurs simples.
+- [x] Sélectionner un périmètre géographique restreint.
+- [x] Corrgier les reférénces (FK) invalides.
+- [x] Intégrer des données territoriales et des données métier.
+- [x] Réaliser les premiers traitements.
 
 ### Étape 5 — Orchestration
 
