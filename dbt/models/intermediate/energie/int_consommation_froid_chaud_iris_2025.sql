@@ -1,0 +1,29 @@
+{{
+    config(
+        materialized='table',
+        contract={'enforced': true},
+        indexes=[
+            {'columns': ['iris_id']},
+            {'columns': ['commune_id']}
+        ]
+    )
+}}
+
+SELECT
+    s.id,
+    s.id_source,
+    s.operateur,
+    s.annee,
+    s.filiere,
+    s.code_iris,
+    s.conso,
+    s.created_at,
+    s.updated_at,
+    s.updated_by,
+    i.id AS iris_id,
+    c.id AS commune_id
+FROM {{ ref('stg_consommation_froid_chaud_iris_2025') }} AS s
+LEFT JOIN {{ ref('int_iris') }} AS i ON i.id = s.code_iris
+LEFT JOIN {{ ref('int_communes') }} AS c
+    ON length(s.code_iris) >= 5 AND c.id = left(s.code_iris, 5)
+WHERE LEFT(s.code_iris,2) = '69'

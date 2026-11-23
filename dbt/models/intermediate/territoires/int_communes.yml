@@ -1,0 +1,55 @@
+models:
+  - name: int_communes
+    description: Copie des communes du staging, sans transformation supplémentaire.
+    config:
+      alias: communes
+      contract:
+        enforced: true
+      
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+      - type: foreign_key
+        columns: [epci_id]
+        to: ref('int_epci')
+        to_columns: [id]
+
+    columns:
+      - name: id
+        data_type: varchar(9)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: code_insee
+        data_type: varchar(5)
+        constraints:
+          - type: not_null
+      - name: nom
+        data_type: text
+      - name: nom_unaccent
+        data_type: text
+      - name: code_postal
+        data_type: varchar(5)
+      - name: superficie
+        data_type: float
+      - name: population
+        data_type: integer
+      - name: epci
+        data_type: text
+      - name: epci_id
+        data_type: varchar(9)
+      - name: type_commune
+        data_type: varchar(14)
+      - name: created_at
+        data_type: timestamp
+      - name: updated_at
+        data_type: timestamp
+      - name: updated_by
+        data_type: text
+      - name: geom
+        data_type: geometry(MultiPolygon,2154)
+        data_tests:
+          - spatial_index

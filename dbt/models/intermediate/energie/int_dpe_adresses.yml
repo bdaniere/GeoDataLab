@@ -1,0 +1,72 @@
+models:
+  - name: int_dpe_adresses
+    description: >-
+      Association entre chaque DPE et tous les points intermédiaires issus
+      de son adresse source. Les DPE sans correspondance restent dans int_dpe.
+      Reconstruire cette association après ses modèles parents pour actualiser
+      les liens et les clés étrangères.
+    config:
+      alias: dpe_adresses
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [numero_dpe, adresse_id]
+      - type: foreign_key
+        columns: [numero_dpe]
+        to: ref('int_dpe')
+        to_columns: [numero_dpe]
+      - type: foreign_key
+        columns: [adresse_id]
+        to: ref('int_adresses')
+        to_columns: [id]
+
+    columns:
+      - name: numero_dpe
+        description: Numéro du diagnostic dans intermediate.dpe.
+        data_type: varchar(13)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('int_dpe')
+                field: numero_dpe
+      - name: adresse_id
+        description: Identifiant UUID du point dans intermediate.adresses.
+        data_type: uuid
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('int_adresses')
+                field: id
+
+unit_tests:
+  - name: int_dpe_adresses_multiples_et_absentes
+    description: Associe tous les points correspondants et ignore les adresses absentes.
+    model: int_dpe_adresses
+    given:
+      - input: ref('int_dpe')
+        format: sql
+        rows: |
+          SELECT 'd1'::varchar(13) AS numero_dpe, 'source-1'::text AS adresse_id
+          UNION ALL SELECT 'd2', 'source-1'
+          UNION ALL SELECT 'd3', 'absente'
+          UNION ALL SELECT 'd4', NULL
+      - input: ref('int_adresses')
+        format: sql
+        rows: |
+          SELECT '00000000-0000-0000-0000-000000000001'::uuid AS id, 'source-1'::text AS source_id
+          UNION ALL SELECT '00000000-0000-0000-0000-000000000002'::uuid, 'source-1'
+          UNION ALL SELECT '00000000-0000-0000-0000-000000000003'::uuid, 'source-2'
+    expect:
+      rows:
+        - {numero_dpe: 'd1', adresse_id: '00000000-0000-0000-0000-000000000001'}
+        - {numero_dpe: 'd1', adresse_id: '00000000-0000-0000-0000-000000000002'}
+        - {numero_dpe: 'd2', adresse_id: '00000000-0000-0000-0000-000000000001'}
+        - {numero_dpe: 'd2', adresse_id: '00000000-0000-0000-0000-000000000002'}

@@ -1,0 +1,46 @@
+models:
+  - name: int_parcelles
+    description: Copie des parcelles du staging, sans transformation supplémentaire.
+    config:
+      alias: parcelles
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+        
+    columns:
+      - name: id
+        data_type: text
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: commune
+        data_type: text
+      - name: prefixe
+        data_type: varchar(3)
+      - name: section
+        data_type: varchar(2)
+      - name: numero
+        data_type: varchar(4)
+      - name: contenance
+        data_type: integer
+      - name: superficie
+        description: Surface calculée sur la géométrie source, avant correction.
+        data_type: float
+      - name: created_at
+        data_type: timestamp
+      - name: updated_at
+        data_type: timestamp
+      - name: updated_by
+        data_type: text
+      - name: geom
+        description: Plus grande partie polygonale de la géométrie corrigée, en EPSG:2154.
+        data_type: geometry(Polygon,2154)
+        data_tests:
+          - spatial_index
+        constraints:
+          - type: not_null

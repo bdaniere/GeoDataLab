@@ -1,0 +1,42 @@
+models:
+  - name: int_iris
+    description: Copie des IRIS du staging, sans transformation supplémentaire.
+    config:
+      alias: iris
+      contract:
+        enforced: true
+        
+    constraints:
+      - type: primary_key
+        columns: [id]
+      - type: foreign_key
+        columns: [commune_id]
+        to: ref('int_communes')
+        to_columns: [id]
+
+    columns:
+      - name: id
+        data_type: varchar(9)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: nom
+        data_type: text
+      - name: type
+        data_type: varchar(1)
+      - name: commune
+        data_type: text
+      - name: commune_id
+        data_type: varchar(5)
+      - name: created_at
+        data_type: timestamp
+      - name: updated_at
+        data_type: timestamp
+      - name: updated_by
+        data_type: text
+      - name: geom
+        data_type: geometry(MultiPolygon,2154)
+        data_tests:
+          - spatial_index

@@ -1,0 +1,69 @@
+models:
+  - name: stg_parcelles
+    data_tests:
+      - staging_audit
+    config:
+      alias: parcelles
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+    columns:
+      - name: id
+        data_type: text
+        constraints:
+          - type: not_null
+
+        data_tests:
+          - not_null
+          - unique
+
+      - name: commune
+        data_type: text
+        data_tests:
+          - not_null
+
+      - name: prefixe
+        data_type: varchar(3)
+
+      - name: section
+        data_type: varchar(2)
+
+      - name: numero
+        data_type: varchar(4)
+
+      - name: contenance
+        data_type: integer
+      
+      - name: superficie
+        data_type: float
+        description: Surface calculée sur la géométrie source, avant correction.
+
+      - name: created_at
+        data_type: TIMESTAMP
+
+      - name: updated_at
+        data_type: TIMESTAMP
+
+      - name: updated_by
+        data_type: text
+
+      - name: geom
+        description: >
+          Polygone en EPSG:2154. Après correction, seule la plus grande partie
+          polygonale est conservée ; les autres parties sont écartées. Si aucune
+          partie polygonale ne subsiste, la contrainte not_null fait échouer le modèle.
+        data_type: geometry(POLYGON,2154)
+        constraints:
+          - type: not_null
+        data_tests:
+              - spatial_index
+              - not_null
+              - unique
+              - geometry_valid:
+                  config:
+                    store_failures: true
+                    severity: warn

@@ -1,0 +1,52 @@
+models:
+  - name: int_dpe
+    description: >-
+      Diagnostics conservés à la granularité du staging. adresse_id est
+      l'identifiant de l'adresse source ; les liens vers les points
+      intermédiaires figurent dans int_dpe_adresses. Une jointure avec cette
+      association peut multiplier les diagnostics.
+    config:
+      alias: dpe
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [numero_dpe]
+
+    columns:
+      - name: numero_dpe
+        description: Numéro unique du DPE (identifiant ADEME).
+        data_type: varchar(13)
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: fraisannuelsenergie
+        description: Estimation des frais annuels d'énergie (€).
+        data_type: float
+      - name: ges
+        description: Classe d'émissions de gaz à effet de serre (A à G).
+        data_type: varchar(1)
+      - name: dpe
+        description: Classe énergétique du DPE (A à G).
+        data_type: varchar(1)
+      - name: date_dpe
+        description: Date de réalisation du DPE.
+        data_type: date
+      - name: nges
+        description: Valeur numérique des émissions de gaz à effet de serre.
+        data_type: integer
+      - name: adresse_id
+        description: Identifiant de l'adresse source, conservé même sans point correspondant.
+        data_type: text
+      - name: created_at
+        description: Date de création dans le staging.
+        data_type: timestamp
+      - name: updated_at
+        description: Date de dernière modification dans le staging.
+        data_type: timestamp
+      - name: updated_by
+        description: Utilisateur de la dernière modification dans le staging.
+        data_type: text

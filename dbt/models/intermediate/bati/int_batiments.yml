@@ -1,0 +1,95 @@
+models:
+  - name: int_batiments
+    description: Emprises des bâtiments rattachées à leur commune, leur IRIS et leur parcelle par jointure spatiale (point sur la surface du bâtiment contenu dans le polygone). Dérivé de stg_batiments.
+    config:
+      alias: batiments
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [id]
+
+      - type: foreign_key
+        columns: [commune_id]
+        to: ref('int_communes')
+        to_columns: [id]
+
+      - type: foreign_key
+        columns: [iris_id]
+        to: ref('int_iris')
+        to_columns: [id]
+
+      - type: foreign_key
+        columns: [parcelle_id]
+        to: ref('int_parcelles')
+        to_columns: [id]
+
+    columns:
+      - name: id
+        description: Identifiant unique du bâtiment (UUID).
+        data_type: uuid
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+
+      - name: type
+        description: Type de bâtiment (01 = bâti en dur, 02 = bâti léger).
+        data_type: varchar(2)
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['01', '02']
+
+      - name: nom
+        description: Nom du bâtiment.
+        data_type: text
+
+      - name: created_at
+        description: Date de création de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_at
+        description: Date de dernière modification de la ligne (colonne d'audit).
+        data_type: timestamp
+
+      - name: updated_by
+        description: Utilisateur de la dernière modification de la ligne (colonne d'audit).
+        data_type: text
+
+      - name: geom
+        description: Emprise au sol du bâtiment (MULTIPOLYGON, Lambert-93).
+        data_type: geometry(MultiPolygon,2154)
+        data_tests:
+          - spatial_index
+          - not_null
+
+      - name: commune_id
+        description: Commune contenant le bâtiment (référence vers communes.id).
+        data_type: varchar(9)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_communes')
+                field: id
+
+      - name: iris_id
+        description: IRIS contenant le bâtiment (référence vers iris.id).
+        data_type: varchar(9)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_iris')
+                field: id
+
+      - name: parcelle_id
+        description: Parcelle contenant le bâtiment (référence vers parcelles.id).
+        data_type: text
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_parcelles')
+                field: id

@@ -1,0 +1,102 @@
+models:
+  - name: int_consommation_froid_chaud_iris_2025
+    description: >-
+      Consommation de chaleur et de froid par IRIS du département 69, conservée
+      à la granularité du staging. Seules les lignes dont le code IRIS commence
+      par 69 sont conservées. Le code source est conservé même sans correspondance ;
+      iris_id et commune_id valent NULL si leurs référentiels ne contiennent pas
+      le code complet ou, respectivement, ses cinq premiers caractères.
+    config:
+      alias: consommation_froid_chaud_iris_2025
+      contract:
+        enforced: true
+    constraints:
+      - type: primary_key
+        columns: [id]
+      - type: foreign_key
+        columns: [iris_id]
+        to: ref('int_iris')
+        to_columns: [id]
+      - type: foreign_key
+        columns: [commune_id]
+        to: ref('int_communes')
+        to_columns: [id]
+    columns:
+      - name: id
+        description: UUID du staging, régénéré lors de sa reconstruction.
+        data_type: uuid
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - unique
+      - name: id_source
+        description: Identifiant de la source, non unique.
+        data_type: varchar(5)
+      - name: operateur
+        description: Opérateur du réseau de chaleur ou de froid.
+        data_type: text
+      - name: annee
+        description: Année de consommation.
+        data_type: bigint
+      - name: filiere
+        description: Filière de consommation.
+        data_type: varchar(1)
+      - name: code_iris
+        description: Code IRIS source, conservé même sans correspondance.
+        data_type: varchar(9)
+      - name: conso
+        description: Valeur source en texte, y compris les valeurs confidentielles.
+        data_type: text
+      - name: created_at
+        description: Date de création dans le staging.
+        data_type: timestamp
+      - name: updated_at
+        description: Date de dernière modification dans le staging.
+        data_type: timestamp
+      - name: updated_by
+        description: Utilisateur de la dernière modification dans le staging.
+        data_type: text
+      - name: iris_id
+        description: Identifiant IRIS correspondant au code source, ou NULL.
+        data_type: varchar(9)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_iris')
+                field: id
+      - name: commune_id
+        description: Identifiant communal correspondant aux cinq premiers caractères du code IRIS, ou NULL.
+        data_type: varchar(9)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_communes')
+                field: id
+
+unit_tests:
+  - name: int_consommation_froid_chaud_iris_rattachements
+    model: int_consommation_froid_chaud_iris_2025
+    given:
+      - input: ref('stg_consommation_froid_chaud_iris_2025')
+        rows:
+          - {id: '00000000-0000-0000-0000-000000000001', code_iris: '690010101', conso: 'secret'}
+          - {id: '00000000-0000-0000-0000-000000000002', code_iris: '690019999', conso: '10'}
+          - {id: '00000000-0000-0000-0000-000000000003', code_iris: '999999999'}
+          - {id: '00000000-0000-0000-0000-000000000004', code_iris: null}
+          - {id: '00000000-0000-0000-0000-000000000005', code_iris: '6900'}
+          - {id: '00000000-0000-0000-0000-000000000006', code_iris: '69'}
+          - {id: '00000000-0000-0000-0000-000000000007', code_iris: '6'}
+          - {id: '00000000-0000-0000-0000-000000000008', code_iris: '016901234'}
+      - input: ref('int_iris')
+        format: sql
+        rows: "SELECT '690010101'::varchar(9) AS id"
+      - input: ref('int_communes')
+        format: sql
+        rows: "SELECT '69001'::varchar(9) AS id UNION ALL SELECT '6900'::varchar(9)"
+    expect:
+      rows:
+        - {id: '00000000-0000-0000-0000-000000000001', code_iris: '690010101', conso: 'secret', iris_id: '690010101', commune_id: '69001'}
+        - {id: '00000000-0000-0000-0000-000000000002', code_iris: '690019999', conso: '10', iris_id: null, commune_id: '69001'}
+        - {id: '00000000-0000-0000-0000-000000000005', code_iris: '6900', conso: null, iris_id: null, commune_id: null}
+        - {id: '00000000-0000-0000-0000-000000000006', code_iris: '69', conso: null, iris_id: null, commune_id: null}
