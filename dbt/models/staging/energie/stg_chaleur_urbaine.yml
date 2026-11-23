@@ -13,11 +13,9 @@ models:
         columns: [id]
 
       - type: foreign_key
-        columns: [code_iris]
-        references:
-          table: iris
-          columns: [id]
-          to: ref('stg_iris')
+        columns: [iris_id]
+        to: ref('stg_iris')
+        to_columns: [id]
 
 
     columns:
