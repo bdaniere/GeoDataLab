@@ -14,10 +14,8 @@ models:
 
       - type: foreign_key
         columns: [commune_id]
-        references:
-          table: commune
-          columns: [id]
-          to: ref('stg_commune')
+        to: ref('stg_communes')
+        to_columns: [id]
 
     columns:
       - name: id
