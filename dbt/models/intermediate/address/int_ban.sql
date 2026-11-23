@@ -75,7 +75,7 @@ corrected_addresses AS (
         d.code_postal,
         d.commune,
         d.commune_id,
-        COALESCE(n.id, d.parcelle_id) AS parcelle_id,
+        n.id AS parcelle_id,
         d.adresse,
         d.created_at,
         d.updated_at,
