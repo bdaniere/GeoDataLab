@@ -143,7 +143,9 @@ models:
         description: Identifiant de la parcelle cadastrale (corrigé par jointure spatiale).
         data_type: varchar(14)
         data_tests:
-          - not_null
+          - not_null:
+              config:
+                severity: warn
 
       - name: created_at
         data_type: timestamp

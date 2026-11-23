@@ -160,7 +160,17 @@ SELECT
     d.epci_id,
     d.iris_id,
     CAST(
-        COALESCE(bi.parcelle_id, bn.parcelle_id, d.parcelle_id)
+        COALESCE(
+            bi.parcelle_id,
+            bn.parcelle_id,
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM {{ ref('int_parcelles') }} AS p
+                    WHERE p.id = d.parcelle_id
+                ) THEN d.parcelle_id
+            END
+        )
         AS varchar(14)
     ) AS parcelle_id,
     d.created_at,
